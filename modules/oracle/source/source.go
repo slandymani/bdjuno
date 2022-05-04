@@ -1,7 +1,7 @@
 package source
 
 import (
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 )
 
 type Source interface {

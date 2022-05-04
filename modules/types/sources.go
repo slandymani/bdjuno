@@ -9,10 +9,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/forbole/juno/v3/node/remote"
 
+	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -20,9 +20,9 @@ import (
 
 	nodeconfig "github.com/forbole/juno/v3/node/config"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	odinapp "github.com/ODIN-PROTOCOL/odin-core/app"
+	oraclekeeper "github.com/ODIN-PROTOCOL/odin-core/x/oracle/keeper"
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	banksource "github.com/forbole/bdjuno/v3/modules/bank/source"
 	localbanksource "github.com/forbole/bdjuno/v3/modules/bank/source/local"
 	remotebanksource "github.com/forbole/bdjuno/v3/modules/bank/source/remote"
@@ -74,9 +74,9 @@ func buildLocalSources(cfg *local.Details, encodingConfig *params.EncodingConfig
 		return nil, err
 	}
 
-	app := bandapp.NewBandApp(
+	app := odinapp.NewOdinApp(
 		log.NewNopLogger(), source.StoreDB, nil, false, map[int64]bool{}, cfg.Home, 0,
-		bandapp.MakeEncodingConfig(), simapp.EmptyAppOptions{}, false, 0,
+		odinapp.MakeEncodingConfig(), simapp.EmptyAppOptions{}, false, 0,
 	)
 
 	sources := &Sources{

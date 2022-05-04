@@ -3,7 +3,7 @@ package remote
 import (
 	"fmt"
 
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/juno/v3/node/local"
 

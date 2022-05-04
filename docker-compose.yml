@@ -1,5 +1,15 @@
 version: '3.6'
 services:
+  telemetry_db:
+    image: tokend/postgres-ubuntu:9.6
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=telemetry
+      - POSTGRES_PASSWORD=telemetry
+      - POSTGRES_DB=telemetry
+      - PGDATA=/pgdata
+    volumes:
+      - telemetry-data:/pgdata
   hasura:
     image: hasura/graphql-engine:v2.0.4
     ports:
@@ -7,7 +17,7 @@ services:
     restart: always
     environment:
       ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
-      HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      HASURA_GRAPHQL_DATABASE_URL: postgres://telemetry:telemetry@telemetry_db/telemetry?sslmode=disable
       ## enable the console served by server
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       ## enable debugging mode. It is recommended to disable this in production
@@ -20,7 +30,7 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
-    command: bdjuno parse --home /bdjuno/.bdjuno
+    command: bdjuno parse --home /root/.bdjuno
     volumes:
       ## Modify first path to match configuration file.
-      - /bdjuno/.bdjuno:/bdjuno/.bdjuno
+      - /root/.bdjuno:/root/.bdjuno

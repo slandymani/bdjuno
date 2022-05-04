@@ -1,6 +1,6 @@
 package types
 
-import oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+import oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 
 // OracleParams represents the x/oracle parameters
 type OracleParams struct {

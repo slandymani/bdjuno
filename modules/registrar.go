@@ -9,7 +9,7 @@ import (
 
 	"github.com/forbole/bdjuno/v3/modules/slashing"
 
-	// oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	// oraclekeeper "github.com/ODIN-PROTOCOL/odin-core/x/oracle/keeper"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	jmodules "github.com/forbole/juno/v3/modules"
@@ -28,10 +28,9 @@ import (
 	"github.com/forbole/bdjuno/v3/modules/gov"
 	"github.com/forbole/bdjuno/v3/modules/mint"
 	"github.com/forbole/bdjuno/v3/modules/modules"
+	"github.com/forbole/bdjuno/v3/modules/oracle"
 	"github.com/forbole/bdjuno/v3/modules/pricefeed"
 	"github.com/forbole/bdjuno/v3/modules/staking"
-	"github.com/forbole/bdjuno/v3/modules/oracle"
-
 )
 
 // UniqueAddressesParser returns a wrapper around the given parser that removes all duplicated addresses

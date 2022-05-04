@@ -3,7 +3,7 @@ package remote
 import (
 	"fmt"
 
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	"github.com/forbole/juno/v3/node/remote"
 
 	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"

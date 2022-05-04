@@ -3,8 +3,8 @@ package local
 import (
 	"fmt"
 
+	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/forbole/juno/v3/node/local"
 
 	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"

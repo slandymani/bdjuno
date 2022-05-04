@@ -2,9 +2,11 @@ package database_test
 
 import (
 	"encoding/json"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 
+	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
 	"github.com/forbole/bdjuno/v3/types"
 
@@ -73,15 +75,27 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 }
 
 func (suite *DbTestSuite) TestBigDipperDb_SaveMintParams() {
+	privateKey, err := crypto.GenerateKey()
+	suite.Require().NoError(err)
+
+	privateKeyBytes := crypto.FromECDSA(privateKey)
+
 	mintParams := minttypes.NewParams(
-		"udaric",
+		"loki",
 		sdk.NewDecWithPrec(4, 1),
 		sdk.NewDecWithPrec(8, 1),
 		sdk.NewDecWithPrec(4, 1),
 		sdk.NewDecWithPrec(8, 1),
-		5006000,
+		sdk.Coins{},
+		uint64(60*60*8766/5),
+		true,
+		map[string]string{"eth": hexutil.Encode(privateKeyBytes)},
+		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
+		sdk.NewCoins(),
+		[]string{"minigeo"},
+		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 	)
-	err := suite.database.SaveMintParams(types.NewMintParams(mintParams, 10))
+	err = suite.database.SaveMintParams(types.NewMintParams(mintParams, 10))
 	suite.Require().NoError(err)
 
 	var rows []dbtypes.MintParamsRow

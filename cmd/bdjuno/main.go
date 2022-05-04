@@ -18,7 +18,7 @@ import (
 
 	gaiaapp "github.com/cosmos/gaia/v6/app"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
+	odinapp "github.com/ODIN-PROTOCOL/odin-core/app"
 )
 
 func main() {
@@ -58,7 +58,7 @@ func main() {
 func getBasicManagers() []module.BasicManager {
 	return []module.BasicManager{
 		gaiaapp.ModuleBasics,
-		bandapp.ModuleBasics,
+		odinapp.ModuleBasics,
 	}
 }
 
