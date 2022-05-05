@@ -1,8 +1,8 @@
 CREATE TYPE DEC_COIN AS
-(
-    denom  TEXT,
+    (
+    denom TEXT,
     amount TEXT
-);
+    );
 
 /* ---- PARAMS ---- */
 
@@ -22,7 +22,7 @@ CREATE TABLE community_pool
 (
     one_row_id bool PRIMARY KEY DEFAULT TRUE,
     coins      DEC_COIN[] NOT NULL,
-    height     BIGINT     NOT NULL,
+    height     BIGINT NOT NULL,
     CONSTRAINT one_row_uni CHECK (one_row_id)
 );
 CREATE INDEX community_pool_height_index ON community_pool (height);

@@ -2,6 +2,8 @@ version: '3.6'
 services:
   telemetry_db:
     image: tokend/postgres-ubuntu:9.6
+    ports:
+      - "5432:5432"
     restart: unless-stopped
     environment:
       - POSTGRES_USER=telemetry
@@ -10,27 +12,48 @@ services:
       - PGDATA=/pgdata
     volumes:
       - telemetry-data:/pgdata
-  hasura:
-    image: hasura/graphql-engine:v2.0.4
+  hasura_db:
+    image: tokend/postgres-ubuntu:9.6
     ports:
-    - "8080:8080"
+      - "5433:5432"
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=hasura
+      - POSTGRES_PASSWORD=hasura
+      - POSTGRES_DB=hasura
+      - PGDATA=/pgdata
+    volumes:
+      - hasura-data:/pgdata
+  hasura:
+    image: hasura/graphql-engine:v2.6.1
+    ports:
+      - "8080:8080"
+      - "3000:3000"
     restart: always
     environment:
       ## this env var can be used to add the above postgres database to Hasura as a data source. this can be removed/updated based on your needs
-      HASURA_GRAPHQL_DATABASE_URL: postgres://telemetry:telemetry@telemetry_db/telemetry?sslmode=disable
+      HASURA_GRAPHQL_DATABASE_URL: "postgres://hasura:hasura@hasura_db/hasura?sslmode=disable"
+      PG_DATABASE_URL: "postgres://telemetry:telemetry@telemetry_db/telemetry"
       ## enable the console served by server
-      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
       ## enable debugging mode. It is recommended to disable this in production
       HASURA_GRAPHQL_DEV_MODE: "true"
-      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup, http-log, webhook-log, websocket-log, query-log"
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      ACTION_BASE_URL: "http://localhost:3000"
       ## uncomment next line to set an admin secret
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-  bdjuno:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    command: bdjuno parse --home /root/.bdjuno
-    volumes:
-      ## Modify first path to match configuration file.
-      - /root/.bdjuno:/root/.bdjuno
+
+  #bdjuno:
+  #  build:
+  #    context: .
+  #    dockerfile: Dockerfile
+  #  restart: always
+  #  command: bdjuno parse --home /root/.bdjuno
+  #  volumes:
+  #    ## Modify first path to match configuration file.
+  #    - /root/.bdjuno:/root/.bdjuno
+
+volumes:
+  telemetry-data:
+  hasura-data:

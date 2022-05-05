@@ -28,7 +28,7 @@ CREATE INDEX proposal_proposer_address_index ON proposal (proposer_address);
 CREATE TABLE proposal_deposit
 (
     proposal_id       INTEGER NOT NULL REFERENCES proposal (id),
-    depositor_address TEXT             REFERENCES account (address),
+    depositor_address TEXT REFERENCES account (address),
     amount            COIN[],
     height            BIGINT  NOT NULL REFERENCES block (height),
     CONSTRAINT unique_deposit UNIQUE (proposal_id, depositor_address)
@@ -52,10 +52,10 @@ CREATE INDEX proposal_vote_height_index ON proposal_vote (height);
 CREATE TABLE proposal_tally_result
 (
     proposal_id  INTEGER REFERENCES proposal (id) PRIMARY KEY,
-    yes          TEXT NOT NULL,
-    abstain      TEXT NOT NULL,
-    no           TEXT NOT NULL,
-    no_with_veto TEXT NOT NULL,
+    yes          TEXT   NOT NULL,
+    abstain      TEXT   NOT NULL,
+    no           TEXT   NOT NULL,
+    no_with_veto TEXT   NOT NULL,
     height       BIGINT NOT NULL,
     CONSTRAINT unique_tally_result UNIQUE (proposal_id)
 );

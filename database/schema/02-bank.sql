@@ -3,7 +3,7 @@
 CREATE TABLE supply
 (
     one_row_id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
-    coins      COIN[]  NOT NULL,
+    coins      COIN[] NOT NULL,
     height     BIGINT  NOT NULL,
     CHECK (one_row_id)
 );
