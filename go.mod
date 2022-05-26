@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/ODIN-PROTOCOL/odin-core v0.5.2
-	github.com/cosmos/cosmos-sdk v0.45.3
+	github.com/cosmos/cosmos-sdk v0.45.1
 	github.com/cosmos/gaia/v6 v6.0.0
 	github.com/ethereum/go-ethereum v1.10.14
 	github.com/forbole/juno/v3 v3.0.2-0.20220411065406-94a8a46755f9

@@ -85,7 +85,7 @@ github.com/confio/ics23/go
 # github.com/cosmos/btcutil v1.0.4
 ## explicit; go 1.14
 github.com/cosmos/btcutil/bech32
-# github.com/cosmos/cosmos-sdk v0.45.3
+# github.com/cosmos/cosmos-sdk v0.45.1
 ## explicit; go 1.15
 github.com/cosmos/cosmos-sdk/baseapp
 github.com/cosmos/cosmos-sdk/client
@@ -110,9 +110,6 @@ github.com/cosmos/cosmos-sdk/crypto/keys/internal/ecdsa
 github.com/cosmos/cosmos-sdk/crypto/keys/multisig
 github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1
 github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1/internal/secp256k1
-github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1/internal/secp256k1/libsecp256k1/include
-github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1/internal/secp256k1/libsecp256k1/src
-github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1/internal/secp256k1/libsecp256k1/src/modules/recovery
 github.com/cosmos/cosmos-sdk/crypto/keys/secp256r1
 github.com/cosmos/cosmos-sdk/crypto/ledger
 github.com/cosmos/cosmos-sdk/crypto/types

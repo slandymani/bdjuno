@@ -171,9 +171,7 @@ func (k Keeper) ScheduleUpgrade(ctx sdk.Context, plan types.Plan) error {
 		return err
 	}
 
-	// NOTE: allow for the possibility of chains to schedule upgrades in begin block of the same block
-	// as a strategy for emergency hard fork recoveries
-	if plan.Height < ctx.BlockHeight() {
+	if plan.Height <= ctx.BlockHeight() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "upgrade cannot be scheduled in the past")
 	}
 
@@ -377,7 +375,7 @@ func (k Keeper) DumpUpgradeInfoWithInfoToDisk(height int64, name string, info st
 		return err
 	}
 
-	return os.WriteFile(upgradeInfoFilePath, bz, 0o600)
+	return ioutil.WriteFile(upgradeInfoFilePath, bz, 0600)
 }
 
 // GetUpgradeInfoPath returns the upgrade info file path

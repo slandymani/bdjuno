@@ -2,7 +2,6 @@ package remote
 
 import (
 	"fmt"
-
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	"github.com/forbole/juno/v3/node/remote"
 

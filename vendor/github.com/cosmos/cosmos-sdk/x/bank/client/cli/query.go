@@ -208,7 +208,6 @@ To query for the total supply of a specific coin denomination use:
 
 	cmd.Flags().String(FlagDenom, "", "The specific balance denomination to query for")
 	flags.AddQueryFlagsToCmd(cmd)
-	flags.AddPaginationFlagsToCmd(cmd, "all supply totals")
 
 	return cmd
 }
