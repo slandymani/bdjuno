@@ -21,6 +21,9 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 	case *stakingtypes.MsgEditValidator:
 		return m.handleEditValidator(tx.Height, cosmosMsg)
+
+	case *stakingtypes.MsgDelegate:
+		return m.handleDelegate(tx.Height, cosmosMsg)
 	}
 
 	return nil
@@ -43,6 +46,15 @@ func (m *Module) handleEditValidator(height int64, msg *stakingtypes.MsgEditVali
 	err := m.RefreshValidatorInfos(height, msg.ValidatorAddress)
 	if err != nil {
 		return fmt.Errorf("error while refreshing validator from MsgEditValidator: %s", err)
+	}
+
+	return nil
+}
+
+func (m *Module) handleDelegate(height int64, msg *stakingtypes.MsgDelegate) error {
+	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
+	if err != nil {
+		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
 	}
 
 	return nil

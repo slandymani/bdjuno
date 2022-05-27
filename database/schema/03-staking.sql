@@ -107,3 +107,12 @@ CREATE TABLE double_sign_evidence
     vote_b_id BIGINT NOT NULL REFERENCES double_sign_vote (id)
 );
 CREATE INDEX double_sign_evidence_height_index ON double_sign_evidence (height);
+
+/* ---- DELEGATORS INFO ---- */
+
+CREATE TABLE delegator
+(
+    address TEXT NOT NULL PRIMARY KEY,
+    delegations COIN[] NOT NULL DEFAULT '{}',
+    height BIGINT NOT NULL
+);
