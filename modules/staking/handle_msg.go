@@ -24,6 +24,12 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 	case *stakingtypes.MsgDelegate:
 		return m.handleDelegate(tx.Height, cosmosMsg)
+
+	case *stakingtypes.MsgUndelegate:
+		return m.handleUndelegate(tx.Height, cosmosMsg)
+
+	case *stakingtypes.MsgBeginRedelegate:
+		return m.handleBeginRedelegate(tx.Height, cosmosMsg)
 	}
 
 	return nil
@@ -52,6 +58,24 @@ func (m *Module) handleEditValidator(height int64, msg *stakingtypes.MsgEditVali
 }
 
 func (m *Module) handleDelegate(height int64, msg *stakingtypes.MsgDelegate) error {
+	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
+	if err != nil {
+		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
+	}
+
+	return nil
+}
+
+func (m *Module) handleUndelegate(height int64, msg *stakingtypes.MsgUndelegate) error {
+	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
+	if err != nil {
+		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
+	}
+
+	return nil
+}
+
+func (m *Module) handleBeginRedelegate(height int64, msg *stakingtypes.MsgBeginRedelegate) error {
 	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
 	if err != nil {
 		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)

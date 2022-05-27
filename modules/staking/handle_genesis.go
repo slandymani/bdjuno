@@ -85,11 +85,6 @@ func (m *Module) parseGenesisTransactions(doc *tmtypes.GenesisDoc, appState map[
 			if err != nil {
 				return fmt.Errorf("error while storing validators from MsgCreateValidator: %s", err)
 			}
-
-			err = m.RefreshDelegatorDelegations(1, createValMsg.DelegatorAddress)
-			if err != nil {
-				return fmt.Errorf("error while storing delegators from MsgCreateValidator: %s", err)
-			}
 		}
 
 	}
