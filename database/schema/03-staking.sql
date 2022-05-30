@@ -113,6 +113,7 @@ CREATE INDEX double_sign_evidence_height_index ON double_sign_evidence (height);
 CREATE TABLE delegator
 (
     address TEXT NOT NULL PRIMARY KEY,
-    delegations COIN[] NOT NULL DEFAULT '{}',
+    delegations BIGINT NOT NULL DEFAULT 0,
+    delegations_percentage TEXT,
     height BIGINT NOT NULL
 );
