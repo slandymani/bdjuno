@@ -117,3 +117,4 @@ CREATE TABLE delegator
     delegations_percentage TEXT,
     height BIGINT NOT NULL
 );
+CREATE INDEX delegator_address_index ON delegator (address);
