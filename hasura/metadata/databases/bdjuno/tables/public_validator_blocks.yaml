@@ -1,0 +1,16 @@
+table:
+  name: validator_blocks
+  schema: public
+object_relationships:
+  - name: validator
+    using:
+      foreign_key_constraint_on: consensus_address
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - consensus_address
+        - operator_address
+        - proposed_blocks
+      filter: {}
+    role: anonymous

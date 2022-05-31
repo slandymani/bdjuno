@@ -3,7 +3,6 @@ package staking
 import (
 	"encoding/hex"
 	"fmt"
-
 	"github.com/forbole/bdjuno/v3/types"
 
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -36,7 +35,21 @@ func (m *Module) HandleBlock(
 	// Update the staking pool
 	go m.updateStakingPool(block.Block.Height)
 
+	go m.updateValidatorBlocks(block.Block.Height, block.Block.ProposerAddress)
+
 	return nil
+}
+
+func (m *Module) updateValidatorBlocks(height int64, proposer tmtypes.Address) {
+	log.Debug().Str("module", "staking").Int64("height", height).
+		Msg("updating validator proposed blocks amount")
+
+	err := m.db.IncrementProposedBlocks(proposer)
+	if err != nil {
+		log.Error().Str("module", "staking").Err(err).
+			Int64("height", height).
+			Msg("error while getting validator proposed blocks amount")
+	}
 }
 
 // updateValidatorsStatus updates all validators' statuses
