@@ -1,12 +1,33 @@
 package remote
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/forbole/juno/v3/node/remote"
 
 	"github.com/forbole/bdjuno/v3/utils"
 )
+
+func (s Source) GetDelegationsTotal(height int64, address string) (sdk.Coins, error) {
+	ctx := utils.GetHeightRequestContext(s.Ctx, height)
+	res, err := s.stakingClient.DelegatorDelegations(
+		ctx,
+		&stakingtypes.QueryDelegatorDelegationsRequest{
+			DelegatorAddr: address,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var delegations sdk.Coins
+	for _, delegation := range res.DelegationResponses {
+		delegations = delegations.Add(delegation.Balance)
+	}
+
+	return delegations, nil
+}
 
 // GetDelegationsWithPagination implements stakingsource.Source
 func (s Source) GetDelegationsWithPagination(

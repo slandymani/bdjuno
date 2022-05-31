@@ -1,0 +1,13 @@
+table:
+  name: delegator
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - address
+        - delegations
+        - delegations_percentage
+        - height
+      filter: {}
+    role: anonymous

@@ -38,3 +38,4 @@
 - "!include public_vesting_account.yaml"
 - "!include public_vesting_period.yaml"
 - "!include public_validator_blocks.yaml"
+- "!include public_delegator.yaml"

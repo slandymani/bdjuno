@@ -115,3 +115,15 @@ CREATE TABLE validator_blocks
     proposed_blocks BIGINT NOT NULL DEFAULT 0
 );
 CREATE INDEX validator_blocks_operator_address_index ON validator_blocks (operator_address);
+
+/* ---- DELEGATORS INFO ---- */
+
+CREATE TABLE delegator
+(
+    address TEXT NOT NULL PRIMARY KEY,
+    delegations BIGINT NOT NULL DEFAULT 0,
+    delegations_percentage TEXT,
+    height BIGINT NOT NULL
+);
+CREATE INDEX delegator_address_index ON delegator (address);
+
