@@ -93,6 +93,15 @@ array_relationships:
       table:
         name: proposal_validator_status_snapshot
         schema: public
+- name: validator_blocks
+  using:
+    manual_configuration:
+      column_mapping:
+        consensus_address: consensus_address
+      insertion_order: null
+      remote_table:
+        name: validator_blocks
+        schema: public
 select_permissions:
 - permission:
     allow_aggregations: true

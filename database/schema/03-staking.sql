@@ -108,6 +108,14 @@ CREATE TABLE double_sign_evidence
 );
 CREATE INDEX double_sign_evidence_height_index ON double_sign_evidence (height);
 
+CREATE TABLE validator_blocks
+(
+    consensus_address TEXT NOT NULL UNIQUE PRIMARY KEY REFERENCES validator (consensus_address),
+    operator_address TEXT NOT NULL UNIQUE,
+    proposed_blocks BIGINT NOT NULL DEFAULT 0
+);
+CREATE INDEX validator_blocks_operator_address_index ON validator_blocks (operator_address);
+
 /* ---- DELEGATORS INFO ---- */
 
 CREATE TABLE delegator
@@ -118,3 +126,4 @@ CREATE TABLE delegator
     height BIGINT NOT NULL
 );
 CREATE INDEX delegator_address_index ON delegator (address);
+

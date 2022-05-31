@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/forbole/bdjuno/v3/types"
 
@@ -475,6 +476,27 @@ VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`
 	_, err = db.Sql.Exec(stmt, evidence.Height, voteA, voteB)
 	if err != nil {
 		return fmt.Errorf("error while storing double sign evidence: %s", err)
+	}
+
+	return nil
+}
+
+func (db *Db) IncrementProposedBlocks(proposer tmtypes.Address) error {
+	consAddr := sdk.ConsAddress(proposer).String()
+	operAddr, err := db.GetValidatorOperatorAddress(consAddr)
+	if err != nil {
+		return fmt.Errorf("error while getting validator operator address: %s", err)
+	}
+
+	stmt := `
+INSERT INTO validator_blocks (consensus_address, operator_address, proposed_blocks)
+VALUES ($1, $2, $3)
+ON CONFLICT (consensus_address) DO UPDATE
+   SET proposed_blocks = validator_blocks.proposed_blocks + 1`
+
+	_, err = db.Sql.Exec(stmt, consAddr, operAddr.String(), 1)
+	if err != nil {
+		return fmt.Errorf("error while storing validator blocks: %s", err)
 	}
 
 	return nil
