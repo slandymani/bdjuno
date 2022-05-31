@@ -2,7 +2,6 @@ package local
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -42,6 +41,30 @@ func (s Source) GetValidator(height int64, valOper string) (stakingtypes.Validat
 	}
 
 	return res.Validator, nil
+}
+
+func (s Source) GetDelegationsTotal(height int64, address string) (sdk.Coins, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return sdk.Coins{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	res, err := s.q.DelegatorDelegations(
+		sdk.WrapSDKContext(ctx),
+		&stakingtypes.QueryDelegatorDelegationsRequest{
+			DelegatorAddr: address,
+		},
+	)
+	if err != nil {
+		return sdk.Coins{}, fmt.Errorf("error while reading delegator: %s", err)
+	}
+
+	var delegations sdk.Coins
+	for _, delegation := range res.DelegationResponses {
+		delegations = delegations.Add(delegation.Balance)
+	}
+
+	return delegations, nil
 }
 
 // GetDelegationsWithPagination implements stakingsource.Source

@@ -1,6 +1,7 @@
 package source
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -8,6 +9,7 @@ import (
 type Source interface {
 	GetValidator(height int64, valOper string) (stakingtypes.Validator, error)
 	GetValidatorsWithStatus(height int64, status string) ([]stakingtypes.Validator, error)
+	GetDelegationsTotal(height int64, delegator string) (sdk.Coins, error)
 	GetDelegationsWithPagination(height int64, delegator string, pagination *query.PageRequest) (*stakingtypes.QueryDelegatorDelegationsResponse, error)
 	GetRedelegations(height int64, request *stakingtypes.QueryRedelegationsRequest) (*stakingtypes.QueryRedelegationsResponse, error)
 	GetPool(height int64) (stakingtypes.Pool, error)
