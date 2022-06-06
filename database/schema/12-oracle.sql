@@ -8,7 +8,6 @@ CREATE TABLE oracle_params
     CHECK (one_row_id)
 );
 
-/*TODO create indexes, add .yaml*/
 CREATE TABLE data_source
 (
     id           SERIAL NOT NULL PRIMARY KEY,
@@ -22,6 +21,7 @@ CREATE TABLE data_source
     sender       TEXT,
     timestamp    TIMESTAMP WITHOUT TIME ZONE
 );
+CREATE INDEX data_source_id_index ON data_source (id);
 
 CREATE TABLE oracle_script
 (
@@ -36,6 +36,7 @@ CREATE TABLE oracle_script
     sender          TEXT,
     timestamp       TIMESTAMP WITHOUT TIME ZONE
 );
+CREATE INDEX oracle_script_id_index ON oracle_script (id);
 
 CREATE TABLE request
 (
@@ -54,3 +55,4 @@ CREATE TABLE request
     report_timestamp TIMESTAMP WITHOUT TIME ZONE,
     reports_count    INT DEFAULT 0
 );
+CREATE INDEX request_id_index ON request (id);

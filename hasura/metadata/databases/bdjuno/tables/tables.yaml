@@ -39,3 +39,6 @@
 - "!include public_vesting_period.yaml"
 - "!include public_validator_blocks.yaml"
 - "!include public_delegator.yaml"
+- "!include public_data_source.yaml"
+- "!include public_oracle_script.yaml"
+- "!include public_request.yaml"
