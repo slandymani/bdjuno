@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	dbtypes "github.com/forbole/bdjuno/v3/database/types"
 	"github.com/lib/pq"
 
@@ -53,32 +54,23 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 }
 
 func (db *Db) EditDataSource(height int64, msg *oracletypes.MsgEditDataSource) error {
-	stmt := `UPDATE data_source SET edit_block = $1`
-
-	if msg.Name != "[do-not-modify]" {
-		stmt += `, name = $2`
-	}
-	if msg.Description != "[do-not-modify]" {
-		stmt += `, description = $3`
-	}
-	if string(msg.Executable) != "[do-not-modify]" {
-		stmt += `, executable = $4`
-	}
-	if msg.Fee != nil {
-		stmt += `, fee = $5`
-	}
-	if msg.Owner != "[do-not-modify]" {
-		stmt += `, owner = $6`
-	}
-	stmt += `WHERE id = $7`
+	stmt := `
+UPDATE data_source
+	SET name = CASE WHEN $2 = '[do-not-modify]' THEN data_source.name ELSE $2 END,
+		description = CASE WHEN $3 = '[do-not-modify]' THEN data_source.description ELSE $3 END,
+		executable = CASE WHEN $4 = '[do-not-modify]' THEN data_source.executable ELSE $4 END,
+		fee = CASE WHEN $5 = '' THEN data_source.fee ELSE $6 END,
+		owner = CASE WHEN $7 = '[do-not-modify]' THEN data_source.owner ELSE $7 END,
+		edit_block = $1 WHERE id = $8`
 
 	_, err := db.Sql.Exec(
 		stmt, height, msg.Name,
 		msg.Description, string(msg.Executable),
-		pq.Array(dbtypes.NewDbCoins(msg.Fee)), msg.Owner, msg.DataSourceID,
+		msg.Fee.String(), pq.Array(dbtypes.NewDbCoins(msg.Fee)),
+		msg.Owner, msg.DataSourceID,
 	)
 	if err != nil {
-		return fmt.Errorf("error while editing oracle script: %s, %s", err, msg.Name)
+		return fmt.Errorf("error while editing data source: %s, %s", err, sdk.NewCoins())
 	}
 
 	return nil
@@ -103,24 +95,14 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 }
 
 func (db *Db) EditOracleScript(height int64, msg *oracletypes.MsgEditOracleScript) error {
-	stmt := `UPDATE oracle_script SET edit_block = $1`
-
-	if msg.Name != "[do-not-modify]" {
-		stmt += `, name = $2`
-	}
-	if msg.Description != "[do-not-modify]" {
-		stmt += `, description = $3`
-	}
-	if msg.Schema != "[do-not-modify]" {
-		stmt += `, schema = $4`
-	}
-	if msg.SourceCodeURL != "[do-not-modify]" {
-		stmt += `, source_code_url = $5`
-	}
-	if msg.Owner != "[do-not-modify]" {
-		stmt += `, owner = $6`
-	}
-	stmt += `WHERE id = $7`
+	stmt := `
+UPDATE oracle_script
+	SET name = CASE WHEN $2 = '[do-not-modify]' THEN oracle_script.name ELSE $2 END,
+		description = CASE WHEN $3 = '[do-not-modify]' THEN oracle_script.description ELSE $3 END,
+		schema = CASE WHEN $4 = '[do-not-modify]' THEN oracle_script.schema ELSE $4 END,
+		source_code_url = CASE WHEN $5 = '[do-not-modify]' THEN oracle_script.source_code_url ELSE $5 END,
+		owner = CASE WHEN $6 = '[do-not-modify]' THEN oracle_script.owner ELSE $6 END,
+		edit_block = $1 WHERE id = $7`
 
 	_, err := db.Sql.Exec(
 		stmt, height, msg.Name,
