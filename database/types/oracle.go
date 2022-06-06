@@ -23,3 +23,7 @@ func (m OracleParamsRow) Equal(n OracleParamsRow) bool {
 	return m.Params == n.Params &&
 		m.Height == n.Height
 }
+
+type UnresolvedRequest struct {
+	UresolvedRequestID int64 `db:"id"`
+}

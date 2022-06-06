@@ -2,10 +2,10 @@ package remote
 
 import (
 	"fmt"
-
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/juno/v3/node/local"
+	"github.com/forbole/juno/v3/node/remote"
 
 	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
 )
@@ -41,4 +41,21 @@ func (s *Source) GetParams(height int64) (oracletypes.Params, error) {
 	}
 
 	return res.Params, nil
+}
+
+func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.Result{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	res, err := s.client.Request(
+		remote.GetHeightRequestContext(sdk.WrapSDKContext(ctx), height),
+		&oracletypes.QueryRequestRequest{RequestId: id},
+	)
+	if err != nil {
+		return oracletypes.Result{}, fmt.Errorf("error while getting request result: %s", err)
+	}
+
+	return *res.Result, nil
 }

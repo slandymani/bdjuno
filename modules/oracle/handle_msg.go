@@ -27,9 +27,6 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 	case *oracletypes.MsgRequestData:
 		return m.handleMsgRequestData(tx.Height, tx.Timestamp, cosmosMsg)
-
-	case *oracletypes.MsgReportData:
-		return m.handleMsgReportData(tx.Height, tx.Timestamp, cosmosMsg)
 	}
 
 	return nil
@@ -75,15 +72,6 @@ func (m *Module) handleMsgRequestData(height int64, timestamp string, msg *oracl
 	err := m.db.SaveDataRequest(timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
-	}
-
-	return nil
-}
-
-func (m *Module) handleMsgReportData(height int64, timestamp string, msg *oracletypes.MsgReportData) error {
-	err := m.db.IncrementReportsCount(msg)
-	if err != nil {
-		return fmt.Errorf("error while incrementing reports count from MsgReportData: %s", err)
 	}
 
 	return nil

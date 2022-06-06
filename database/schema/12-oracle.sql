@@ -52,7 +52,7 @@ CREATE TABLE request
     sender           TEXT NOT NULL REFERENCES account (address),
     tx_hash          TEXT,
     timestamp        TIMESTAMP WITHOUT TIME ZONE,
-    report_timestamp TIMESTAMP WITHOUT TIME ZONE,
+    report_timestamp TIMESTAMP WITHOUT TIME ZONE DEFAULT TIMESTAMP 'epoch',
     reports_count    INT DEFAULT 0
 );
 CREATE INDEX request_id_index ON request (id);

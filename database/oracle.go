@@ -7,9 +7,9 @@ import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	dbtypes "github.com/forbole/bdjuno/v3/database/types"
-	"github.com/lib/pq"
-
 	"github.com/forbole/bdjuno/v3/types"
+	"github.com/lib/pq"
+	"time"
 )
 
 // SaveOracleParams allows to store the given params inside the database
@@ -133,12 +133,28 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 	return nil
 }
 
-func (db *Db) IncrementReportsCount(msg *oracletypes.MsgReportData) error {
-	stmt := `UPDATE request SET reports_count = reports_count + 1 WHERE id = $1`
-	_, err := db.Sql.Exec(stmt, msg.RequestID)
+func (db *Db) SetRequestStatus(result oracletypes.Result) error {
+	stmt := `
+UPDATE request
+	SET reports_count = $1,
+		report_timestamp = CASE WHEN $2 = 1 THEN $3 ELSE request.report_timestamp END
+WHERE id = $4`
+
+	_, err := db.Sql.Exec(stmt, result.AnsCount, result.ResolveStatus, time.Unix(result.ResolveTime, 0), result.RequestID)
 	if err != nil {
-		return fmt.Errorf("error while incrementing request reports: %s", err)
+		return fmt.Errorf("error while setting request report timestamp: %s", err)
 	}
 
 	return nil
+}
+
+func (db *Db) GetUnresolvedRequests() ([]dbtypes.UnresolvedRequest, error) {
+	stmt := `SELECT id FROM request WHERE report_timestamp = 'epoch'`
+
+	var requests []dbtypes.UnresolvedRequest
+	if err := db.Sqlx.Select(&requests, stmt); err != nil {
+		return nil, fmt.Errorf("error while getting unresolved request ids: %s", err)
+	}
+
+	return requests, nil
 }

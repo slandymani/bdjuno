@@ -38,3 +38,15 @@ func (s *Source) GetParams(height int64) (oracletypes.Params, error) {
 
 	return res.Params, nil
 }
+
+func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) {
+	res, err := s.client.Request(
+		remote.GetHeightRequestContext(s.Ctx, height),
+		&oracletypes.QueryRequestRequest{RequestId: id},
+	)
+	if err != nil {
+		return oracletypes.Result{}, fmt.Errorf("error while getting oracle params: %s", err)
+	}
+
+	return *res.Result, nil
+}

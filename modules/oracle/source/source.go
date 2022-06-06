@@ -6,4 +6,5 @@ import (
 
 type Source interface {
 	GetParams(height int64) (oracletypes.Params, error)
+	GetRequestStatus(height, id int64) (oracletypes.Result, error)
 }
