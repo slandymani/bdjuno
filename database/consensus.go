@@ -284,6 +284,47 @@ VALUES ($1, $2) ON CONFLICT (date) DO UPDATE
 	return nil
 }
 
+func (db *Db) SetAverageFee(blockFee int64, block *tmctypes.ResultBlock) error {
+	var avgFee []dbtypes.AverageFee
+	stmtSelect := `SELECT * FROM average_block_fee WHERE date = $1`
+	err := db.Sqlx.Select(&avgFee, stmtSelect, TimeToUTCDate(block.Block.Time))
+	if err != nil {
+		return err
+	}
+
+	stmtInsert := `
+INSERT INTO average_block_fee (date, blocks_number, block_fees, average_fee)
+VALUES ($1, $2, $3, $4)`
+	if len(avgFee) == 0 {
+		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), 1, blockFee, blockFee)
+		if err != nil {
+			return fmt.Errorf("error while setting average block size: %s", err)
+		}
+
+		return nil
+	}
+
+	stmtUpdate := `
+UPDATE average_block_fee SET blocks_number = $1,
+           					 block_fees = $2,
+                             average_fee = $3
+WHERE date = $4`
+	avgFee[0].BlockFees += blockFee
+	avgFee[0].BlocksNumber++
+	avgFee[0].AverageFee = avgFee[0].BlockFees / avgFee[0].BlocksNumber
+
+	_, err = db.Sqlx.Exec(
+		stmtUpdate,
+		avgFee[0].BlocksNumber, avgFee[0].BlockFees,
+		avgFee[0].AverageFee, TimeToUTCDate(block.Block.Time),
+	)
+	if err != nil {
+		return fmt.Errorf("error while resetting average block size: %s", err)
+	}
+
+	return nil
+}
+
 func TimeToUTCDate(t time.Time) time.Time {
 	year, month, day := t.UTC().Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)

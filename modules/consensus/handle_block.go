@@ -2,6 +2,8 @@ package consensus
 
 import (
 	"fmt"
+	app "github.com/ODIN-PROTOCOL/odin-core/app"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/forbole/juno/v3/types"
 
@@ -38,6 +40,23 @@ func (m *Module) HandleBlock(
 			log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
 				Err(err).Msg("error while updating txs per day")
 		}
+
+		var blockFee int64
+		for _, tx := range b.Block.Txs {
+			decodedTx, err := DecodeTX(tx)
+			if err != nil {
+				log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+					Err(err).Msg("error while decoding tx")
+			}
+			feeTx := decodedTx.(sdk.FeeTx)
+			txFee := feeTx.GetFee()
+			blockFee += txFee.AmountOf("loki").Int64()
+		}
+		err = m.db.SetAverageFee(blockFee, b)
+		if err != nil {
+			log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+				Err(err).Msg("error while updating block fee")
+		}
 	}
 
 	return nil
@@ -63,4 +82,10 @@ func (m *Module) updateBlockTimeFromGenesis(block *tmctypes.ResultBlock) error {
 
 	newBlockTime := block.Block.Time.Sub(genesis.Time).Seconds() / float64(block.Block.Height-genesis.InitialHeight)
 	return m.db.SaveAverageBlockTimeGenesis(newBlockTime, block.Block.Height)
+}
+
+func DecodeTX(txBytes []byte) (sdk.Tx, error) {
+	encCfg := app.MakeEncodingConfig()
+	decodedTx, err := encCfg.TxConfig.TxDecoder()(txBytes)
+	return decodedTx, err
 }

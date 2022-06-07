@@ -71,3 +71,13 @@ CREATE TABLE txs_per_date
     txs_number BIGINT
 );
 CREATE INDEX txs_per_date_date_index ON txs_per_date (date);
+
+CREATE TABLE average_block_fee
+(
+    id            BIGSERIAL PRIMARY KEY,
+    date          TIMESTAMP UNIQUE,
+    blocks_number BIGINT,
+    block_fees    BIGINT,
+    average_fee   BIGINT DEFAULT 0
+);
+CREATE INDEX average_block_fee_date_index ON average_block_fee (date);

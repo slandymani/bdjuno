@@ -110,3 +110,11 @@ type TxsPerDate struct {
 	Date      time.Time `db:"date"`
 	TxsNumber int64     `db:"txs_number"`
 }
+
+type AverageFee struct {
+	Id           int64     `db:"id"`
+	Date         time.Time `db:"date"`
+	BlocksNumber int64     `db:"blocks_number"`
+	BlockFees    int64     `db:"block_fees"`
+	AverageFee   int64     `db:"average_fee"`
+}
