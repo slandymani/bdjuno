@@ -58,6 +58,7 @@ select_permissions:
     - total_gas
     - hash
     - proposer_address
+    - size
     - timestamp
     filter: {}
   role: anonymous
