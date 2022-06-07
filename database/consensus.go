@@ -227,6 +227,49 @@ WHERE date = $4`
 	return nil
 }
 
+func (db *Db) SetAverageBlockTime(block *tmctypes.ResultBlock) error {
+	var avgBlockTime []dbtypes.AverageBlockTime
+	stmtSelect := `SELECT * FROM average_block_time WHERE date = $1`
+	err := db.Sqlx.Select(&avgBlockTime, stmtSelect, TimeToUTCDate(block.Block.Time))
+	if err != nil {
+		return err
+	}
+
+	stmtInsert := `
+INSERT INTO average_block_time (date, last_timestamp, blocks_number, block_times, average_time)
+VALUES ($1, $2, $3, $4, $5)`
+	if len(avgBlockTime) == 0 {
+		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), block.Block.Time.Unix(), 1, 0, 0)
+		if err != nil {
+			return fmt.Errorf("error while setting average block time: %s", err)
+		}
+
+		return nil
+	}
+
+	stmtUpdate := `
+UPDATE average_block_time SET last_timestamp = $1,
+                              blocks_number = $2,
+           					  block_times = $3,
+                              average_time = $4
+WHERE date = $5`
+	avgBlockTime[0].BlockTimes += block.Block.Time.Unix() - avgBlockTime[0].LastTimestamp
+	avgBlockTime[0].LastTimestamp = block.Block.Time.Unix()
+	avgBlockTime[0].BlocksNumber++
+	avgBlockTime[0].AverageTime = avgBlockTime[0].BlockTimes / avgBlockTime[0].BlocksNumber
+
+	_, err = db.Sqlx.Exec(
+		stmtUpdate, avgBlockTime[0].LastTimestamp,
+		avgBlockTime[0].BlocksNumber, avgBlockTime[0].BlockTimes,
+		avgBlockTime[0].AverageTime, TimeToUTCDate(block.Block.Time),
+	)
+	if err != nil {
+		return fmt.Errorf("error while setting average block time: %s", err)
+	}
+
+	return nil
+}
+
 func TimeToUTCDate(t time.Time) time.Time {
 	year, month, day := t.UTC().Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)

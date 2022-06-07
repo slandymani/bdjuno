@@ -95,3 +95,12 @@ type AverageBlockSize struct {
 	BlockSizes   int64     `db:"block_sizes"`
 	AverageSize  int64     `db:"average_size"`
 }
+
+type AverageBlockTime struct {
+	Id            int64     `db:"id"`
+	Date          time.Time `db:"date"`
+	LastTimestamp int64     `db:"last_timestamp"`
+	BlocksNumber  int64     `db:"blocks_number"`
+	BlockTimes    int64     `db:"block_times"`
+	AverageTime   int64     `db:"average_time"`
+}

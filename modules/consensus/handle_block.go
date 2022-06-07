@@ -26,6 +26,12 @@ func (m *Module) HandleBlock(
 			Err(err).Msg("error while updating average block size")
 	}
 
+	err = m.db.SetAverageBlockTime(b)
+	if err != nil {
+		log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+			Err(err).Msg("error while updating average block time")
+	}
+
 	return nil
 }
 

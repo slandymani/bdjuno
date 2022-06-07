@@ -52,3 +52,14 @@ CREATE TABLE average_block_size
     average_size  INT
 );
 CREATE INDEX average_block_size_date_index ON average_block_size (date);
+
+CREATE TABLE average_block_time
+(
+    id             BIGSERIAL primary key,
+    date           TIMESTAMP,
+    last_timestamp BIGINT,
+    blocks_number  BIGINT,
+    block_times    BIGINT,
+    average_time   BIGINT
+);
+CREATE INDEX average_block_time_date_index ON average_block_time (date);
