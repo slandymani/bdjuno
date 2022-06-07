@@ -42,3 +42,13 @@ CREATE TABLE average_block_time_from_genesis
     CHECK (one_row_id)
 );
 CREATE INDEX average_block_time_from_genesis_height_index ON average_block_time_from_genesis (height);
+
+CREATE TABLE average_block_size
+(
+    id            BIGSERIAL PRIMARY KEY,
+    date          TIMESTAMP,
+    blocks_number BIGINT,
+    block_sizes   INT,
+    average_size  INT
+);
+CREATE INDEX average_block_size_date_index ON average_block_size (date);

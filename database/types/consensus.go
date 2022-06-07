@@ -87,3 +87,11 @@ type BlockRow struct {
 	PreCommitsNum   int64          `db:"pre_commits"`
 	Timestamp       time.Time      `db:"timestamp"`
 }
+
+type AverageBlockSize struct {
+	Id           int64     `db:"id"`
+	Date         time.Time `db:"date"`
+	BlocksNumber int64     `db:"blocks_number"`
+	BlockSizes   int64     `db:"block_sizes"`
+	AverageSize  int64     `db:"average_size"`
+}

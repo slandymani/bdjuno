@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"time"
 
 	"github.com/forbole/bdjuno/v3/types"
@@ -183,4 +184,50 @@ func (db *Db) GetGenesis() (*types.Genesis, error) {
 
 	row := rows[0]
 	return types.NewGenesis(row.ChainID, row.Time, row.InitialHeight), nil
+}
+
+func (db *Db) SetAverageBlockSize(block *tmctypes.ResultBlock) error {
+	var avgBlockSize []dbtypes.AverageBlockSize
+	stmtSelect := `SELECT * FROM average_block_size WHERE date = $1`
+	err := db.Sqlx.Select(&avgBlockSize, stmtSelect, TimeToUTCDate(block.Block.Time))
+	if err != nil {
+		return err
+	}
+
+	stmtInsert := `
+INSERT INTO average_block_size (date, blocks_number, block_sizes, average_size)
+VALUES ($1, $2, $3, $4)`
+	if len(avgBlockSize) == 0 {
+		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), 1, block.Block.Size(), block.Block.Size())
+		if err != nil {
+			return fmt.Errorf("error while setting average block size: %s", err)
+		}
+
+		return nil
+	}
+
+	stmtUpdate := `
+UPDATE average_block_size SET blocks_number = $1,
+           					  block_sizes = $2,
+                              average_size = $3
+WHERE date = $4`
+	avgBlockSize[0].BlockSizes += int64(block.Block.Size())
+	avgBlockSize[0].BlocksNumber++
+	avgBlockSize[0].AverageSize = avgBlockSize[0].BlockSizes / avgBlockSize[0].BlocksNumber
+
+	_, err = db.Sqlx.Exec(
+		stmtUpdate,
+		avgBlockSize[0].BlocksNumber, avgBlockSize[0].BlockSizes,
+		avgBlockSize[0].AverageSize, TimeToUTCDate(block.Block.Time),
+	)
+	if err != nil {
+		return fmt.Errorf("error while setting average block size: %s", err)
+	}
+
+	return nil
+}
+
+func TimeToUTCDate(t time.Time) time.Time {
+	year, month, day := t.UTC().Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 }
