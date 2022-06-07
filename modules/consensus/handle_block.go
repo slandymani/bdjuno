@@ -32,6 +32,14 @@ func (m *Module) HandleBlock(
 			Err(err).Msg("error while updating average block time")
 	}
 
+	if len(b.Block.Txs) > 0 {
+		err = m.db.SetTxsPerDate(b)
+		if err != nil {
+			log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+				Err(err).Msg("error while updating txs per day")
+		}
+	}
+
 	return nil
 }
 

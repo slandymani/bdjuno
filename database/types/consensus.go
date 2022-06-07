@@ -104,3 +104,9 @@ type AverageBlockTime struct {
 	BlockTimes    int64     `db:"block_times"`
 	AverageTime   int64     `db:"average_time"`
 }
+
+type TxsPerDate struct {
+	Id        int64     `db:"id"`
+	Date      time.Time `db:"date"`
+	TxsNumber int64     `db:"txs_number"`
+}

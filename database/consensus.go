@@ -270,6 +270,20 @@ WHERE date = $5`
 	return nil
 }
 
+func (db *Db) SetTxsPerDate(block *tmctypes.ResultBlock) error {
+	stmt := `
+INSERT INTO txs_per_date (date, txs_number)
+VALUES ($1, $2) ON CONFLICT (date) DO UPDATE
+	SET txs_number = txs_per_date.txs_number + $2`
+
+	_, err := db.Sqlx.Exec(stmt, TimeToUTCDate(block.Block.Time), len(block.Block.Txs))
+	if err != nil {
+		return fmt.Errorf("error while setting average block time: %s", err)
+	}
+
+	return nil
+}
+
 func TimeToUTCDate(t time.Time) time.Time {
 	year, month, day := t.UTC().Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
