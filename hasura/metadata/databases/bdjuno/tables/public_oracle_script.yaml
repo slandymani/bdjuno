@@ -2,12 +2,19 @@ table:
   name: oracle_script
   schema: public
 array_relationships:
-  - name: requests
+- name: requests
+  using:
+    foreign_key_constraint_on:
+      column: oracle_script_id
+      table:
+        name: request
+        schema: public
+- name: reports
     using:
       foreign_key_constraint_on:
         column: oracle_script_id
         table:
-          name: request
+          name: report
           schema: public
 select_permissions:
   - permission:

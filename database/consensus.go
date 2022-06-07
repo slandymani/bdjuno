@@ -184,3 +184,14 @@ func (db *Db) GetGenesis() (*types.Genesis, error) {
 	row := rows[0]
 	return types.NewGenesis(row.ChainID, row.Time, row.InitialHeight), nil
 }
+
+func (db *Db) SetBlockSize(size int, height int64) error {
+	stmt := `UPDATE block SET size = $1 WHERE height = $2`
+
+	_, err := db.Sql.Exec(stmt, size, height)
+	if err != nil {
+		return fmt.Errorf("error while setting block size: %s", err)
+	}
+
+	return nil
+}
