@@ -15,6 +15,11 @@ func (m *Module) HandleBlock(
 		return fmt.Errorf("error while updating requests resolve time: %s", err)
 	}
 
+	err = m.updateDataProvidersPool(block.Block.Height)
+	if err != nil {
+		return fmt.Errorf("error while updating data providers pool: %s", err)
+	}
+
 	return nil
 }
 
@@ -30,17 +35,32 @@ func (m *Module) updateRequestsResolveTime(height int64) error {
 	for _, id := range ids {
 		res, err := m.source.GetRequestStatus(height, id.UresolvedRequestID)
 		if err != nil {
-			return fmt.Errorf("error while getting request result from MsgReportData: %s", err)
+			return fmt.Errorf("error while getting request result: %s", err)
 		}
 
 		err = m.db.SetRequestStatus(res)
 		if err != nil {
-			return fmt.Errorf("error while setting request resolve time from MsgReportData: %s", err)
+			return fmt.Errorf("error while setting request resolve time: %s", err)
 		}
 	}
 	return nil
 }
 
-//func (m *Module) updateDataProvidersPool(height int64) error {
-//	return nil
-//}
+func (m *Module) updateDataProvidersPool(height int64) error {
+	log.Debug().Str("module", "staking").Int64("height", height).
+		Msg("updating data providers pool")
+
+	pool, err := m.source.GetDataProvidersPool(height)
+	if err != nil {
+		if err != nil {
+			return fmt.Errorf("error while getting data providers pool: %s", err)
+		}
+	}
+
+	err = m.db.SaveDataProvidersPool(height, pool)
+	if err != nil {
+		return fmt.Errorf("error while setting data providers pool: %s", err)
+	}
+
+	return nil
+}

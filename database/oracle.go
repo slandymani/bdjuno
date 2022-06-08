@@ -196,3 +196,20 @@ VALUES ($1, $2) ON CONFLICT (date) DO UPDATE
 
 	return nil
 }
+
+func (db *Db) SaveDataProvidersPool(height int64, pool sdk.Coins) error {
+	stmt := `
+INSERT INTO data_providers_pool (coins, height) 
+VALUES ($1, $2)
+ON CONFLICT (one_row_id) DO UPDATE 
+    SET coins = excluded.coins,
+        height = excluded.height
+WHERE data_providers_pool.height <= excluded.height`
+
+	_, err := db.Sql.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
+	if err != nil {
+		return fmt.Errorf("error while storing data providers pool: %s", err)
+	}
+
+	return nil
+}

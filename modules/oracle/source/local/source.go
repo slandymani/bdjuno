@@ -59,3 +59,17 @@ func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) 
 
 	return *res.Result, nil
 }
+
+func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.QueryDataProvidersPoolResponse{}.Pool, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	res, err := s.client.DataProvidersPool(sdk.WrapSDKContext(ctx), &oracletypes.QueryDataProvidersPoolRequest{})
+	if err != nil {
+		return oracletypes.QueryDataProvidersPoolResponse{}.Pool, err
+	}
+
+	return res.Pool, nil
+}

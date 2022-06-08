@@ -73,3 +73,12 @@ CREATE TABLE requests_per_date
     requests_number BIGINT
 );
 CREATE INDEX requests_per_date_date_index ON requests_per_date (date);
+
+CREATE TABLE data_providers_pool
+(
+    one_row_id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
+    coins      COIN[],
+    height     BIGINT  NOT NULL,
+    CHECK (one_row_id)
+);
+CREATE INDEX data_providers_pool_height_index ON data_providers_pool (height);
