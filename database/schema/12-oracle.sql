@@ -65,3 +65,11 @@ CREATE TABLE report
     tx_hash          TEXT
 );
 CREATE INDEX report_id_index ON report (id);
+
+CREATE TABLE requests_per_date
+(
+    id         BIGSERIAL PRIMARY KEY,
+    date       TIMESTAMP UNIQUE,
+    requests_number BIGINT
+);
+CREATE INDEX requests_per_date_date_index ON requests_per_date (date);

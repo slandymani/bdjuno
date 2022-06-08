@@ -177,3 +177,22 @@ VALUES ($1, $2, $3)`
 
 	return nil
 }
+
+func (db *Db) SetRequestsPerDate(timestamp string) error {
+	stmt := `
+INSERT INTO requests_per_date (date, requests_number)
+VALUES ($1, $2) ON CONFLICT (date) DO UPDATE
+	SET requests_number = requests_per_date.requests_number + $2`
+
+	t, err := time.Parse(time.RFC3339, timestamp)
+	if err != nil {
+		return fmt.Errorf("error while parsing time: %s", err)
+	}
+
+	_, err = db.Sqlx.Exec(stmt, TimeToUTCDate(t), 1)
+	if err != nil {
+		return fmt.Errorf("error while setting requests per date: %s", err)
+	}
+
+	return nil
+}

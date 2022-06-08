@@ -72,7 +72,12 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 }
 
 func (m *Module) handleMsgRequestData(height int64, timestamp string, msg *oracletypes.MsgRequestData) error {
-	err := m.db.SaveDataRequest(timestamp, msg)
+	err := m.db.SetRequestsPerDate(timestamp)
+	if err != nil {
+		return fmt.Errorf("error while setting requests per date: %s", err)
+	}
+
+	err = m.db.SaveDataRequest(timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
 	}
