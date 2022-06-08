@@ -1,5 +1,5 @@
 table:
-  name: oracle_script
+  name: request
   schema: public
 select_permissions:
   - permission:

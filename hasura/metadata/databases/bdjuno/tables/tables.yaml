@@ -43,3 +43,4 @@
 - "!include public_oracle_script.yaml"
 - "!include public_request.yaml"
 - "!include public_report.yaml"
+- "!include public_requests_per_date.yaml"
