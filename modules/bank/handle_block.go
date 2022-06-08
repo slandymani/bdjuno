@@ -7,11 +7,13 @@ import (
 )
 
 func (m *Module) HandleBlock(
-	block *tmctypes.ResultBlock, res *tmctypes.ResultBlockResults, _ []*juno.Tx, vals *tmctypes.ResultValidators,
+	block *tmctypes.ResultBlock, res *tmctypes.ResultBlockResults, txs []*juno.Tx, vals *tmctypes.ResultValidators,
 ) error {
-	err := m.updateBalances(block.Block.Height)
-	if err != nil {
-		return fmt.Errorf("error while updating balances: %s", err)
+	if len(txs) > 0 {
+		err := m.updateBalances(block.Block.Height)
+		if err != nil {
+			return fmt.Errorf("error while updating balances: %s", err)
+		}
 	}
 
 	return nil
