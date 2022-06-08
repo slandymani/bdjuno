@@ -148,10 +148,10 @@ WHERE id = $4`
 	return nil
 }
 
-func (db *Db) GetUnresolvedRequests() ([]dbtypes.UnresolvedRequest, error) {
+func (db *Db) GetUnresolvedRequests() ([]int64, error) {
 	stmt := `SELECT id FROM request WHERE report_timestamp = 'epoch'`
 
-	var requests []dbtypes.UnresolvedRequest
+	var requests []int64
 	if err := db.Sqlx.Select(&requests, stmt); err != nil {
 		return nil, fmt.Errorf("error while getting unresolved request ids: %s", err)
 	}
