@@ -2,7 +2,6 @@ package oracle
 
 import (
 	"fmt"
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
 	juno "github.com/forbole/juno/v3/types"
 	"github.com/rs/zerolog/log"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
@@ -11,12 +10,7 @@ import (
 func (m *Module) HandleBlock(
 	block *tmctypes.ResultBlock, res *tmctypes.ResultBlockResults, _ []*juno.Tx, vals *tmctypes.ResultValidators,
 ) error {
-	unresolvedRequests, err := m.db.GetUnresolvedRequests()
-	if err != nil {
-		return fmt.Errorf("error while getting unresolved requests: %s", err)
-	}
-
-	err = m.updateRequestsResolveTime(block.Block.Height, unresolvedRequests)
+	err := m.updateRequestsResolveTime(block.Block.Height)
 	if err != nil {
 		return fmt.Errorf("error while updating requests resolve time: %s", err)
 	}
@@ -24,9 +18,14 @@ func (m *Module) HandleBlock(
 	return nil
 }
 
-func (m *Module) updateRequestsResolveTime(height int64, ids []dbtypes.UnresolvedRequest) error {
+func (m *Module) updateRequestsResolveTime(height int64) error {
 	log.Debug().Str("module", "oracle").Int64("height", height).
 		Msg("updating requests resolve time")
+
+	ids, err := m.db.GetUnresolvedRequests()
+	if err != nil {
+		return fmt.Errorf("error while getting unresolved requests: %s", err)
+	}
 
 	for _, id := range ids {
 		res, err := m.source.GetRequestStatus(height, id.UresolvedRequestID)
@@ -41,3 +40,7 @@ func (m *Module) updateRequestsResolveTime(height int64, ids []dbtypes.Unresolve
 	}
 	return nil
 }
+
+//func (m *Module) updateDataProvidersPool(height int64) error {
+//	return nil
+//}
