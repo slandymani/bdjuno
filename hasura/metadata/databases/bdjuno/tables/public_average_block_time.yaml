@@ -1,0 +1,15 @@
+table:
+  name: average_block_time
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - date
+        - last_timestamp
+        - blocks_number
+        - block_times
+        - average_time
+      filter: {}
+    role: anonymous
