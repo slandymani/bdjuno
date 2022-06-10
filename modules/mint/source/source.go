@@ -8,4 +8,5 @@ import (
 type Source interface {
 	GetInflation(height int64) (sdk.Dec, error)
 	Params(height int64) (minttypes.Params, error)
+	GetTreasuryPool(height int64) (sdk.Coins, error)
 }

@@ -45,3 +45,12 @@ func (s Source) Params(height int64) (minttypes.Params, error) {
 
 	return res.Params, nil
 }
+
+func (s *Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
+	res, err := s.querier.TreasuryPool(remote.GetHeightRequestContext(s.Ctx, height), &minttypes.QueryTreasuryPoolRequest{})
+	if err != nil {
+		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, err
+	}
+
+	return res.TreasuryPool, nil
+}

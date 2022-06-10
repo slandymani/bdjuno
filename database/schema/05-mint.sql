@@ -18,3 +18,12 @@ CREATE TABLE inflation
     CONSTRAINT one_row_uni CHECK (one_row_id)
 );
 CREATE INDEX inflation_height_index ON inflation (height);
+
+CREATE TABLE treasury_pool
+(
+    one_row_id BOOLEAN NOT NULL DEFAULT TRUE PRIMARY KEY,
+    coins      COIN[],
+    height     BIGINT  NOT NULL,
+    CHECK (one_row_id)
+);
+CREATE INDEX treasury_pool_height_index ON treasury_pool (height);
