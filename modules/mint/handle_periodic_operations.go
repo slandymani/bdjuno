@@ -1,6 +1,7 @@
 package mint
 
 import (
+	"fmt"
 	"github.com/forbole/bdjuno/v3/modules/utils"
 
 	"github.com/go-co-op/gocron"
@@ -14,6 +15,12 @@ func (m *Module) RegisterPeriodicOperations(scheduler *gocron.Scheduler) error {
 	// Setup a cron job to run every midnight
 	if _, err := scheduler.Every(1).Day().At("00:00").Do(func() {
 		utils.WatchMethod(m.updateInflation)
+	}); err != nil {
+		return err
+	}
+
+	if _, err := scheduler.Every(1).Hour().Do(func() {
+		utils.WatchMethod(m.updateTreasuryPool)
 	}); err != nil {
 		return err
 	}
@@ -41,4 +48,27 @@ func (m *Module) updateInflation() error {
 	}
 
 	return m.db.SaveInflation(inflation, height)
+}
+
+func (m *Module) updateTreasuryPool() error {
+	log.Debug().Str("module", "mint").Msg("updating treasury pool")
+
+	height, err := m.db.GetLastBlockHeight()
+	if err != nil {
+		return err
+	}
+
+	pool, err := m.source.GetTreasuryPool(height)
+	if err != nil {
+		if err != nil {
+			return fmt.Errorf("error while getting treasury pool: %s", err)
+		}
+	}
+
+	err = m.db.SaveTreasuryPool(height, pool)
+	if err != nil {
+		return fmt.Errorf("error while setting treasury pool: %s", err)
+	}
+
+	return nil
 }
