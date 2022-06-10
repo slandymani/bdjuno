@@ -2,7 +2,9 @@ package database
 
 import (
 	"fmt"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
+	tmtypes "github.com/tendermint/tendermint/types"
 	"time"
 
 	"github.com/forbole/bdjuno/v3/types"
@@ -328,4 +330,21 @@ WHERE date = $4`
 func TimeToUTCDate(t time.Time) time.Time {
 	year, month, day := t.UTC().Date()
 	return time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+}
+
+func (db *Db) SetBlockProposerOperAddress(height int64, proposer tmtypes.Address) error {
+	consAddr := sdk.ConsAddress(proposer).String()
+	operAddr, err := db.GetValidatorOperatorAddress(consAddr)
+	if err != nil {
+		return fmt.Errorf("error while getting validator operator address: %s", err)
+	}
+
+	stmt := `UPDATE block SET proposer_operator_address = $1 WHERE height = $2`
+
+	_, err = db.Sql.Exec(stmt, operAddr.String(), height)
+	if err != nil {
+		return fmt.Errorf("error while setting block proposer operator address: %s", err)
+	}
+
+	return nil
 }
