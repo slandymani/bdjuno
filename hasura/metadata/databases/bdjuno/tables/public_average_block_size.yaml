@@ -1,0 +1,14 @@
+table:
+  name: average_block_size
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - date
+        - blocks_number
+        - block_sizes
+        - average_size
+      filter: {}
+    role: anonymous

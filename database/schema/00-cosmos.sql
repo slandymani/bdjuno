@@ -23,6 +23,7 @@ CREATE TABLE block
     num_txs          INTEGER DEFAULT 0,
     total_gas        BIGINT  DEFAULT 0,
     proposer_address TEXT REFERENCES validator (consensus_address),
+    size             INT,
     timestamp        TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 CREATE INDEX block_height_index ON block (height);

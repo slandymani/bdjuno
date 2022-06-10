@@ -51,7 +51,11 @@ func (m *Module) handleMsgSubmitProposal(tx *juno.Tx, index int, msg *govtypes.M
 	}
 
 	// Get the proposal
-	proposal, err := m.source.Proposal(tx.Height, proposalID)
+	height, err := m.db.GetLastBlockHeight()
+	if err != nil {
+		return err
+	}
+	proposal, err := m.source.Proposal(height, proposalID)
 	if err != nil {
 		return fmt.Errorf("error while getting proposal: %s", err)
 	}

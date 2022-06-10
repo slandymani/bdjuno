@@ -1,0 +1,14 @@
+table:
+  name: average_block_fee
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - date
+        - blocks_number
+        - block_fees
+        - average_fee
+      filter: {}
+    role: anonymous
