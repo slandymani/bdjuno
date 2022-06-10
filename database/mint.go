@@ -3,6 +3,8 @@ package database
 import (
 	"encoding/json"
 	"fmt"
+	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+	"github.com/lib/pq"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -45,6 +47,23 @@ WHERE mint_params.height <= excluded.height`
 	_, err = db.Sql.Exec(stmt, string(paramsBz), params.Height)
 	if err != nil {
 		return fmt.Errorf("error while storing mint params: %s", err)
+	}
+
+	return nil
+}
+
+func (db *Db) SaveTreasuryPool(height int64, pool sdk.Coins) error {
+	stmt := `
+INSERT INTO treasury_pool (coins, height) 
+VALUES ($1, $2)
+ON CONFLICT (one_row_id) DO UPDATE 
+    SET coins = excluded.coins,
+        height = excluded.height
+WHERE treasury_pool.height <= excluded.height`
+
+	_, err := db.Sql.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
+	if err != nil {
+		return fmt.Errorf("error while storing treasury pool: %s", err)
 	}
 
 	return nil

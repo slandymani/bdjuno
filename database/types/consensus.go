@@ -87,3 +87,34 @@ type BlockRow struct {
 	PreCommitsNum   int64          `db:"pre_commits"`
 	Timestamp       time.Time      `db:"timestamp"`
 }
+
+type AverageBlockSize struct {
+	Id           int64     `db:"id"`
+	Date         time.Time `db:"date"`
+	BlocksNumber int64     `db:"blocks_number"`
+	BlockSizes   int64     `db:"block_sizes"`
+	AverageSize  int64     `db:"average_size"`
+}
+
+type AverageBlockTime struct {
+	Id            int64     `db:"id"`
+	Date          time.Time `db:"date"`
+	LastTimestamp int64     `db:"last_timestamp"`
+	BlocksNumber  int64     `db:"blocks_number"`
+	BlockTimes    int64     `db:"block_times"`
+	AverageTime   int64     `db:"average_time"`
+}
+
+type TxsPerDate struct {
+	Id        int64     `db:"id"`
+	Date      time.Time `db:"date"`
+	TxsNumber int64     `db:"txs_number"`
+}
+
+type AverageFee struct {
+	Id           int64     `db:"id"`
+	Date         time.Time `db:"date"`
+	BlocksNumber int64     `db:"blocks_number"`
+	BlockFees    int64     `db:"block_fees"`
+	AverageFee   int64     `db:"average_fee"`
+}

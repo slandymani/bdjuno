@@ -2,7 +2,6 @@ package local
 
 import (
 	"fmt"
-
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/juno/v3/node/local"
@@ -56,4 +55,18 @@ func (s Source) Params(height int64) (minttypes.Params, error) {
 	}
 
 	return res.Params, nil
+}
+
+func (s *Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	res, err := s.querier.TreasuryPool(sdk.WrapSDKContext(ctx), &minttypes.QueryTreasuryPoolRequest{})
+	if err != nil {
+		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, err
+	}
+
+	return res.TreasuryPool, nil
 }

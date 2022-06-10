@@ -29,6 +29,9 @@ func (m *Module) RunAdditionalOperations() error {
 	worker.RegisterHandler("/delegator_withdraw_address", handlers.DelegatorWithdrawAddressHandler)
 	worker.RegisterHandler("/validator_commission_amount", handlers.ValidatorCommissionAmountHandler)
 
+	// -- Gov --
+	worker.RegisterHandler("/vote_proposals", handlers.GetVoteProposals)
+
 	// -- Staking Delegator --
 	worker.RegisterHandler("/delegation", handlers.DelegationHandler)
 	worker.RegisterHandler("/delegation_total", handlers.TotalDelegationAmountHandler)
