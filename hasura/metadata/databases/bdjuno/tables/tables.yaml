@@ -40,3 +40,6 @@
 - "!include public_validator_blocks.yaml"
 - "!include public_delegator.yaml"
 - "!include public_account_balance.yaml"
+- "!include public_average_block_size.yaml"
+- "!include public_average_block_time.yaml"
+- "!include public_average_block_fee.yaml"
