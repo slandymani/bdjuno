@@ -47,6 +47,27 @@ array_relationships:
       table:
         name: vesting_account
         schema: public
+- name: data_sources
+  using:
+    foreign_key_constraint_on:
+      column: owner
+      table:
+        name: data_source
+        schema: public
+- name: oracle_scripts
+  using:
+    foreign_key_constraint_on:
+      column: owner
+      table:
+        name: oracle_script
+        schema: public
+- name: requests
+  using:
+    foreign_key_constraint_on:
+      column: sender
+      table:
+        name: request
+        schema: public
 - name: account_balances
   using:
     foreign_key_constraint_on:

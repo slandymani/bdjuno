@@ -1,0 +1,34 @@
+table:
+  name: oracle_script
+  schema: public
+array_relationships:
+- name: requests
+  using:
+    foreign_key_constraint_on:
+      column: oracle_script_id
+      table:
+        name: request
+        schema: public
+- name: reports
+    using:
+      foreign_key_constraint_on:
+        column: oracle_script_id
+        table:
+          name: report
+          schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - create_block
+        - edit_block
+        - name
+        - description
+        - schema
+        - source_code_url
+        - owner
+        - sender
+        - timestamp
+      filter: {}
+    role: anonymous

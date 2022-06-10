@@ -1,0 +1,19 @@
+table:
+  name: data_source
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - create_block
+        - edit_block
+        - name
+        - description
+        - executable
+        - fee
+        - owner
+        - sender
+        - timestamp
+      filter: {}
+    role: anonymous

@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"fmt"
 	"github.com/forbole/bdjuno/v3/modules/utils"
 	"github.com/forbole/bdjuno/v3/types"
 
@@ -15,6 +16,12 @@ func (m *Module) RegisterPeriodicOperations(scheduler *gocron.Scheduler) error {
 	// Setup a cron job to run every midnight
 	if _, err := scheduler.Every(1).Day().At("00:00").Do(func() {
 		utils.WatchMethod(m.updateOracleParams)
+	}); err != nil {
+		return err
+	}
+
+	if _, err := scheduler.Every(1).Hour().Do(func() {
+		utils.WatchMethod(m.updateDataProvidersPool)
 	}); err != nil {
 		return err
 	}
@@ -39,4 +46,27 @@ func (m *Module) updateOracleParams() error {
 	}
 
 	return m.db.SaveOracleParams(types.NewOracleParams(params, height), height)
+}
+
+func (m *Module) updateDataProvidersPool() error {
+	log.Debug().Str("module", "staking").Msg("updating data providers pool")
+
+	height, err := m.db.GetLastBlockHeight()
+	if err != nil {
+		return err
+	}
+
+	pool, err := m.source.GetDataProvidersPool(height)
+	if err != nil {
+		if err != nil {
+			return fmt.Errorf("error while getting data providers pool: %s", err)
+		}
+	}
+
+	err = m.db.SaveDataProvidersPool(height, pool)
+	if err != nil {
+		return fmt.Errorf("error while setting data providers pool: %s", err)
+	}
+
+	return nil
 }

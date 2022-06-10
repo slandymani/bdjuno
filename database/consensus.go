@@ -186,6 +186,17 @@ func (db *Db) GetGenesis() (*types.Genesis, error) {
 	return types.NewGenesis(row.ChainID, row.Time, row.InitialHeight), nil
 }
 
+func (db *Db) SetBlockSize(size int, height int64) error {
+	stmt := `UPDATE block SET size = $1 WHERE height = $2`
+
+	_, err := db.Sql.Exec(stmt, size, height)
+	if err != nil {
+		return fmt.Errorf("error while setting block size: %s", err)
+	}
+
+	return nil
+}
+
 func (db *Db) SetAverageBlockSize(block *tmctypes.ResultBlock) error {
 	var avgBlockSize []dbtypes.AverageBlockSize
 	stmtSelect := `SELECT * FROM average_block_size WHERE date = $1`

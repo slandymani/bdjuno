@@ -1,0 +1,12 @@
+table:
+  name: requests_per_date
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - date
+        - requests_number
+      filter: {}
+    role: anonymous

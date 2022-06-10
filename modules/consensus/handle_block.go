@@ -21,6 +21,12 @@ func (m *Module) HandleBlock(
 			Err(err).Msg("error while updating block time from genesis")
 	}
 
+	err = m.db.SetBlockSize(b.Block.Size(), b.Block.Height)
+	if err != nil {
+		log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+			Err(err).Msg("error while setting block size")
+	}
+
 	err = m.db.SetAverageBlockSize(b)
 	if err != nil {
 		log.Error().Str("module", "consensus").Int64("height", b.Block.Height).

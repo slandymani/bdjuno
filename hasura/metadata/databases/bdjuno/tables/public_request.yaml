@@ -1,0 +1,23 @@
+table:
+  name: request
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - oracle_script_id
+        - calldata
+        - ask_count
+        - min_count
+        - client_id
+        - fee_limit
+        - prepare_gas
+        - execute_gas
+        - sender
+        - tx_hash
+        - timestamp
+        - resolve_timestamp
+        - reports_count
+      filter: {}
+    role: anonymous
