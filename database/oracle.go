@@ -227,16 +227,3 @@ WHERE data_providers_pool.height <= excluded.height`
 
 	return nil
 }
-
-//func (db *Db) SetTotalRequests(timestamp string) error {
-//	stmt := `
-//INSERT INTO total_requests (date, total_requests_number)
-//VALUES ($1, $2) ON CONFLICT DO UPDATE
-//	SET total_requests_number = total_requests.total_requests_number + $3`
-//
-//	// TODO
-//	//  $2 = total_requests предыдущей строки
-//	//  $3 = 1
-//
-//	return nil
-//}
