@@ -17,7 +17,7 @@ select_permissions:
         - sender
         - tx_hash
         - timestamp
-        - report_timestamp
+        - resolve_timestamp
         - reports_count
       filter: {}
     role: anonymous

@@ -77,7 +77,7 @@ func (m *Module) handleMsgRequestData(height int64, timestamp string, msg *oracl
 		return fmt.Errorf("error while setting requests per date: %s", err)
 	}
 
-	err = m.db.SaveDataRequest(timestamp, msg)
+	err = m.db.SaveDataRequest(height, timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
 	}
