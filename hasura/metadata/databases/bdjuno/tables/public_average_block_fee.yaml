@@ -1,5 +1,5 @@
 table:
-  name: average_block_time
+  name: average_block_fee
   schema: public
 select_permissions:
   - permission:
