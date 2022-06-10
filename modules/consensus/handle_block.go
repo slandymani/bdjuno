@@ -21,6 +21,12 @@ func (m *Module) HandleBlock(
 			Err(err).Msg("error while updating block time from genesis")
 	}
 
+	err = m.db.SetBlockProposerOperAddress(b.Block.Height, b.Block.ProposerAddress)
+	if err != nil {
+		log.Error().Str("module", "consensus").Int64("height", b.Block.Height).
+			Err(err).Msg("error while setting block proposer operator address")
+	}
+
 	err = m.db.SetAverageBlockSize(b)
 	if err != nil {
 		log.Error().Str("module", "consensus").Int64("height", b.Block.Height).

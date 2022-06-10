@@ -19,7 +19,7 @@ CREATE INDEX pre_commit_height_index ON pre_commit (height);
 CREATE TABLE block
 (
     height           BIGINT UNIQUE PRIMARY KEY,
-    hash             TEXT                        NOT NULL UNIQUE,
+    hash             TEXT NOT NULL UNIQUE,
     num_txs          INTEGER DEFAULT 0,
     total_gas        BIGINT  DEFAULT 0,
     proposer_address TEXT REFERENCES validator (consensus_address),
