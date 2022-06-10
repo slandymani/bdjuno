@@ -47,6 +47,13 @@ array_relationships:
       table:
         name: vesting_account
         schema: public
+- name: account_balances
+  using:
+    foreign_key_constraint_on:
+      column: address
+      table:
+        name: account_balance
+        schema: public
 select_permissions:
 - permission:
     allow_aggregations: true
