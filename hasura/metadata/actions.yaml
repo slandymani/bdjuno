@@ -1,6 +1,20 @@
 ############### ACTIONS ###############
 actions:
 
+##### Gov #####
+- name: action_vote_proposals
+  definition:
+    kind: synchronous
+    handler: "{{ACTION_BASE_URL}}/vote_proposals"
+    output_type: ActionBalance
+    arguments:
+    type: query
+    headers:
+      - value: application/json
+        name: Content-Type
+  permissions:
+    - role: anonymous
+
 ##### Bank #####
 - name: action_account_balance
   definition:
@@ -245,8 +259,28 @@ custom_types:
   - name: ActionPagination
   - name: ActionRedelegation
   - name: ActionUnbondingDelegation
+  - name: ActionGovModules
+  - name: ActionModuleVoteProposal
+  - name: ActionVoteProposal
 
   objects:
+  - name: ActionGovModules
+    fields:
+      - name: gov_modules
+        type: [ActionModuleVoteProposal]
+
+  - name: ActionModuleVoteProposal
+    fields:
+      - name: vote_proposals
+        type: [ActionVoteProposal]
+
+  - name: ActionVoteProposal
+    fields:
+      - name: Key
+        type: String!
+      - name: ValueType
+        type: String!
+
   - name: ActionBalance
     fields:
     - name: coins
