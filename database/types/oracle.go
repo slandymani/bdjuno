@@ -23,3 +23,10 @@ func (m OracleParamsRow) Equal(n OracleParamsRow) bool {
 	return m.Params == n.Params &&
 		m.Height == n.Height
 }
+
+type RequestStatus struct {
+	Id           int64 `db:"id"`
+	Height       int64 `db:"height"`
+	MinCount     int64 `db:"min_count"`
+	ReportsCount int64 `db:"reports_count"`
+}

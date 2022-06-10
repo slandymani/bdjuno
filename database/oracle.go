@@ -134,11 +134,10 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 func (db *Db) SetRequestStatus(result oracletypes.Result) error {
 	stmt := `
 UPDATE request
-	SET reports_count = $1,
-		resolve_timestamp = CASE WHEN $2 = 1 THEN $3 ELSE request.resolve_timestamp END
-WHERE id = $4`
+	SET resolve_timestamp = CASE WHEN $1 = 1 THEN $2 ELSE request.resolve_timestamp END
+WHERE id = $3`
 
-	_, err := db.Sql.Exec(stmt, result.AnsCount, result.ResolveStatus, time.Unix(result.ResolveTime, 0), result.RequestID)
+	_, err := db.Sql.Exec(stmt, result.ResolveStatus, time.Unix(result.ResolveTime, 0), result.RequestID)
 	if err != nil {
 		return fmt.Errorf("error while setting request report timestamp: %s", err)
 	}
@@ -146,12 +145,12 @@ WHERE id = $4`
 	return nil
 }
 
-func (db *Db) GetUnresolvedRequests() ([]int64, error) {
-	stmt := `SELECT id FROM request WHERE resolve_timestamp = 'epoch'`
+func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
+	stmt := `SELECT id, height, min_count, reports_count FROM request WHERE resolve_timestamp = 'epoch'`
 
-	var requests []int64
+	var requests []dbtypes.RequestStatus
 	if err := db.Sqlx.Select(&requests, stmt); err != nil {
-		return nil, fmt.Errorf("error while getting unresolved request ids: %s", err)
+		return nil, fmt.Errorf("error while getting unresolved requests: %s", err)
 	}
 
 	return requests, nil
@@ -171,6 +170,12 @@ VALUES ($1, $2, $3)`
 	_, err := db.Sql.Exec(stmt, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
+	}
+
+	stmtIncrement := `UPDATE request SET reports_count = reports_count + 1 WHERE id = $1`
+	_, err = db.Sql.Exec(stmtIncrement, msg.RequestID)
+	if err != nil {
+		return fmt.Errorf("error while incrementing reports count: %s", err)
 	}
 
 	return nil
