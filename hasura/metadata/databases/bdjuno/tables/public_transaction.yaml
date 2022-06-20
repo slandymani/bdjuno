@@ -15,6 +15,7 @@ select_permissions:
     - messages
     - memo
     - signatures
+    - sender
     - signer_infos
     - fee
     - gas_wanted
