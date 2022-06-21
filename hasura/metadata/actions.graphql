@@ -1,5 +1,6 @@
 type Query {
     action_vote_proposals(
+        height: Int
     ): ActionGovModules
 
     action_account_balance(
