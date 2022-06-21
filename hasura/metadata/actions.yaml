@@ -266,20 +266,20 @@ custom_types:
   objects:
   - name: ActionGovModules
     fields:
-      - name: gov_modules
-        type: [ActionModuleVoteProposal]
+    - name: gov_modules
+      type: [ActionModuleVoteProposal]
 
   - name: ActionModuleVoteProposal
     fields:
-      - name: vote_proposals
-        type: [ActionVoteProposal]
+    - name: vote_proposals
+      type: [ActionVoteProposal]
 
   - name: ActionVoteProposal
     fields:
-      - name: key
-        type: String!
-      - name: value_type
-        type: String!
+    - name: key
+      type: String!
+    - name: value_type
+      type: String!
 
   - name: ActionBalance
     fields:
