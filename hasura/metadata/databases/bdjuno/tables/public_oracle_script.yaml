@@ -10,12 +10,12 @@ array_relationships:
         name: request
         schema: public
 - name: reports
-    using:
-      foreign_key_constraint_on:
-        column: oracle_script_id
-        table:
-          name: report
-          schema: public
+  using:
+    foreign_key_constraint_on:
+      column: oracle_script_id
+      table:
+        name: report
+        schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
