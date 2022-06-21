@@ -1,4 +1,7 @@
 type Query {
+    action_vote_proposals(
+    ): ActionGovModules
+
     action_account_balance(
         address: String!
         height: Int
@@ -72,6 +75,19 @@ type Query {
         limit: Int
         count_total: Boolean
     ): ActionUnbondingDelegationResponse
+}
+
+type ActionGovModules {
+    gov_modules: [ActionModuleVoteProposal]
+}
+
+type ActionModuleVoteProposal {
+    vote_proposals: [ActionVoteProposal]
+}
+
+type ActionVoteProposal {
+    key: String!
+    value_type: String!
 }
 
 type ActionBalance {
