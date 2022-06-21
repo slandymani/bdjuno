@@ -259,9 +259,6 @@ custom_types:
   - name: ActionPagination
   - name: ActionRedelegation
   - name: ActionUnbondingDelegation
-  - name: ActionGovModules
-  - name: ActionModuleVoteProposal
-  - name: ActionVoteProposal
 
   objects:
   - name: ActionGovModules
