@@ -49,6 +49,7 @@ CREATE TABLE transaction
     signatures   TEXT[]  NOT NULL,
 
     /* AuthInfo */
+    sender       TEXT,
     signer_infos JSONB   NOT NULL DEFAULT '[]'::JSONB,
     fee          JSONB   NOT NULL DEFAULT '{}'::JSONB,
 

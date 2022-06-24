@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	junotypes "github.com/forbole/juno/v3/types"
 	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"time"
 
@@ -331,6 +332,19 @@ WHERE date = $4`
 	)
 	if err != nil {
 		return fmt.Errorf("error while resetting average block size: %s", err)
+	}
+
+	return nil
+}
+
+func (db *Db) SetTxSender(tx *junotypes.Tx) error {
+	stmt := `UPDATE transaction SET sender = $1 WHERE hash LIKE $2`
+
+	hash := tx.TxHash[:len(tx.TxHash)-1] + "%"
+
+	_, err := db.Sqlx.Exec(stmt, tx.GetSigners()[0].String(), hash)
+	if err != nil {
+		return fmt.Errorf("error while setting tx senders: %s", err)
 	}
 
 	return nil
