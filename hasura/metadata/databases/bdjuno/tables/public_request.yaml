@@ -7,6 +7,7 @@ select_permissions:
       columns:
         - id
         - oracle_script_id
+        - data_source_id
         - calldata
         - ask_count
         - min_count

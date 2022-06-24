@@ -43,6 +43,7 @@ CREATE TABLE request
     id                SERIAl PRIMARY KEY,
     height            BIGINT,
     oracle_script_id  INT REFERENCES oracle_script (id),
+    data_source_id    INT REFERENCES data_source (id),
     calldata          TEXT,
     ask_count         INT,
     min_count         INT,

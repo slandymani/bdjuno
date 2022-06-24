@@ -114,13 +114,13 @@ UPDATE oracle_script
 	return nil
 }
 
-func (db *Db) SaveDataRequest(height int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (db *Db) SaveDataRequest(height, dataSourceID int64, timestamp string, msg *oracletypes.MsgRequestData) error {
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
-INSERT INTO request (oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+INSERT INTO request (oracle_script_id, data_source_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 	_, err := db.Sql.Exec(
-		stmt, msg.OracleScriptID, height, calldata, msg.AskCount,
+		stmt, msg.OracleScriptID, dataSourceID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
 		msg.PrepareGas, msg.ExecuteGas, msg.Sender, timestamp,
 	)

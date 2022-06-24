@@ -5,6 +5,8 @@ import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	juno "github.com/forbole/juno/v3/types"
+	abcitypes "github.com/tendermint/tendermint/abci/types"
+	"strconv"
 )
 
 func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
@@ -26,7 +28,9 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgRequestData:
-		return m.handleMsgRequestData(tx.Height, tx.Timestamp, cosmosMsg)
+		dataSource := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)[0]
+		dataSourceId, _ := strconv.ParseInt(dataSource, 10, 64)
+		return m.handleMsgRequestData(tx.Height, dataSourceId, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
 		return m.handleMsgReportData(cosmosMsg, tx.TxHash)
@@ -71,13 +75,13 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 	return nil
 }
 
-func (m *Module) handleMsgRequestData(height int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (m *Module) handleMsgRequestData(height, dataSourceID int64, timestamp string, msg *oracletypes.MsgRequestData) error {
 	err := m.db.SetRequestsPerDate(timestamp)
 	if err != nil {
 		return fmt.Errorf("error while setting requests per date: %s", err)
 	}
 
-	err = m.db.SaveDataRequest(height, timestamp, msg)
+	err = m.db.SaveDataRequest(height, dataSourceID, timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
 	}
@@ -92,4 +96,20 @@ func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash stri
 	}
 
 	return nil
+}
+
+func GetValueFromEvents(events []abcitypes.Event, eventType, key string) []string {
+	res := make([]string, 0)
+
+	for _, event := range events {
+		if event.Type == eventType {
+			for _, attribute := range event.Attributes {
+				if string(attribute.Key) == key {
+					res = append(res, string(attribute.Value))
+				}
+			}
+		}
+	}
+
+	return res
 }
