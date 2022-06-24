@@ -29,7 +29,10 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 	case *oracletypes.MsgRequestData:
 		dataSource := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)[0]
-		dataSourceId, _ := strconv.ParseInt(dataSource, 10, 64)
+		dataSourceId, err := strconv.ParseInt(dataSource, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error while parsing data source id: %s", err)
+		}
 		return m.handleMsgRequestData(tx.Height, dataSourceId, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
