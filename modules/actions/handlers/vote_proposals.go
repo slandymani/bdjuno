@@ -46,9 +46,7 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload) (interface{}, 
 	mintParams := minttypes.DefaultParams()
 	authParams := authtypes.DefaultParams()
 	bankParams := banktypes.DefaultParams()
-	//crisisParams := crisis.DefaultParams() //todo: add to core
 	distributionParams := distributiontypes.DefaultParams()
-	//govParams := gov.DefaultParams()
 	ibcParams := ibctypes.DefaultParams()
 	ibc1Params := ibc1.DefaultParams()
 	mint1Params := mint1.DefaultParams()
@@ -84,10 +82,6 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload) (interface{}, 
 			ModuleName: "distribution",
 			ParamPairs: distributionParams.ParamSetPairs(),
 		},
-		/*{
-			ModuleName: "gov",
-			ParamPairs: govParams.ParamSetPairs(),
-		},*/ //todo: add to core
 		{
 			ModuleName: "ibc",
 			ParamPairs: ibc1Params.ParamSetPairs(),
