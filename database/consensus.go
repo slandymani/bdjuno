@@ -206,10 +206,10 @@ func (db *Db) SetAverageBlockSize(block *tmctypes.ResultBlock) error {
 		return err
 	}
 
-	stmtInsert := `
+	if len(avgBlockSize) == 0 {
+		stmtInsert := `
 INSERT INTO average_block_size (date, blocks_number, block_sizes, average_size)
 VALUES ($1, $2, $3, $4)`
-	if len(avgBlockSize) == 0 {
 		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), 1, block.Block.Size(), block.Block.Size())
 		if err != nil {
 			return fmt.Errorf("error while setting average block size: %s", err)
@@ -247,10 +247,10 @@ func (db *Db) SetAverageBlockTime(block *tmctypes.ResultBlock) error {
 		return err
 	}
 
-	stmtInsert := `
+	if len(avgBlockTime) == 0 {
+		stmtInsert := `
 INSERT INTO average_block_time (date, last_timestamp, blocks_number, block_times, average_time)
 VALUES ($1, $2, $3, $4, $5)`
-	if len(avgBlockTime) == 0 {
 		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), block.Block.Time.Unix(), 1, 0, 0)
 		if err != nil {
 			return fmt.Errorf("error while setting average block time: %s", err)
@@ -304,10 +304,10 @@ func (db *Db) SetAverageFee(blockFee int64, block *tmctypes.ResultBlock) error {
 		return err
 	}
 
-	stmtInsert := `
+	if len(avgFee) == 0 {
+		stmtInsert := `
 INSERT INTO average_block_fee (date, blocks_number, block_fees, average_fee)
 VALUES ($1, $2, $3, $4)`
-	if len(avgFee) == 0 {
 		_, err := db.Sqlx.Exec(stmtInsert, TimeToUTCDate(block.Block.Time), 1, blockFee, blockFee)
 		if err != nil {
 			return fmt.Errorf("error while setting average block size: %s", err)
