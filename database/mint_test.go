@@ -92,7 +92,7 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveMintParams() {
 		map[string]string{"eth": hexutil.Encode(privateKeyBytes)},
 		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 		sdk.NewCoins(),
-		[]string{"minigeo"},
+		[]*minttypes.AllowedDenom{{TokenUnitDenom: "minigeo", TokenDenom: "geo"}},
 		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 	)
 	err = suite.database.SaveMintParams(types.NewMintParams(mintParams, 10))

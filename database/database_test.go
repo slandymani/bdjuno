@@ -145,6 +145,7 @@ func (suite *DbTestSuite) getValidator(consAddr, valAddr, pubkey string) types.V
 
 	maxRate := sdk.NewDec(10)
 	maxChangeRate := sdk.NewDec(20)
+	delegatorShares := sdk.NewDec(1000)
 
 	validator := types.NewValidator(
 		consAddr,
@@ -153,6 +154,7 @@ func (suite *DbTestSuite) getValidator(consAddr, valAddr, pubkey string) types.V
 		selfDelegation.String(),
 		&maxChangeRate,
 		&maxRate,
+		&delegatorShares,
 		1,
 	)
 	err := suite.database.SaveValidatorData(validator)

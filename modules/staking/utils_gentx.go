@@ -23,6 +23,7 @@ func (m *Module) StoreValidatorsFromMsgCreateValidator(height int64, msg *stakin
 	if err != nil {
 		return fmt.Errorf("error while getting Avatar URL: %s", err)
 	}
+	delegatorShares := sdk.NewDec(msg.Value.Amount.Int64())
 
 	// Save the validators
 	err = m.db.SaveValidatorData(
@@ -32,6 +33,7 @@ func (m *Module) StoreValidatorsFromMsgCreateValidator(height int64, msg *stakin
 			msg.DelegatorAddress,
 			&msg.Commission.MaxChangeRate,
 			&msg.Commission.MaxRate,
+			&delegatorShares,
 			height,
 		),
 	)

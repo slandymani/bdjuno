@@ -16,12 +16,13 @@ type ValidatorData struct {
 	SelfDelegateAddress string `db:"self_delegate_address"`
 	MaxRate             string `db:"max_rate"`
 	MaxChangeRate       string `db:"max_change_rate"`
+	DelegatorShares     string `db:"delegator_shares"`
 	Height              int64  `db:"height"`
 }
 
 // NewValidatorData allows to build a new ValidatorData
 func NewValidatorData(
-	consAddress, valAddress, consPubKey, selfDelegateAddress, maxRate, maxChangeRate string, height int64,
+	consAddress, valAddress, consPubKey, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares string, height int64,
 ) ValidatorData {
 	return ValidatorData{
 		ConsAddress:         consAddress,
@@ -30,6 +31,7 @@ func NewValidatorData(
 		SelfDelegateAddress: selfDelegateAddress,
 		MaxRate:             maxRate,
 		MaxChangeRate:       maxChangeRate,
+		DelegatorShares:     delegatorShares,
 		Height:              height,
 	}
 }
@@ -77,6 +79,15 @@ func (v ValidatorData) GetMaxRate() *sdk.Dec {
 // GetHeight implements types.Validator
 func (v ValidatorData) GetHeight() int64 {
 	return v.Height
+}
+
+func (v ValidatorData) GetDelegatorShares() *sdk.Dec {
+	n, err := strconv.ParseInt(v.DelegatorShares, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	result := sdk.NewDec(n)
+	return &result
 }
 
 // ________________________________________________

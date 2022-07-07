@@ -57,6 +57,7 @@ func (m *Module) convertValidator(height int64, validator stakingtypes.Validator
 		sdk.AccAddress(validator.GetOperator()).String(),
 		&validator.Commission.MaxChangeRate,
 		&validator.Commission.MaxRate,
+		&validator.DelegatorShares,
 		height,
 	), nil
 }

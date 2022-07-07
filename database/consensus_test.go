@@ -17,8 +17,8 @@ func (suite *DbTestSuite) TestSaveConsensus_GetBlockHeightTimeMinuteAgo() {
 	VALUES ('desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', 'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`)
 	suite.Require().NoError(err)
 
-	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp)
-	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2)`, height, timeAgo)
+	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp, size)
+	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2, 10)`, height, timeAgo)
 	suite.Require().NoError(err)
 
 	timeNow := timeAgo.Add(time.Minute)
@@ -38,8 +38,8 @@ func (suite *DbTestSuite) TestSaveConsensus_GetBlockHeightTimeHourAgo() {
 	VALUES ('desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', 'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`)
 	suite.Require().NoError(err)
 
-	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp)
-	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2)`, height, timeAgo)
+	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp, size)
+	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2, 10)`, height, timeAgo)
 	suite.Require().NoError(err)
 
 	timeNow := timeAgo.Add(time.Hour)
@@ -60,8 +60,8 @@ func (suite *DbTestSuite) TestSaveConsensus_GetBlockHeightTimeDayAgo() {
 	VALUES ('desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', 'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`)
 	suite.Require().NoError(err)
 
-	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp)
-	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2)`, height, timeAgo)
+	_, err = suite.database.Sql.Exec(`INSERT INTO block(height, hash, num_txs, total_gas, proposer_address, timestamp, size)
+	VALUES ($1, '5EF85F2251F656BA0FBFED9AEFCBC44A9CCBCFD8B96897E74426E07229D2ADE0', '0', '0', 'desmosvalcons1mxrd5cyjgpx5vfgltrdufq9wq4ynwc799ndrg8', $2, 10)`, height, timeAgo)
 	suite.Require().NoError(err)
 
 	timeNow := timeAgo.Add(time.Hour * 24)

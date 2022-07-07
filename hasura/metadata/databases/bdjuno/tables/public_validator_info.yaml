@@ -17,5 +17,6 @@ select_permissions:
     - self_delegate_address
     - max_change_rate
     - max_rate
+    - delegator_shares
     filter: {}
   role: anonymous
