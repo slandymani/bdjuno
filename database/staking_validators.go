@@ -32,13 +32,13 @@ INSERT INTO validator (consensus_address, consensus_pubkey) VALUES `
 	var validatorParams []interface{}
 
 	validatorInfoQuery := `
-INSERT INTO validator_info (consensus_address, operator_address, self_delegate_address, max_change_rate, max_rate, delegator_shares, height) 
+INSERT INTO validator_info (consensus_address, operator_address, self_delegate_address, max_change_rate, max_rate, delegator_shares, delegated_amount, height) 
 VALUES `
 	var validatorInfoParams []interface{}
 
 	for i, validator := range validators {
 		vp := i * 2 // Starting position for validator params
-		vi := i * 7 // Starting position for validator info params
+		vi := i * 8 // Starting position for validator info params
 
 		selfDelegationAccQuery += fmt.Sprintf("($%d),", i+1)
 		selfDelegationParam = append(selfDelegationParam,
@@ -48,10 +48,10 @@ VALUES `
 		validatorParams = append(validatorParams,
 			validator.GetConsAddr(), validator.GetConsPubKey())
 
-		validatorInfoQuery += fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d),", vi+1, vi+2, vi+3, vi+4, vi+5, vi+6, vi+7)
+		validatorInfoQuery += fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", vi+1, vi+2, vi+3, vi+4, vi+5, vi+6, vi+7, vi+8)
 		validatorInfoParams = append(validatorInfoParams,
 			validator.GetConsAddr(), validator.GetOperator(), validator.GetSelfDelegateAddress(),
-			validator.GetMaxChangeRate().String(), validator.GetMaxRate().String(), validator.GetDelegatorShares().String(), validator.GetHeight(),
+			validator.GetMaxChangeRate().String(), validator.GetMaxRate().String(), validator.GetDelegatorShares().String(), validator.GetDelegatedAmount().String(), validator.GetHeight(),
 		)
 	}
 
@@ -78,6 +78,7 @@ ON CONFLICT (consensus_address) DO UPDATE
 		max_change_rate = excluded.max_change_rate,
 		max_rate = excluded.max_rate,
         delegator_shares = excluded.delegator_shares,
+    	delegated_amount = excluded.delegated_amount,
 		height = excluded.height
 WHERE validator_info.height <= excluded.height`
 	_, err = db.Sql.Exec(validatorInfoQuery, validatorInfoParams...)
@@ -132,7 +133,8 @@ SELECT validator.consensus_address,
        validator_info.max_change_rate, 
        validator_info.max_rate,
        validator_info.self_delegate_address,
-       validator_info.delegator_shares
+       validator_info.delegator_shares,
+       validator_info.delegated_amount
 FROM validator INNER JOIN validator_info ON validator.consensus_address=validator_info.consensus_address 
 WHERE validator_info.operator_address = $1`
 
@@ -159,7 +161,8 @@ SELECT DISTINCT ON (validator.consensus_address)
     validator_info.max_rate,
     validator_info.max_change_rate,
     validator_info.height,
-    validator_info.delegator_shares
+    validator_info.delegator_shares,
+    validator_info.delegated_amount
 FROM validator 
 INNER JOIN validator_info 
     ON validator.consensus_address = validator_info.consensus_address
@@ -190,7 +193,8 @@ SELECT validator.consensus_address,
        validator_info.max_change_rate, 
        validator_info.max_rate,
        validator_info.self_delegate_address,
-       validator_info.delegator_shares
+       validator_info.delegator_shares,
+       validator_info.delegated_amount
 FROM validator INNER JOIN validator_info ON validator.consensus_address=validator_info.consensus_address 
 WHERE validator_info.self_delegate_address = $1`
 

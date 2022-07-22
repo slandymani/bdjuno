@@ -18,5 +18,6 @@ select_permissions:
     - max_change_rate
     - max_rate
     - delegator_shares
+    - delegated_amount
     filter: {}
   role: anonymous

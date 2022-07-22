@@ -34,6 +34,7 @@ func (m *Module) StoreValidatorsFromMsgCreateValidator(height int64, msg *stakin
 			&msg.Commission.MaxChangeRate,
 			&msg.Commission.MaxRate,
 			&delegatorShares,
+			msg.Value.Amount,
 			height,
 		),
 	)

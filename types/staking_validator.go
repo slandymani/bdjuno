@@ -17,6 +17,7 @@ type Validator interface {
 	GetMaxRate() *sdk.Dec
 	GetHeight() int64
 	GetDelegatorShares() *sdk.Dec
+	GetDelegatedAmount() sdk.Int
 }
 
 // validator allows to easily implement the Validator interface
@@ -29,13 +30,14 @@ type validator struct {
 	MaxRate             *sdk.Dec
 	Height              int64
 	DelegatorShares     *sdk.Dec
+	DelegatedAmount     sdk.Int
 }
 
 // NewValidator allows to build a new Validator implementation having the given data
 func NewValidator(
 	consAddr string, opAddr string, consPubKey string,
 	selfDelegateAddress string, maxChangeRate *sdk.Dec,
-	maxRate *sdk.Dec, delegatorShares *sdk.Dec, height int64,
+	maxRate *sdk.Dec, delegatorShares *sdk.Dec, delegatedAmount sdk.Int, height int64,
 ) Validator {
 	return validator{
 		ConsensusAddr:       consAddr,
@@ -45,6 +47,7 @@ func NewValidator(
 		MaxChangeRate:       maxChangeRate,
 		MaxRate:             maxRate,
 		DelegatorShares:     delegatorShares,
+		DelegatedAmount:     delegatedAmount,
 		Height:              height,
 	}
 }
@@ -81,6 +84,10 @@ func (v validator) GetHeight() int64 {
 
 func (v validator) GetDelegatorShares() *sdk.Dec {
 	return v.DelegatorShares
+}
+
+func (v validator) GetDelegatedAmount() sdk.Int {
+	return v.DelegatedAmount
 }
 
 // --------------------------------------------------------------------------------------------------------------------

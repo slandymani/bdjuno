@@ -58,6 +58,7 @@ func (m *Module) convertValidator(height int64, validator stakingtypes.Validator
 		&validator.Commission.MaxChangeRate,
 		&validator.Commission.MaxRate,
 		&validator.DelegatorShares,
+		validator.Tokens,
 		height,
 	), nil
 }

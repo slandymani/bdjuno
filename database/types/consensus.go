@@ -86,6 +86,7 @@ type BlockRow struct {
 	ProposerAddress sql.NullString `db:"proposer_address"`
 	PreCommitsNum   int64          `db:"pre_commits"`
 	Timestamp       time.Time      `db:"timestamp"`
+	Size            int64          `db:"size"`
 }
 
 type AverageBlockSize struct {

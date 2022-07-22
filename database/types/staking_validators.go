@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql"
+	"math/big"
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,12 +18,13 @@ type ValidatorData struct {
 	MaxRate             string `db:"max_rate"`
 	MaxChangeRate       string `db:"max_change_rate"`
 	DelegatorShares     string `db:"delegator_shares"`
+	DelegatedAmount     string `db:"delegated_amount"`
 	Height              int64  `db:"height"`
 }
 
 // NewValidatorData allows to build a new ValidatorData
 func NewValidatorData(
-	consAddress, valAddress, consPubKey, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares string, height int64,
+	consAddress, valAddress, consPubKey, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares string, delegatedAmount big.Int, height int64,
 ) ValidatorData {
 	return ValidatorData{
 		ConsAddress:         consAddress,
@@ -32,6 +34,7 @@ func NewValidatorData(
 		MaxRate:             maxRate,
 		MaxChangeRate:       maxChangeRate,
 		DelegatorShares:     delegatorShares,
+		DelegatedAmount:     delegatedAmount.String(),
 		Height:              height,
 	}
 }
@@ -90,6 +93,12 @@ func (v ValidatorData) GetDelegatorShares() *sdk.Dec {
 	return &result
 }
 
+func (v ValidatorData) GetDelegatedAmount() sdk.Int {
+	n := new(big.Int)
+	n.SetString(v.DelegatedAmount, 10)
+	return sdk.NewIntFromBigInt(n)
+}
+
 // ________________________________________________
 
 // ValidatorRow represents a single row of the validator table
@@ -121,12 +130,14 @@ type ValidatorInfoRow struct {
 	SelfDelegateAddress string `db:"self_delegate_address"`
 	MaxChangeRate       string `db:"max_change_rate"`
 	MaxRate             string `db:"max_rate"`
+	DelegatorShares     string `db:"delegator_shares"`
+	DelegatedAmount     string `db:"delegated_amount"`
 	Height              int64  `db:"height"`
 }
 
 // NewValidatorInfoRow allows to build a new ValidatorInfoRow
 func NewValidatorInfoRow(
-	consAddress, valAddress, selfDelegateAddress, maxRate, maxChangeRate string, height int64,
+	consAddress, valAddress, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares, delegatedAmount string, height int64,
 ) ValidatorInfoRow {
 	return ValidatorInfoRow{
 		ConsAddress:         consAddress,
@@ -134,6 +145,8 @@ func NewValidatorInfoRow(
 		SelfDelegateAddress: selfDelegateAddress,
 		MaxChangeRate:       maxChangeRate,
 		MaxRate:             maxRate,
+		DelegatorShares:     delegatorShares,
+		DelegatedAmount:     delegatedAmount,
 		Height:              height,
 	}
 }
@@ -145,7 +158,9 @@ func (v ValidatorInfoRow) Equal(w ValidatorInfoRow) bool {
 		v.SelfDelegateAddress == w.SelfDelegateAddress &&
 		v.MaxRate == w.MaxRate &&
 		v.MaxChangeRate == w.MaxChangeRate &&
-		v.Height == w.Height
+		v.Height == w.Height &&
+		v.DelegatorShares == w.DelegatorShares &&
+		v.DelegatedAmount == w.DelegatedAmount
 }
 
 // --------------------------------------------------------------------------------------------------------------------

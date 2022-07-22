@@ -2,6 +2,7 @@ package database_test
 
 import (
 	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
+	"math/big"
 
 	"github.com/forbole/bdjuno/v3/types"
 
@@ -36,6 +37,7 @@ func (suite *DbTestSuite) TestSaveValidator() {
 		"1",
 		"2",
 		"10000",
+		*big.NewInt(10000),
 		1,
 	)
 
@@ -64,6 +66,8 @@ func (suite *DbTestSuite) TestSaveValidator() {
 		"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
 		expectedMaxRate.String(),
 		expectedMaxChangeRate.String(),
+		sdk.NewDec(10000).String(),
+		"10000",
 		1,
 	)))
 }
@@ -82,6 +86,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"1",
 			"2",
 			"1000",
+			*big.NewInt(1000),
 			10,
 		),
 		dbtypes.NewValidatorData(
@@ -92,6 +97,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"1",
 			"2",
 			"1000",
+			*big.NewInt(1000),
 			10,
 		),
 	}
@@ -106,6 +112,8 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
+			sdk.NewDec(1000).String(),
+			"1000",
 			10,
 		),
 		dbtypes.NewValidatorInfoRow(
@@ -114,6 +122,8 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a",
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
+			sdk.NewDec(1000).String(),
+			"1000",
 			10,
 		),
 	}
@@ -149,6 +159,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"100",
 			"200",
 			"1000",
+			*big.NewInt(1000),
 			9,
 		),
 		dbtypes.NewValidatorData(
@@ -159,6 +170,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"10",
 			"5",
 			"1000",
+			*big.NewInt(1000),
 			11,
 		),
 	}
@@ -173,6 +185,8 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
+			sdk.NewDec(1000).String(),
+			"1000",
 			10,
 		),
 		dbtypes.NewValidatorInfoRow(
@@ -181,6 +195,8 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a",
 			sdk.NewDec(int64(10)).String(),
 			sdk.NewDec(int64(5)).String(),
+			sdk.NewDec(1000).String(),
+			"1000",
 			11,
 		),
 	}
@@ -219,11 +235,11 @@ VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl',
 	suite.Require().NoError(err)
 
 	_, err = suite.database.Sql.Exec(`
-INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_change_rate,max_rate,delegator_shares,height) 
+INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_change_rate,max_rate,delegator_shares,delegated_amount,height) 
 VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl',
         'cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl',
         'cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a',
-        '2','1','1000','1')`)
+        '2','1','1000',1000, '1')`)
 	suite.Require().NoError(err)
 
 	// Get the data
@@ -255,8 +271,8 @@ func (suite *DbTestSuite) TestGetValidators() {
 	queries := []string{
 		`INSERT INTO validator (consensus_address, consensus_pubkey) VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl', 'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`,
 		`INSERT INTO validator (consensus_address, consensus_pubkey) VALUES ('cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y', 'cosmosvalconspub1zcjduepqe93asg05nlnj30ej2pe3r8rkeryyuflhtfw3clqjphxn4j3u27msrr63nk')`,
-		`INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_rate,max_change_rate,delegator_shares,height) VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl', 'cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl','cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs','1','2','1000',1)`,
-		`INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_rate,max_change_rate,delegator_shares,height) VALUES ('cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y', 'cosmosvaloper1000ya26q2cmh399q4c5aaacd9lmmdqp90kw2jn','cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a','1','2','1000',1)`,
+		`INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_rate,max_change_rate,delegator_shares,delegated_amount,height) VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl', 'cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl','cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs','1','2','1000',1000,1)`,
+		`INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_rate,max_change_rate,delegator_shares,delegated_amount,height) VALUES ('cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y', 'cosmosvaloper1000ya26q2cmh399q4c5aaacd9lmmdqp90kw2jn','cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a','1','2','1000',1000,1)`,
 	}
 
 	for _, query := range queries {
@@ -278,6 +294,7 @@ func (suite *DbTestSuite) TestGetValidators() {
 			"1",
 			"2",
 			"1000",
+			*big.NewInt(1000),
 			1,
 		),
 		dbtypes.NewValidatorData(
@@ -288,6 +305,7 @@ func (suite *DbTestSuite) TestGetValidators() {
 			"1",
 			"2",
 			"1000",
+			*big.NewInt(1000),
 			1,
 		),
 	}
