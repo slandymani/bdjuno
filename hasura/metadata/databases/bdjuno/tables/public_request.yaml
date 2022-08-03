@@ -1,6 +1,25 @@
 table:
   name: request
   schema: public
+object_relationships:
+- name: oracle_script
+  using:
+    manual_configuration:
+      column_mapping:
+        oracle_script_id: id
+      insertion_order: null
+      remote_table:
+        name: oracle_script
+        schema: public
+- name: data_source
+  using:
+    manual_configuration:
+      column_mapping:
+        data_source_id: id
+      insertion_order: null
+      remote_table:
+        name: data_source
+        schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
