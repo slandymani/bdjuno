@@ -67,7 +67,7 @@ func (suite *DbTestSuite) TestSaveValidator() {
 		expectedMaxRate.String(),
 		expectedMaxChangeRate.String(),
 		sdk.NewDec(10000).String(),
-		"10000",
+		10000,
 		1,
 	)))
 }
@@ -113,7 +113,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
 			sdk.NewDec(1000).String(),
-			"1000",
+			1000,
 			10,
 		),
 		dbtypes.NewValidatorInfoRow(
@@ -123,7 +123,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
 			sdk.NewDec(1000).String(),
-			"1000",
+			1000,
 			10,
 		),
 	}
@@ -159,7 +159,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"100",
 			"200",
 			"1000",
-			*big.NewInt(1000),
+			*big.NewInt(10000),
 			9,
 		),
 		dbtypes.NewValidatorData(
@@ -170,7 +170,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"10",
 			"5",
 			"1000",
-			*big.NewInt(1000),
+			*big.NewInt(10000),
 			11,
 		),
 	}
@@ -186,7 +186,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			sdk.NewDec(int64(1)).String(),
 			sdk.NewDec(int64(2)).String(),
 			sdk.NewDec(1000).String(),
-			"1000",
+			1000,
 			10,
 		),
 		dbtypes.NewValidatorInfoRow(
@@ -196,7 +196,7 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			sdk.NewDec(int64(10)).String(),
 			sdk.NewDec(int64(5)).String(),
 			sdk.NewDec(1000).String(),
-			"1000",
+			10000,
 			11,
 		),
 	}

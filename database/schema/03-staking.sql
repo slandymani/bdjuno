@@ -31,7 +31,7 @@ CREATE TABLE validator_info
     max_change_rate       TEXT   NOT NULL,
     max_rate              TEXT   NOT NULL,
     delegator_shares      TEXT   NOT NULL,
-    delegated_amount      TEXT   NOT NULL,
+    delegated_amount      BIGINT NOT NULL,
     height                BIGINT NOT NULL
 );
 CREATE INDEX validator_info_operator_address_index ON validator_info (operator_address);

@@ -51,7 +51,7 @@ VALUES `
 		validatorInfoQuery += fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", vi+1, vi+2, vi+3, vi+4, vi+5, vi+6, vi+7, vi+8)
 		validatorInfoParams = append(validatorInfoParams,
 			validator.GetConsAddr(), validator.GetOperator(), validator.GetSelfDelegateAddress(),
-			validator.GetMaxChangeRate().String(), validator.GetMaxRate().String(), validator.GetDelegatorShares().String(), validator.GetDelegatedAmount().String(), validator.GetHeight(),
+			validator.GetMaxChangeRate().String(), validator.GetMaxRate().String(), validator.GetDelegatorShares().String(), validator.GetDelegatedAmount().Int64(), validator.GetHeight(),
 		)
 	}
 

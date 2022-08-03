@@ -18,7 +18,7 @@ type ValidatorData struct {
 	MaxRate             string `db:"max_rate"`
 	MaxChangeRate       string `db:"max_change_rate"`
 	DelegatorShares     string `db:"delegator_shares"`
-	DelegatedAmount     string `db:"delegated_amount"`
+	DelegatedAmount     int64  `db:"delegated_amount"`
 	Height              int64  `db:"height"`
 }
 
@@ -34,7 +34,7 @@ func NewValidatorData(
 		MaxRate:             maxRate,
 		MaxChangeRate:       maxChangeRate,
 		DelegatorShares:     delegatorShares,
-		DelegatedAmount:     delegatedAmount.String(),
+		DelegatedAmount:     delegatedAmount.Int64(),
 		Height:              height,
 	}
 }
@@ -94,9 +94,7 @@ func (v ValidatorData) GetDelegatorShares() *sdk.Dec {
 }
 
 func (v ValidatorData) GetDelegatedAmount() sdk.Int {
-	n := new(big.Int)
-	n.SetString(v.DelegatedAmount, 10)
-	return sdk.NewIntFromBigInt(n)
+	return sdk.NewInt(v.DelegatedAmount)
 }
 
 // ________________________________________________
@@ -131,13 +129,13 @@ type ValidatorInfoRow struct {
 	MaxChangeRate       string `db:"max_change_rate"`
 	MaxRate             string `db:"max_rate"`
 	DelegatorShares     string `db:"delegator_shares"`
-	DelegatedAmount     string `db:"delegated_amount"`
+	DelegatedAmount     int64  `db:"delegated_amount"`
 	Height              int64  `db:"height"`
 }
 
 // NewValidatorInfoRow allows to build a new ValidatorInfoRow
 func NewValidatorInfoRow(
-	consAddress, valAddress, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares, delegatedAmount string, height int64,
+	consAddress, valAddress, selfDelegateAddress, maxRate, maxChangeRate, delegatorShares string, delegatedAmount int64, height int64,
 ) ValidatorInfoRow {
 	return ValidatorInfoRow{
 		ConsAddress:         consAddress,
