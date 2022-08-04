@@ -16,24 +16,44 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 	switch cosmosMsg := msg.(type) {
 	case *oracletypes.MsgCreateDataSource:
-		return m.handleMsgCreateDataSource(tx.Height, tx.Timestamp, cosmosMsg)
-
-	case *oracletypes.MsgEditDataSource:
-		return m.handleMsgEditDataSource(tx.Height, cosmosMsg)
-
-	case *oracletypes.MsgCreateOracleScript:
-		return m.handleMsgCreateOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
-
-	case *oracletypes.MsgEditOracleScript:
-		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
-
-	case *oracletypes.MsgRequestData:
 		dataSource := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)[0]
 		dataSourceId, err := strconv.ParseInt(dataSource, 10, 64)
 		if err != nil {
 			return fmt.Errorf("error while parsing data source id: %s", err)
 		}
-		return m.handleMsgRequestData(tx.Height, dataSourceId, tx.Timestamp, cosmosMsg)
+		return m.handleMsgCreateDataSource(dataSourceId, tx.Height, tx.Timestamp, cosmosMsg)
+
+	case *oracletypes.MsgEditDataSource:
+		return m.handleMsgEditDataSource(tx.Height, cosmosMsg)
+
+	case *oracletypes.MsgCreateOracleScript:
+		oracleScript := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyOracleScriptID)[0]
+		oracleScriptId, err := strconv.ParseInt(oracleScript, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error while parsing oracle script id: %s", err)
+		}
+		return m.handleMsgCreateOracleScript(oracleScriptId, tx.Height, tx.Timestamp, cosmosMsg)
+
+	case *oracletypes.MsgEditOracleScript:
+		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
+
+	case *oracletypes.MsgRequestData:
+		request := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyID)[0]
+		requestId, err := strconv.ParseInt(request, 10, 64)
+		if err != nil {
+			return fmt.Errorf("error while parsing request id: %s", err)
+		}
+
+		dataSources := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)
+		dataSourceIds := make([]int64, len(dataSources))
+		for i, v := range dataSources {
+			dataSourceId, err := strconv.ParseInt(v, 10, 64)
+			if err != nil {
+				return fmt.Errorf("error while parsing data source id: %s", err)
+			}
+			dataSourceIds[i] = dataSourceId
+		}
+		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
 		return m.handleMsgReportData(cosmosMsg, tx.TxHash)
@@ -42,8 +62,8 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	return nil
 }
 
-func (m *Module) handleMsgCreateDataSource(height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
-	err := m.db.SaveDataSource(height, timestamp, msg)
+func (m *Module) handleMsgCreateDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
+	err := m.db.SaveDataSource(dataSourceId, height, timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data source from MsgCreateDataSource: %s", err)
 	}
@@ -60,8 +80,8 @@ func (m *Module) handleMsgEditDataSource(height int64, msg *oracletypes.MsgEditD
 	return nil
 }
 
-func (m *Module) handleMsgCreateOracleScript(height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
-	err := m.db.SaveOracleScript(height, timestamp, msg)
+func (m *Module) handleMsgCreateOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
+	err := m.db.SaveOracleScript(oracleScriptId, height, timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving oracle script from MsgCreateOracleScript: %s", err)
 	}
@@ -78,13 +98,13 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 	return nil
 }
 
-func (m *Module) handleMsgRequestData(height, dataSourceID int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
 	err := m.db.SetRequestsPerDate(timestamp)
 	if err != nil {
 		return fmt.Errorf("error while setting requests per date: %s", err)
 	}
 
-	err = m.db.SaveDataRequest(height, dataSourceID, timestamp, msg)
+	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, msg)
 	if err != nil {
 		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
 	}

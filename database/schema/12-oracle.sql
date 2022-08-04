@@ -10,7 +10,7 @@ CREATE TABLE oracle_params
 
 CREATE TABLE data_source
 (
-    id           SERIAL NOT NULL PRIMARY KEY,
+    id           INT NOT NULL PRIMARY KEY,--SERIAL NOT NULL PRIMARY KEY,
     create_block BIGINT NOT NULL,
     edit_block   BIGINT,
     name         TEXT NOT NULL,
@@ -25,7 +25,7 @@ CREATE INDEX data_source_id_index ON data_source (id);
 
 CREATE TABLE oracle_script
 (
-    id              SERIAL NOT NULL PRIMARY KEY,
+    id              INT NOT NULL PRIMARY KEY,--SERIAL NOT NULL PRIMARY KEY,
     create_block    BIGINT NOT NULL,
     edit_block      BIGINT,
     name            TEXT NOT NULL,
@@ -40,10 +40,10 @@ CREATE INDEX oracle_script_id_index ON oracle_script (id);
 
 CREATE TABLE request
 (
-    id                SERIAl PRIMARY KEY,
+    id                INT PRIMARY KEY,--SERIAl PRIMARY KEY,
     height            BIGINT,
     oracle_script_id  INT REFERENCES oracle_script (id),
-    data_source_id    INT REFERENCES data_source (id),
+    --data_source_id    INT REFERENCES data_source (id), REMOVED
     calldata          TEXT,
     ask_count         INT,
     min_count         INT,
@@ -92,3 +92,11 @@ CREATE TABLE total_requests
     total_requests_number BIGINT
 );
 CREATE INDEX total_requests_date_index ON total_requests (date);
+
+CREATE TABLE request_data_source
+(
+    request_id        INT REFERENCES request (id),
+    data_source_id    INT REFERENCES data_source (id),
+);
+CREATE INDEX request_source_request_index ON request_source (request_id);
+CREATE INDEX request_source_data_source_index ON request_source (data_source_id);

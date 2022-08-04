@@ -1,0 +1,11 @@
+table:
+  name: request
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - request_id
+        - data_source_id
+      filter: {}
+    role: anonymous
