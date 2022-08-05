@@ -1,5 +1,5 @@
 table:
-  name: request
+  name: request_data_source
   schema: public
 select_permissions:
   - permission:
