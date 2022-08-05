@@ -98,5 +98,5 @@ CREATE TABLE request_data_source
     request_id        INT REFERENCES request (id),
     data_source_id    INT REFERENCES data_source (id),
 );
-CREATE INDEX request_source_request_index ON request_source (request_id);
-CREATE INDEX request_source_data_source_index ON request_source (data_source_id);
+CREATE INDEX request_data_source_request_index ON request_source (request_id);
+CREATE INDEX request_data_source_data_source_index ON request_source (data_source_id);
