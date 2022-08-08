@@ -136,21 +136,20 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 	return nil
 }
 
-//TODO: Optimise method(?)
 func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) error {
-	stmt := `
-INSERT INTO request_data_source (request_id, data_source_id)
-VALUES ($1, $2)`
+	query := `INSERT INTO request_data_source (request_id, data_source_id) VALUES`
 
-	for _, sourceId := range dataSourceIDs {
+	var params []interface{}
+	for i, sourceId := range dataSourceIDs {
+		vi := i * 2 // number of rows in table
+		query += fmt.Sprintf("($%d,$%d),", vi+1, vi+2)
+		params = append(params, requestId, sourceId)
+	}
+	query = query[:len(query)-1] // remove trailing ","
 
-		_, err := db.Sql.Exec(
-			stmt, requestId, sourceId,
-		)
-
-		if err != nil {
-			return err
-		}
+	_, err := db.Sql.Exec(query, params...)
+	if err != nil {
+		return fmt.Errorf("error while storing request data sources: %s", err)
 	}
 
 	return nil
