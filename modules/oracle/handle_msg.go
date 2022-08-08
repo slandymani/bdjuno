@@ -56,7 +56,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
-		return m.handleMsgReportData(cosmosMsg, tx.TxHash)
+		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, tx.Timestamp)
 	}
 
 	return nil
@@ -112,8 +112,33 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 	return nil
 }
 
-func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string) error {
-	err := m.db.SaveDataReport(msg, txHash)
+func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height int64, timestamp string) error {
+	scriptId, err := m.db.GetOracleScriptIdByRequestId(int64(msg.RequestID))
+	if err != nil { // if not found in db - search in blockchain
+
+		res, err := m.source.GetOracleScriptByRequestId(height, int64(msg.RequestID))
+		if err != nil {
+			return fmt.Errorf("error while saving data report from MsgReportData: %s", err)
+		}
+
+		//forming params to save oracle script
+		createMsg := &oracletypes.MsgCreateOracleScript{
+			Name:          res.Name,
+			Description:   res.Description,
+			Schema:        res.Schema,
+			SourceCodeURL: res.SourceCodeURL,
+			Owner:         res.Owner,
+		}
+
+		err = m.db.SaveOracleScript(int64(res.ID), height, timestamp, createMsg)
+		if err != nil {
+			return fmt.Errorf("error while saving oracle script from MsgCreateOracleScript: %s", err)
+		}
+
+		//set script id to save report
+		scriptId = int(res.ID)
+	}
+	err = m.db.SaveDataReport(msg, txHash, int64(scriptId))
 	if err != nil {
 		return fmt.Errorf("error while saving data report from MsgReportData: %s", err)
 	}

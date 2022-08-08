@@ -180,18 +180,12 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 	return requests, nil
 }
 
-func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string) error {
+func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, scriptId int64) error {
 	stmt := `
 INSERT INTO report (validator, oracle_script_id, tx_hash)
 VALUES ($1, $2, $3)`
 
-	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
-	var scriptID []int
-	if err := db.Sqlx.Select(&scriptID, stmtSelect, msg.RequestID); err != nil {
-		return fmt.Errorf("error while getting oracle script name: %s", err)
-	}
-
-	_, err := db.Sql.Exec(stmt, msg.Validator, scriptID[0], txHash)
+	_, err := db.Sql.Exec(stmt, msg.Validator, scriptId, txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}
@@ -203,6 +197,21 @@ VALUES ($1, $2, $3)`
 	}
 
 	return nil
+}
+
+func (db *Db) GetOracleScriptIdByRequestId(requestId int64) (int, error) {
+	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
+	var scriptID []int
+	err := db.Sqlx.Select(&scriptID, stmtSelect, requestId)
+	if err != nil {
+		return 0, fmt.Errorf("error while getting oracle script id: %s", err)
+	}
+
+	if len(scriptID) == 0 {
+		return 0, fmt.Errorf("error while getting oracle script id: %s", err)
+	}
+
+	return scriptID[0], nil
 }
 
 func (db *Db) SetRequestsPerDate(timestamp string) error {

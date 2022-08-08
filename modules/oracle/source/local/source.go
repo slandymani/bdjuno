@@ -73,3 +73,25 @@ func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
 
 	return res.Pool, nil
 }
+
+func (s *Source) GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.OracleScript{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	req, err := s.GetRequestStatus(height, id)
+	if err != nil {
+		return oracletypes.OracleScript{}, fmt.Errorf("error while getting request result: %s", err)
+	}
+
+	res, err := s.client.OracleScript(
+		remote.GetHeightRequestContext(sdk.WrapSDKContext(ctx), height),
+		&oracletypes.QueryOracleScriptRequest{OracleScriptId: int64(req.OracleScriptID)},
+	)
+	if err != nil {
+		return oracletypes.OracleScript{}, fmt.Errorf("error while getting oracle script result: %s", err)
+	}
+
+	return *res.OracleScript, nil
+}
