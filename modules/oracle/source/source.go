@@ -9,5 +9,6 @@ type Source interface {
 	GetParams(height int64) (oracletypes.Params, error)
 	GetRequestStatus(height, id int64) (oracletypes.Result, error)
 	GetDataProvidersPool(height int64) (sdk.Coins, error)
-	GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error)
+	//TODO:REMOVE---------------
+	//GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error)
 }
