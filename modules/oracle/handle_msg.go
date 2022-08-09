@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"errors"
 	"fmt"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,9 +16,9 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	}
 
 	switch cosmosMsg := msg.(type) {
+
 	case *oracletypes.MsgCreateDataSource:
-		dataSource := GetValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)[0]
-		dataSourceId, err := strconv.ParseInt(dataSource, 10, 64)
+		dataSourceId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)
 		if err != nil {
 			return fmt.Errorf("error while parsing data source id: %s", err)
 		}
@@ -27,8 +28,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		return m.handleMsgEditDataSource(tx.Height, cosmosMsg)
 
 	case *oracletypes.MsgCreateOracleScript:
-		oracleScript := GetValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)[0]
-		oracleScriptId, err := strconv.ParseInt(oracleScript, 10, 64)
+		oracleScriptId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)
 		if err != nil {
 			return fmt.Errorf("error while parsing oracle script id: %s", err)
 		}
@@ -38,8 +38,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
 
 	case *oracletypes.MsgRequestData:
-		request := GetValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)[0]
-		requestId, err := strconv.ParseInt(request, 10, 64)
+		requestId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)
 		if err != nil {
 			return fmt.Errorf("error while parsing request id: %s", err)
 		}
@@ -161,4 +160,19 @@ func GetValueFromEvents(events []abcitypes.Event, eventType, key string) []strin
 	}
 
 	return res
+}
+
+func GetIdValueFromEvents(events []abcitypes.Event, eventType, key string) (int64, error) {
+	idValue := GetValueFromEvents(events, eventType, key)
+
+	if len(idValue) == 0 {
+		return 0, errors.New("Id value that matches given key not found")
+	}
+
+	id, err := strconv.ParseInt(idValue[0], 10, 64)
+	if err != nil {
+		return 0, fmt.Errorf("Error while parsing id value: %s", err)
+	}
+
+	return id, nil
 }
