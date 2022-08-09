@@ -43,6 +43,11 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		}
 
 		dataSources := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)
+
+		if len(dataSources) == 0 {
+			return errors.New("Cannot get request data sources")
+		}
+
 		dataSourceIds := make([]int64, len(dataSources))
 		for i, v := range dataSources {
 			dataSourceId, err := strconv.ParseInt(v, 10, 64)
