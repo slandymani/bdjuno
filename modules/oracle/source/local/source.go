@@ -4,6 +4,7 @@ import (
 	"fmt"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/forbole/juno/v3/node/local"
 	"github.com/forbole/juno/v3/node/remote"
 
@@ -72,6 +73,55 @@ func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
 	}
 
 	return res.Pool, nil
+}
+
+func (s *Source) GetRequests(height int64) ([]oracletypes.RequestResult, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	reqParams := oracletypes.QueryRequestsRequest{}
+	res, err := s.client.Requests(
+		sdk.WrapSDKContext(ctx),
+		&reqParams,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading requests: %s", err)
+	}
+
+	return res.Requests, nil
+}
+
+func (s *Source) GetDataSources(height int64) ([]oracletypes.DataSource, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	var dataSources []oracletypes.DataSource
+	var nextKey []byte
+	var stop = false
+	for !stop {
+		res, err := s.client.DataSources(
+			sdk.WrapSDKContext(ctx),
+			&oracletypes.QueryDataSourcesRequest{
+				Pagination: &query.PageRequest{
+					Key:   nextKey,
+					Limit: 100, // Query 100 data sources at time
+				},
+			},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error while loading data sources: %s", err)
+		}
+
+		nextKey = res.Pagination.NextKey
+		stop = len(res.Pagination.NextKey) == 0
+		dataSources = append(dataSources, res.DataSources...)
+	}
+
+	return dataSources, nil
 }
 
 //TODO:REMOVE---------------

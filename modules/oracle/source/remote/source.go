@@ -61,6 +61,34 @@ func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
 	return res.Pool, nil
 }
 
+func (s *Source) GetRequests(height int64) ([]oracletypes.RequestResult, error) {
+	ctx := remote.GetHeightRequestContext(s.Ctx, height)
+
+	reqParams := oracletypes.QueryRequestsRequest{}
+	res, err := s.client.Requests(
+		ctx,
+		&reqParams,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading requests: %s", err)
+	}
+
+	return res.Requests, nil
+}
+
+func (s Source) GetDataSources(height int64) ([]oracletypes.DataSource, error) {
+	ctx := remote.GetHeightRequestContext(s.Ctx, height)
+	res, err := s.client.DataSources(
+		ctx,
+		&oracletypes.QueryDataSourcesRequest{},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading data sources: %s", err)
+	}
+
+	return res.DataSources, nil
+}
+
 //TODO:REMOVE---------------
 //func (s *Source) GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error) {
 //	req, err := s.GetRequestStatus(height, id)

@@ -1,6 +1,7 @@
 package parse
 
 import (
+	"github.com/forbole/bdjuno/v3/cmd/parse/oracle"
 	parse "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/spf13/cobra"
 
@@ -29,6 +30,7 @@ func NewParseCmd(parseCfg *parse.Config) *cobra.Command {
 		parsegov.NewGovCmd(parseCfg),
 		parsestaking.NewStakingCmd(parseCfg),
 		parsefeegrant.NewFeegrantCmd(parseCfg),
+		oracle.NewOracleCmd(parseCfg),
 	)
 
 	return cmd
