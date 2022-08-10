@@ -1,11 +1,10 @@
 package oracle
 
 import (
-	"errors"
-	"fmt"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	juno "github.com/forbole/juno/v3/types"
+	"github.com/pkg/errors"
 	abcitypes "github.com/tendermint/tendermint/abci/types"
 	"strconv"
 )
@@ -19,7 +18,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	case *oracletypes.MsgCreateDataSource:
 		dataSourceId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)
 		if err != nil {
-			return fmt.Errorf("error while parsing data source id: %s", err)
+			return errors.Wrap(err, "error while parsing data source id")
 		}
 		return m.handleMsgCreateDataSource(dataSourceId, tx.Height, tx.Timestamp, cosmosMsg)
 
@@ -29,7 +28,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	case *oracletypes.MsgCreateOracleScript:
 		oracleScriptId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)
 		if err != nil {
-			return fmt.Errorf("error while parsing oracle script id: %s", err)
+			return errors.Wrap(err, "error while parsing oracle script id")
 		}
 		return m.handleMsgCreateOracleScript(oracleScriptId, tx.Height, tx.Timestamp, cosmosMsg)
 
@@ -39,7 +38,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	case *oracletypes.MsgRequestData:
 		requestId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)
 		if err != nil {
-			return fmt.Errorf("error while parsing request id: %s", err)
+			return errors.Wrap(err, "error while parsing request id")
 		}
 
 		dataSources := GetValueFromEvents(tx.Events, oracletypes.EventTypeRawRequest, oracletypes.AttributeKeyDataSourceID)
@@ -52,7 +51,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		for i, v := range dataSources {
 			dataSourceId, err := strconv.ParseInt(v, 10, 64)
 			if err != nil {
-				return fmt.Errorf("error while parsing data source id: %s", err)
+				return errors.Wrap(err, "error while parsing data source id")
 			}
 			dataSourceIds[i] = dataSourceId
 		}
@@ -68,7 +67,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 func (m *Module) handleMsgCreateDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
 	err := m.db.SaveDataSource(dataSourceId, height, timestamp, msg)
 	if err != nil {
-		return fmt.Errorf("error while saving data source from MsgCreateDataSource: %s", err)
+		return errors.Wrap(err, "error while saving data source from MsgCreateDataSource")
 	}
 
 	return nil
@@ -77,7 +76,7 @@ func (m *Module) handleMsgCreateDataSource(dataSourceId, height int64, timestamp
 func (m *Module) handleMsgEditDataSource(height int64, msg *oracletypes.MsgEditDataSource) error {
 	err := m.db.EditDataSource(height, msg)
 	if err != nil {
-		return fmt.Errorf("error while editing data source from MsgEditDataSource: %s", err)
+		return errors.Wrap(err, "error while editing data source from MsgEditDataSource")
 	}
 
 	return nil
@@ -86,7 +85,7 @@ func (m *Module) handleMsgEditDataSource(height int64, msg *oracletypes.MsgEditD
 func (m *Module) handleMsgCreateOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
 	err := m.db.SaveOracleScript(oracleScriptId, height, timestamp, msg)
 	if err != nil {
-		return fmt.Errorf("error while saving oracle script from MsgCreateOracleScript: %s", err)
+		return errors.Wrap(err, "error while saving oracle script from MsgCreateOracleScript")
 	}
 
 	return nil
@@ -95,7 +94,7 @@ func (m *Module) handleMsgCreateOracleScript(oracleScriptId, height int64, times
 func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *oracletypes.MsgEditOracleScript) error {
 	err := m.db.EditOracleScript(height, msg)
 	if err != nil {
-		return fmt.Errorf("error while editing oracle script from MsgEditOracleScript: %s", err)
+		return errors.Wrap(err, "error while editing oracle script from MsgEditOracleScript")
 	}
 
 	return nil
@@ -104,12 +103,12 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
 	err := m.db.SetRequestsPerDate(timestamp)
 	if err != nil {
-		return fmt.Errorf("error while setting requests per date: %s", err)
+		return errors.Wrap(err, "error while setting requests per date")
 	}
 
 	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, msg)
 	if err != nil {
-		return fmt.Errorf("error while saving data request from MsgRequestData: %s", err)
+		return errors.Wrap(err, "error while saving data request from MsgRequestData")
 	}
 
 	return nil
@@ -118,7 +117,7 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string) error {
 	err := m.db.SaveDataReport(msg, txHash)
 	if err != nil {
-		return fmt.Errorf("error while saving data report from MsgReportData: %s", err)
+		return errors.Wrap(err, "error while saving data report from MsgReportData")
 	}
 
 	return nil
@@ -149,7 +148,7 @@ func GetIdValueFromEvents(events []abcitypes.Event, eventType, key string) (int6
 
 	id, err := strconv.ParseInt(idValue[0], 10, 64)
 	if err != nil {
-		return 0, fmt.Errorf("Error while parsing id value: %s", err)
+		return 0, errors.Wrap(err, "Error while parsing id value")
 	}
 
 	return id, nil
