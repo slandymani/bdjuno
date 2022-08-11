@@ -4,6 +4,7 @@ import (
 	"github.com/forbole/bdjuno/v3/modules/actions"
 	"github.com/forbole/bdjuno/v3/modules/types"
 
+	telemetry1 "github.com/forbole/bdjuno/v3/modules/telemetry"
 	"github.com/forbole/juno/v3/modules/pruning"
 	"github.com/forbole/juno/v3/modules/telemetry"
 
@@ -83,6 +84,7 @@ func (r *Registrar) BuildModules(ctx registrar.Context) jmodules.Modules {
 	slashingModule := slashing.NewModule(sources.SlashingSource, cdc, db)
 	stakingModule := staking.NewModule(sources.StakingSource, slashingModule, cdc, db)
 	govModule := gov.NewModule(sources.GovSource, authModule, distrModule, mintModule, slashingModule, stakingModule, cdc, db)
+	telemetryModule := telemetry1.NewModule(sources.TelemetrySource, cdc, db)
 
 	return []jmodules.Module{
 		messages.NewModule(r.parser, cdc, ctx.Database),
@@ -103,5 +105,6 @@ func (r *Registrar) BuildModules(ctx registrar.Context) jmodules.Modules {
 		stakingModule,
 
 		oracle.NewModule(sources.OracleSource, db),
+		telemetryModule,
 	}
 }

@@ -2,6 +2,8 @@ package types
 
 import (
 	"fmt"
+	telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
+	telemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source"
 
 	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/tendermint/tendermint/libs/log"
@@ -44,16 +46,19 @@ import (
 	stakingsource "github.com/forbole/bdjuno/v3/modules/staking/source"
 	localstakingsource "github.com/forbole/bdjuno/v3/modules/staking/source/local"
 	remotestakingsource "github.com/forbole/bdjuno/v3/modules/staking/source/remote"
+	localtelemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source/local"
+	remotetelemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source/remote"
 )
 
 type Sources struct {
-	BankSource     banksource.Source
-	DistrSource    distrsource.Source
-	GovSource      govsource.Source
-	MintSource     mintsource.Source
-	OracleSource   oraclesource.Source
-	SlashingSource slashingsource.Source
-	StakingSource  stakingsource.Source
+	BankSource      banksource.Source
+	DistrSource     distrsource.Source
+	GovSource       govsource.Source
+	MintSource      mintsource.Source
+	OracleSource    oraclesource.Source
+	SlashingSource  slashingsource.Source
+	StakingSource   stakingsource.Source
+	TelemetrySource telemetrysource.Source
 }
 
 func BuildSources(nodeCfg nodeconfig.Config, encodingConfig *params.EncodingConfig) (*Sources, error) {
@@ -80,13 +85,14 @@ func buildLocalSources(cfg *local.Details, encodingConfig *params.EncodingConfig
 	)
 
 	sources := &Sources{
-		BankSource:     localbanksource.NewSource(source, banktypes.QueryServer(app.BankKeeper)),
-		DistrSource:    localdistrsource.NewSource(source, distrtypes.QueryServer(app.DistrKeeper)),
-		GovSource:      localgovsource.NewSource(source, govtypes.QueryServer(app.GovKeeper)),
-		MintSource:     localmintsource.NewSource(source, minttypes.QueryServer(app.MintKeeper)),
-		OracleSource:   localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),
-		SlashingSource: localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
-		StakingSource:  localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
+		BankSource:      localbanksource.NewSource(source, banktypes.QueryServer(app.BankKeeper)),
+		DistrSource:     localdistrsource.NewSource(source, distrtypes.QueryServer(app.DistrKeeper)),
+		GovSource:       localgovsource.NewSource(source, govtypes.QueryServer(app.GovKeeper)),
+		MintSource:      localmintsource.NewSource(source, minttypes.QueryServer(app.MintKeeper)),
+		OracleSource:    localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),
+		SlashingSource:  localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
+		StakingSource:   localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
+		TelemetrySource: localtelemetrysource.NewSource(source, telemetrytypes.QueryServer(app.TelemetryKeeper)),
 	}
 
 	// Mount and initialize the stores
@@ -120,12 +126,13 @@ func buildRemoteSources(cfg *remote.Details) (*Sources, error) {
 	}
 
 	return &Sources{
-		BankSource:     remotebanksource.NewSource(source, banktypes.NewQueryClient(source.GrpcConn)),
-		DistrSource:    remotedistrsource.NewSource(source, distrtypes.NewQueryClient(source.GrpcConn)),
-		GovSource:      remotegovsource.NewSource(source, govtypes.NewQueryClient(source.GrpcConn)),
-		MintSource:     remotemintsource.NewSource(source, minttypes.NewQueryClient(source.GrpcConn)),
-		OracleSource:   remoteoraclesource.NewSource(source, oracletypes.NewQueryClient(source.GrpcConn)),
-		SlashingSource: remoteslashingsource.NewSource(source, slashingtypes.NewQueryClient(source.GrpcConn)),
-		StakingSource:  remotestakingsource.NewSource(source, stakingtypes.NewQueryClient(source.GrpcConn)),
+		BankSource:      remotebanksource.NewSource(source, banktypes.NewQueryClient(source.GrpcConn)),
+		DistrSource:     remotedistrsource.NewSource(source, distrtypes.NewQueryClient(source.GrpcConn)),
+		GovSource:       remotegovsource.NewSource(source, govtypes.NewQueryClient(source.GrpcConn)),
+		MintSource:      remotemintsource.NewSource(source, minttypes.NewQueryClient(source.GrpcConn)),
+		OracleSource:    remoteoraclesource.NewSource(source, oracletypes.NewQueryClient(source.GrpcConn)),
+		SlashingSource:  remoteslashingsource.NewSource(source, slashingtypes.NewQueryClient(source.GrpcConn)),
+		StakingSource:   remotestakingsource.NewSource(source, stakingtypes.NewQueryClient(source.GrpcConn)),
+		TelemetrySource: remotetelemetrysource.NewSource(source, telemetrytypes.NewQueryClient(source.GrpcConn)),
 	}, nil
 }

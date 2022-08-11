@@ -19,22 +19,12 @@ array_relationships:
         table:
           name: request_data_source
           schema: public
-#- name: data_source
-#  using:
-#    manual_configuration:
-#      column_mapping:
-#        data_source_id: id
-#      insertion_order: null
-#      remote_table:
-#        name: data_source
-#        schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
       columns:
         - id
         - oracle_script_id
-#        - data_source_id
         - calldata
         - ask_count
         - min_count
