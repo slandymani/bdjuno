@@ -11,9 +11,10 @@ CREATE INDEX supply_height_index ON supply (height);
 
 CREATE TABLE account_balance
 (
-    address         TEXT NOT NULL UNIQUE PRIMARY KEY REFERENCES account (address),
+    address         TEXT NOT NULL UNIQUE PRIMARY KEY,
     loki_balance    BIGINT,
-    minigeo_balance BIGINT,
+    mgeo_balance    BIGINT,
+    all_balances    COIN[],
     height          BIGINT NOT NULL
 );
 CREATE INDEX account_balance_address_index ON account_balance (address);

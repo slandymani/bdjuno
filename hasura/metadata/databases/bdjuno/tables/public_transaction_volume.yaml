@@ -1,0 +1,12 @@
+table:
+  name: txs_per_date
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - date
+        - txs_number
+      filter: {}
+    role: anonymous
