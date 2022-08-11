@@ -8,3 +8,6 @@ config.yaml
 
 # Coverage
 coverage.*
+
+# Local files
+*_local.*

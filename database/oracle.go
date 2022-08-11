@@ -35,13 +35,13 @@ WHERE oracle_params.height <= excluded.height`
 	return nil
 }
 
-func (db *Db) SaveDataSource(height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
+func (db *Db) SaveDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
 	stmt := `
-INSERT INTO data_source (create_block, edit_block, name, description, executable, fee, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+INSERT INTO data_source (id, create_block, edit_block, name, description, executable, fee, owner, sender, timestamp)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	_, err := db.Sql.Exec(
-		stmt, height, height,
+		stmt, dataSourceId, height, height,
 		msg.Name, msg.Description,
 		string(msg.Executable), pq.Array(dbtypes.NewDbCoins(msg.Fee)),
 		msg.Owner, msg.Owner, timestamp,
@@ -75,13 +75,13 @@ UPDATE data_source
 	return nil
 }
 
-func (db *Db) SaveOracleScript(height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
+func (db *Db) SaveOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
 	stmt := `
-INSERT INTO oracle_script (create_block, edit_block, name, description, schema, source_code_url, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+INSERT INTO oracle_script (id, create_block, edit_block, name, description, schema, source_code_url, owner, sender, timestamp)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
 
 	_, err := db.Sql.Exec(
-		stmt, height, height,
+		stmt, oracleScriptId, height, height,
 		msg.Name, msg.Description,
 		msg.Schema, msg.SourceCodeURL,
 		msg.Owner, msg.Owner, timestamp,
@@ -114,18 +114,42 @@ UPDATE oracle_script
 	return nil
 }
 
-func (db *Db) SaveDataRequest(height, dataSourceID int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
-INSERT INTO request (oracle_script_id, data_source_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
+INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
 	_, err := db.Sql.Exec(
-		stmt, msg.OracleScriptID, dataSourceID, height, calldata, msg.AskCount,
+		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
 		msg.PrepareGas, msg.ExecuteGas, msg.Sender, timestamp,
 	)
 	if err != nil {
 		return fmt.Errorf("error while storing data request: %s", err)
+	}
+
+	err = db.saveRequestDataSources(requestId, dataSourceIDs)
+	if err != nil {
+		return fmt.Errorf("error while storing request data sources: %s", err)
+	}
+
+	return nil
+}
+
+func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) error {
+	query := `INSERT INTO request_data_source (request_id, data_source_id) VALUES`
+
+	var params []interface{}
+	for i, sourceId := range dataSourceIDs {
+		vi := i * 2 // number of rows in table
+		query += fmt.Sprintf("($%d,$%d),", vi+1, vi+2)
+		params = append(params, requestId, sourceId)
+	}
+	query = query[:len(query)-1] // remove trailing ","
+
+	_, err := db.Sql.Exec(query, params...)
+	if err != nil {
+		return fmt.Errorf("error while storing request data sources: %s", err)
 	}
 
 	return nil

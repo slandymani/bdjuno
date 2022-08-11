@@ -2,31 +2,29 @@ table:
   name: request
   schema: public
 object_relationships:
-- name: oracle_script
-  using:
-    manual_configuration:
-      column_mapping:
-        oracle_script_id: id
-      insertion_order: null
-      remote_table:
-        name: oracle_script
-        schema: public
-- name: data_source
-  using:
-    manual_configuration:
-      column_mapping:
-        data_source_id: id
-      insertion_order: null
-      remote_table:
-        name: data_source
-        schema: public
+  - name: oracle_script
+    using:
+      manual_configuration:
+        column_mapping:
+          oracle_script_id: id
+        insertion_order: null
+        remote_table:
+          name: oracle_script
+          schema: public
+array_relationships:
+  - name: request_data_sources
+    using:
+      foreign_key_constraint_on:
+        column: request_id
+        table:
+          name: request_data_source
+          schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
       columns:
         - id
         - oracle_script_id
-        - data_source_id
         - calldata
         - ask_count
         - min_count
