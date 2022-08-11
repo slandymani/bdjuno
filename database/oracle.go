@@ -180,12 +180,18 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 	return requests, nil
 }
 
-func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, scriptId int64) error {
+func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string) error {
 	stmt := `
 INSERT INTO report (validator, oracle_script_id, tx_hash)
 VALUES ($1, $2, $3)`
 
-	_, err := db.Sql.Exec(stmt, msg.Validator, scriptId, txHash)
+	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
+	var scriptID []int
+	if err := db.Sqlx.Select(&scriptID, stmtSelect, msg.RequestID); err != nil {
+		return fmt.Errorf("error while getting oracle script name: %s", err)
+	}
+
+	_, err := db.Sql.Exec(stmt, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}

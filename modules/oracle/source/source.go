@@ -7,10 +7,16 @@ import (
 
 type Source interface {
 	GetParams(height int64) (oracletypes.Params, error)
+
+	GetRequestInfo(height, id int64) (oracletypes.RequestResult, error)
+	GetRequestsInfo(height int64) ([]oracletypes.RequestResult, error)
 	GetRequestStatus(height, id int64) (oracletypes.Result, error)
+
+	GetDataSourceInfo(height, id int64) (oracletypes.DataSource, error)
+	GetDataSourcesInfo(height int64) ([]oracletypes.DataSource, error)
+
+	GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript, error)
+	//GetOracleScriptsInfo(height int64) (oracletypes.OracleScript, error)
+
 	GetDataProvidersPool(height int64) (sdk.Coins, error)
-	GetRequests(height int64) ([]oracletypes.RequestResult, error)
-	GetDataSources(height int64) ([]oracletypes.DataSource, error)
-	//TODO:REMOVE---------------
-	//GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error)
 }

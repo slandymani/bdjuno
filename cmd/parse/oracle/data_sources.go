@@ -1,19 +1,21 @@
 package oracle
 
 import (
-	"errors"
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
+	"github.com/forbole/bdjuno/v3/modules/oracle"
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
+	"github.com/pkg/errors"
 
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
 	"github.com/spf13/cobra"
 )
 
-// sourcesCmd returns a Cobra command that allows to refresh data sources.
-func sourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
+// dataSourcesCmd returns a Cobra command that allows to refresh data sources.
+func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "sources",
+		Use:   "data-sources",
 		Short: "Refresh the information about data sources taking them from the latest known height",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			parseCtx, err := parsecmdtypes.GetParserContext(config.Cfg, parseConfig)
@@ -27,10 +29,10 @@ func sourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			}
 
 			// Get the database
-			//db := database.Cast(parseCtx.Database)
+			db := database.Cast(parseCtx.Database)
 
 			// Build the oracle module
-			//oracleModule := oracle.NewModule(sources.OracleSource, db)
+			oracleModule := oracle.NewModule(sources.OracleSource, db)
 
 			// Get latest height
 			height, err := parseCtx.Node.LatestHeight()
@@ -39,13 +41,21 @@ func sourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			}
 
 			// Get all data sources
-			dataSources, err := sources.OracleSource.GetDataSources(height)
+			dataSources, err := sources.OracleSource.GetDataSourcesInfo(height)
 			if err != nil {
 				return fmt.Errorf("error while getting data sources: %s", err)
 			}
 
-			s := fmt.Sprintf("Norm?: %d", int(dataSources[0].ID))
-			return errors.New(s)
+			// Refresh data sources
+			for _, dataSource := range dataSources {
+				err = oracleModule.RefreshDataSourceInfo(height, dataSource)
+				if err != nil {
+					return errors.Wrap(err, "error while refreshing data sources")
+				}
+			}
+
+			// Everything is ok
+			return nil
 		},
 	}
 }

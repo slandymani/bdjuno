@@ -6,18 +6,26 @@ import (
 	"github.com/forbole/bdjuno/v3/modules/oracle"
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
 	"github.com/pkg/errors"
+	"strconv"
 
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
 	"github.com/spf13/cobra"
 )
 
-// requestsCmd returns a Cobra command that allows to refresh requests.
-func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
+// dataSourceCmd returns a Cobra command that allows to refresh data sources by id.
+func dataSourceCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "requests",
-		Short: "Refresh the information about requests taking them from the latest known height",
+		Use:   "data-source [id]",
+		Args:  cobra.ExactValidArgs(1),
+		Short: "Refresh the information about selected data source taking it from the latest known height",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// Parse id from args
+			id, err := strconv.Atoi(args[0])
+			if err != nil {
+				return err
+			}
+
 			parseCtx, err := parsecmdtypes.GetParserContext(config.Cfg, parseConfig)
 			if err != nil {
 				return err
@@ -40,22 +48,20 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 				return fmt.Errorf("error while getting latest block height: %s", err)
 			}
 
-			// Get all requests
-			requests, err := sources.OracleSource.GetRequestsInfo(height)
+			// Get selected data source
+			dataSource, err := sources.OracleSource.GetDataSourceInfo(height, int64(id))
 			if err != nil {
-				return errors.Wrap(err, "error while getting requests")
+				return errors.Wrap(err, "error while getting data source")
 			}
 
-			//Refresh each request
-			for _, request := range requests {
-				err = oracleModule.RefreshRequestInfos(height, request)
-				if err != nil {
-					return fmt.Errorf("error while refreshing requests: %s", err)
-				}
+			// Refresh data source
+			err = oracleModule.RefreshDataSourceInfo(height, dataSource)
+			if err != nil {
+				return errors.Wrap(err, "error while refreshing data source")
 			}
 
-			//s := fmt.Sprintf("Norm?: %d", int(requests.OracleScriptID))
-			return errors.New("Norm?: ")
+			// Everything is ok
+			return nil
 		},
 	}
 }

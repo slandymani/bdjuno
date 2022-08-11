@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/forbole/juno/v3/node/local"
 	"github.com/forbole/juno/v3/node/remote"
+	"github.com/pkg/errors"
 
 	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
 )
@@ -75,25 +76,7 @@ func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
 	return res.Pool, nil
 }
 
-func (s *Source) GetRequests(height int64) ([]oracletypes.RequestResult, error) {
-	ctx, err := s.LoadHeight(height)
-	if err != nil {
-		return nil, fmt.Errorf("error while loading height: %s", err)
-	}
-
-	reqParams := oracletypes.QueryRequestsRequest{}
-	res, err := s.client.Requests(
-		sdk.WrapSDKContext(ctx),
-		&reqParams,
-	)
-	if err != nil {
-		return nil, fmt.Errorf("error while loading requests: %s", err)
-	}
-
-	return res.Requests, nil
-}
-
-func (s *Source) GetDataSources(height int64) ([]oracletypes.DataSource, error) {
+func (s *Source) GetDataSourcesInfo(height int64) ([]oracletypes.DataSource, error) {
 	ctx, err := s.LoadHeight(height)
 	if err != nil {
 		return nil, fmt.Errorf("error while loading height: %s", err)
@@ -124,25 +107,94 @@ func (s *Source) GetDataSources(height int64) ([]oracletypes.DataSource, error) 
 	return dataSources, nil
 }
 
-//TODO:REMOVE---------------
-//func (s *Source) GetOracleScriptByRequestId(height, id int64) (oracletypes.OracleScript, error) {
-//	ctx, err := s.LoadHeight(height)
-//	if err != nil {
-//		return oracletypes.OracleScript{}, fmt.Errorf("error while loading height: %s", err)
-//	}
-//
-//	req, err := s.GetRequestStatus(height, id)
-//	if err != nil {
-//		return oracletypes.OracleScript{}, fmt.Errorf("error while getting request result: %s", err)
-//	}
-//
-//	res, err := s.client.OracleScript(
-//		remote.GetHeightRequestContext(sdk.WrapSDKContext(ctx), height),
-//		&oracletypes.QueryOracleScriptRequest{OracleScriptId: int64(req.OracleScriptID)},
-//	)
-//	if err != nil {
-//		return oracletypes.OracleScript{}, fmt.Errorf("error while getting oracle script result: %s", err)
-//	}
-//
-//	return *res.OracleScript, nil
-//}
+func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.DataSource{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	response, err := s.client.DataSource(
+		sdk.WrapSDKContext(ctx),
+		&oracletypes.QueryDataSourceRequest{
+			DataSourceId: id,
+		},
+	)
+	if err != nil {
+		return oracletypes.DataSource{}, fmt.Errorf("error while loading data source: %s", err)
+	}
+
+	return *response.DataSource, nil
+}
+
+func (s Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.RequestResult{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	response, err := s.client.Request(
+		sdk.WrapSDKContext(ctx),
+		&oracletypes.QueryRequestRequest{RequestId: id},
+	)
+	if err != nil {
+		return oracletypes.RequestResult{}, errors.Wrap(err, "error while loading request")
+	}
+
+	res := oracletypes.RequestResult{
+		Request: response.Request,
+		Result:  response.Result,
+		Reports: response.Reports,
+	}
+
+	return res, nil
+}
+
+func (s *Source) GetRequestsInfo(height int64) ([]oracletypes.RequestResult, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	var requests []oracletypes.RequestResult
+	var nextKey []byte
+	var stop = false
+	for !stop {
+		res, err := s.client.Requests(
+			sdk.WrapSDKContext(ctx),
+			&oracletypes.QueryRequestsRequest{
+				Pagination: &query.PageRequest{
+					Key:   nextKey,
+					Limit: 100, // Query 100 requests at time
+				},
+			},
+		)
+		if err != nil {
+			return nil, errors.Wrap(err, "error while loading requests")
+		}
+
+		nextKey = res.Pagination.NextKey
+		stop = len(res.Pagination.NextKey) == 0
+		requests = append(requests, res.Requests...)
+	}
+
+	return requests, nil
+}
+
+func (s *Source) GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return oracletypes.OracleScript{}, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	res, err := s.client.OracleScript(
+		sdk.WrapSDKContext(ctx),
+		&oracletypes.QueryOracleScriptRequest{
+			OracleScriptId: id,
+		},
+	)
+	if err != nil {
+		return oracletypes.OracleScript{}, fmt.Errorf("error while getting oracle script result: %s", err)
+	}
+
+	return *res.OracleScript, nil
+}

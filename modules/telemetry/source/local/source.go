@@ -2,6 +2,7 @@ package local
 
 import (
 	telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	telemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source"
 	"github.com/forbole/juno/v3/node/local"
 )
@@ -22,4 +23,8 @@ func NewSource(source *local.Source, querier telemetrytypes.QueryServer) *Source
 		Source:  source,
 		querier: querier,
 	}
+}
+
+func (s Source) GetTopAccounts(height int64) ([]banktypes.Balance, error) {
+	return nil, nil
 }

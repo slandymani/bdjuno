@@ -13,8 +13,10 @@ func NewOracleCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		requestCmd(parseConfig),
 		requestsCmd(parseConfig),
-		sourcesCmd(parseConfig),
+		dataSourceCmd(parseConfig),
+		dataSourcesCmd(parseConfig),
 	)
 
 	return cmd

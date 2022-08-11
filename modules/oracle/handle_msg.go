@@ -115,33 +115,7 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 }
 
 func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height int64, timestamp string) error {
-	scriptId, err := m.db.GetOracleScriptIdByRequestId(int64(msg.RequestID))
-	if err != nil { // if not found in db - search in blockchain
-
-		res, err := m.source.GetRequestStatus(height, int64(msg.RequestID)) //GetOracleScriptByRequestId(height, int64(msg.RequestID))
-		if err != nil {
-			return fmt.Errorf("error while saving data report from MsgReportData: %s", err)
-		}
-
-		// TODO:REMOVE---------------
-		////forming params to save oracle script
-		//createMsg := &oracletypes.MsgCreateOracleScript{
-		//	Name:          res.Name,
-		//	Description:   res.Description,
-		//	Schema:        res.Schema,
-		//	SourceCodeURL: res.SourceCodeURL,
-		//	Owner:         res.Owner,
-		//}
-		//
-		//err = m.db.SaveOracleScript(int64(res.ID), height, timestamp, createMsg)
-		//if err != nil {
-		//	return fmt.Errorf("error while saving oracle script from MsgCreateOracleScript: %s", err)
-		//} TODO:REMOVE------------------------------
-
-		//set script id to save report
-		scriptId = int(res.OracleScriptID) //int(res.ID)
-	}
-	err = m.db.SaveDataReport(msg, txHash, int64(scriptId))
+	err := m.db.SaveDataReport(msg, txHash)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data report from MsgReportData")
 	}
