@@ -4,7 +4,9 @@ import (
 	"fmt"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/forbole/juno/v3/node/remote"
+	"github.com/pkg/errors"
 
 	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
 )
@@ -64,13 +66,13 @@ func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
 func (s *Source) GetRequests(height int64) ([]oracletypes.RequestResult, error) {
 	ctx := remote.GetHeightRequestContext(s.Ctx, height)
 
-	reqParams := oracletypes.QueryRequestsRequest{}
+	reqParams := oracletypes.QueryRequestsRequest{Pagination: &query.PageRequest{Limit: 100}}
 	res, err := s.client.Requests(
 		ctx,
 		&reqParams,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error while loading requests: %s", err)
+		return nil, errors.Wrap(err, "error while loading requests")
 	}
 
 	return res.Requests, nil

@@ -1,8 +1,10 @@
 package oracle
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
+	"strconv"
+
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
 
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
@@ -41,10 +43,18 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 				return fmt.Errorf("error while getting latest block height: %s", err)
 			}
 
+			//One
+			id, _ := strconv.Atoi(args[0])
+			req, err := sources.OracleSource.GetRequestStatus(height, int64(id))
+			if err != nil {
+				return errors.Wrap(err, "error while getting request")
+			}
+			fmt.Println(req.OracleScriptID)
+
 			// Get all requests
 			requests, err := sources.OracleSource.GetRequests(height)
 			if err != nil {
-				return fmt.Errorf("error while getting requests: %s", err)
+				return errors.Wrap(err, "error while getting requests")
 			}
 
 			//Refresh each request
