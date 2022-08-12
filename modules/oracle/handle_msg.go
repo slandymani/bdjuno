@@ -55,7 +55,7 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 			}
 			dataSourceIds[i] = dataSourceId
 		}
-		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, cosmosMsg)
+		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
 		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, tx.Timestamp)
@@ -100,13 +100,13 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 	return nil
 }
 
-func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
 	err := m.db.SetRequestsPerDate(timestamp)
 	if err != nil {
 		return errors.Wrap(err, "error while setting requests per date")
 	}
 
-	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, msg)
+	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, txHash, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgRequestData")
 	}

@@ -2,35 +2,33 @@ package oracle
 
 import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	"github.com/pkg/errors"
-	"time"
 )
 
 //RefreshRequestInfos refreshes the info for the request at the provided height
 func (m *Module) RefreshRequestInfos(height int64, request oracletypes.RequestResult) error {
 
-	//Converting request into an appropriate form
-	convertedReq := m.convertRequest(height, request)
+	////Converting request into an appropriate form
+	//convertedReq := m.convertRequest(height, request)
+	//
+	////Getting data sources
+	//dataSourceIds := make([]int64, len(request.Request.RawRequests))
+	//for i, value := range request.Request.RawRequests {
+	//	dataSourceIds[i] = int64(value.DataSourceID)
+	//}
 
-	//Getting data sources
-	dataSourceIds := make([]int64, len(request.Request.RawRequests))
-	for i, value := range request.Request.RawRequests {
-		dataSourceIds[i] = int64(value.DataSourceID)
-	}
+	//timestamp := time.Unix(int64(request.Request.RequestTime), 0)
 
-	timestamp := time.Unix(int64(request.Request.RequestTime), 0)
-
-	//Saving request
-	err := m.db.SaveDataRequest(
-		int64(request.Result.RequestID),
-		height,
-		dataSourceIds,
-		timestamp.UTC().Format("2006-01-02 15:04:05"),
-		&convertedReq,
-	)
-	if err != nil {
-		return errors.Wrap(err, "error while saving request")
-	}
+	////Saving request
+	//err := m.db.SaveDataRequest(
+	//	int64(request.Result.RequestID),
+	//	height,
+	//	dataSourceIds,
+	//	timestamp.UTC().Format("2006-01-02 15:04:05"),
+	//	&convertedReq,
+	//)
+	//if err != nil {
+	//	return errors.Wrap(err, "error while saving request")
+	//}
 
 	return nil
 }

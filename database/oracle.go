@@ -114,16 +114,16 @@ UPDATE oracle_script
 	return nil
 }
 
-func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
-INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, tx_hash, timestamp)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT (id) DO NOTHING`
 	_, err := db.Sql.Exec(
 		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
-		msg.PrepareGas, msg.ExecuteGas, msg.Sender, timestamp,
+		msg.PrepareGas, msg.ExecuteGas, msg.Sender, txHash, timestamp,
 	)
 	if err != nil {
 		return fmt.Errorf("error while storing data request: %s", err)
@@ -147,6 +147,9 @@ func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) err
 		params = append(params, requestId, sourceId)
 	}
 	query = query[:len(query)-1] // remove trailing ","
+
+	query += `
+	ON CONFLICT (request_id, data_source_id) DO NOTHING`
 
 	_, err := db.Sql.Exec(query, params...)
 	if err != nil {
