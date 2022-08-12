@@ -198,3 +198,34 @@ func (s *Source) GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript
 
 	return *res.OracleScript, nil
 }
+
+func (s *Source) GetOracleScriptsInfo(height int64) ([]oracletypes.OracleScript, error) {
+	ctx, err := s.LoadHeight(height)
+	if err != nil {
+		return nil, fmt.Errorf("error while loading height: %s", err)
+	}
+
+	var oracleScripts []oracletypes.OracleScript
+	var nextKey []byte
+	var stop = false
+	for !stop {
+		res, err := s.client.OracleScripts(
+			sdk.WrapSDKContext(ctx),
+			&oracletypes.QueryOracleScriptsRequest{
+				Pagination: &query.PageRequest{
+					Key:   nextKey,
+					Limit: 100, // Query 100 oracle scripts at time
+				},
+			},
+		)
+		if err != nil {
+			return nil, fmt.Errorf("error while loading oracle scripts: %s", err)
+		}
+
+		nextKey = res.Pagination.NextKey
+		stop = len(res.Pagination.NextKey) == 0
+		oracleScripts = append(oracleScripts, res.OracleScripts...)
+	}
+
+	return oracleScripts, nil
+}

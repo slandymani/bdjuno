@@ -1,5 +1,11 @@
 package oracle
 
+import oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
+
+func (m *Module) RefreshOracleScriptInfo(height int64, oracleScript oracletypes.OracleScript) error {
+	return nil
+}
+
 //TODO: 2 READERS; 2 PARSERS; 2 COBRA COMMANDS, FIND VALUES, SHOW DUPLICATED TABLES
 
 //oracle script

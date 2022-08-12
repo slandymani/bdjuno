@@ -1,24 +1,24 @@
 package oracle
 
 import (
+	"fmt"
 	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/oracle"
+	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
 	"github.com/pkg/errors"
 	"strconv"
-
-	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
 
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
 	"github.com/spf13/cobra"
 )
 
-// requestCmd returns a Cobra command that allows to refresh request by id.
-func requestCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
+// oracleScriptCmd returns a Cobra command that allows to refresh oracle script by id.
+func oracleScriptCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "request [id]",
+		Use:   "oracle-script [id]",
 		Args:  cobra.ExactValidArgs(1),
-		Short: "Refresh the information about selected request taking it from the latest known height",
+		Short: "Refresh the information about selected oracle script taking it from the latest known height",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Parse id from args
 			id, err := strconv.Atoi(args[0])
@@ -45,19 +45,19 @@ func requestCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Get latest height
 			height, err := parseCtx.Node.LatestHeight()
 			if err != nil {
-				return errors.Wrap(err, "error while getting latest block height")
+				return fmt.Errorf("error while getting latest block height: %s", err)
 			}
 
-			// Get selected request
-			reqResponse, err := sources.OracleSource.GetRequestInfo(height, int64(id))
+			// Get selected oracle script
+			oracleScript, err := sources.OracleSource.GetOracleScriptInfo(height, int64(id))
 			if err != nil {
-				return errors.Wrap(err, "error while getting request")
+				return fmt.Errorf("error while getting data sources: %s", err)
 			}
 
-			//Refresh request
-			err = oracleModule.RefreshRequestInfos(height, reqResponse)
+			// Refresh it
+			err = oracleModule.RefreshOracleScriptInfo(height, oracleScript)
 			if err != nil {
-				return errors.Wrap(err, "error while refreshing requests")
+				return errors.Wrap(err, "error while refreshing oracle script")
 			}
 
 			// Everything is ok

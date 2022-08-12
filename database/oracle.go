@@ -118,7 +118,8 @@ func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, ti
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
 INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+ON CONFLICT (id) DO NOTHING`
 	_, err := db.Sql.Exec(
 		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
@@ -203,21 +204,6 @@ VALUES ($1, $2, $3)`
 	}
 
 	return nil
-}
-
-func (db *Db) GetOracleScriptIdByRequestId(requestId int64) (int, error) {
-	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
-	var scriptID []int
-	err := db.Sqlx.Select(&scriptID, stmtSelect, requestId)
-	if err != nil {
-		return 0, fmt.Errorf("error while getting oracle script id: %s", err)
-	}
-
-	if len(scriptID) == 0 {
-		return 0, fmt.Errorf("error while getting oracle script id: %s", err)
-	}
-
-	return scriptID[0], nil
 }
 
 func (db *Db) SetRequestsPerDate(timestamp string) error {

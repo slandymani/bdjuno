@@ -1,31 +1,22 @@
 package oracle
 
 import (
+	"fmt"
 	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/oracle"
-	"github.com/pkg/errors"
-	"strconv"
-
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-// requestCmd returns a Cobra command that allows to refresh request by id.
-func requestCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
+// oracleScriptsCmd returns a Cobra command that allows to refresh oracle scripts.
+func oracleScriptsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
-		Use:   "request [id]",
-		Args:  cobra.ExactValidArgs(1),
-		Short: "Refresh the information about selected request taking it from the latest known height",
+		Use:   "oracle-scripts",
+		Short: "Refresh the information about oracle scripts taking them from the latest known height",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Parse id from args
-			id, err := strconv.Atoi(args[0])
-			if err != nil {
-				return err
-			}
-
 			parseCtx, err := parsecmdtypes.GetParserContext(config.Cfg, parseConfig)
 			if err != nil {
 				return err
@@ -45,19 +36,21 @@ func requestCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Get latest height
 			height, err := parseCtx.Node.LatestHeight()
 			if err != nil {
-				return errors.Wrap(err, "error while getting latest block height")
+				return fmt.Errorf("error while getting latest block height: %s", err)
 			}
 
-			// Get selected request
-			reqResponse, err := sources.OracleSource.GetRequestInfo(height, int64(id))
+			// Get all oracle scripts
+			oracleScripts, err := sources.OracleSource.GetOracleScriptsInfo(height)
 			if err != nil {
-				return errors.Wrap(err, "error while getting request")
+				return fmt.Errorf("error while getting data sources: %s", err)
 			}
 
-			//Refresh request
-			err = oracleModule.RefreshRequestInfos(height, reqResponse)
-			if err != nil {
-				return errors.Wrap(err, "error while refreshing requests")
+			// Refresh each oracle script
+			for _, oracleScript := range oracleScripts {
+				err = oracleModule.RefreshOracleScriptInfo(height, oracleScript)
+				if err != nil {
+					return errors.Wrap(err, "error while refreshing oracle scripts")
+				}
 			}
 
 			// Everything is ok

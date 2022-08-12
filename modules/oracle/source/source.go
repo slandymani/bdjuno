@@ -16,7 +16,7 @@ type Source interface {
 	GetDataSourcesInfo(height int64) ([]oracletypes.DataSource, error)
 
 	GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript, error)
-	//GetOracleScriptsInfo(height int64) (oracletypes.OracleScript, error)
+	GetOracleScriptsInfo(height int64) ([]oracletypes.OracleScript, error)
 
 	GetDataProvidersPool(height int64) (sdk.Coins, error)
 }
