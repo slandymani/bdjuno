@@ -189,7 +189,8 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string) error {
 	stmt := `
 INSERT INTO report (validator, oracle_script_id, tx_hash)
-VALUES ($1, $2, $3)`
+VALUES ($1, $2, $3)
+ON CONFLICT (tx_hash) DO NOTHING`
 
 	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
 	var scriptID []int
@@ -202,8 +203,12 @@ VALUES ($1, $2, $3)`
 		return fmt.Errorf("error while saving request report: %s", err)
 	}
 
+	return nil
+}
+
+func (db *Db) AddReportCount(id oracletypes.RequestID) error {
 	stmtIncrement := `UPDATE request SET reports_count = reports_count + 1 WHERE id = $1`
-	_, err = db.Sql.Exec(stmtIncrement, msg.RequestID)
+	_, err := db.Sql.Exec(stmtIncrement, id)
 	if err != nil {
 		return fmt.Errorf("error while incrementing reports count: %s", err)
 	}
@@ -266,5 +271,11 @@ WHERE data_providers_pool.height <= excluded.height`
 func (db *Db) GetRequestCount() (int64, error) {
 	var count int64
 	err := db.Sqlx.Get(&count, `SELECT COUNT(*) FROM request`)
+	return count, err
+}
+
+func (db *Db) GetReportCount() (int64, error) {
+	var count int64
+	err := db.Sqlx.Get(&count, `SELECT COUNT(*) FROM report`)
 	return count, err
 }

@@ -36,6 +36,7 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Get all requests
 			var txs []*tmctypes.ResultTx
 
+			// Firstly, MsgRequestData
 			query := fmt.Sprintf("message.action='/oracle.v1.MsgRequestData'")
 			requestsTx, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
@@ -44,7 +45,14 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 
 			txs = append(txs, requestsTx...)
 
-			//TODO: REQ REPORTS
+			// Secondly, MsgReportData
+			query = fmt.Sprintf("message.action='/oracle.v1.MsgReportData'")
+			reportsTx, err := utils.QueryTxs(parseCtx.Node, query)
+			if err != nil {
+				return err
+			}
+
+			txs = append(txs, reportsTx...)
 
 			err = oracleModule.HandleOracleTxs(txs, parseCtx)
 			if err != nil {

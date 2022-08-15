@@ -127,9 +127,26 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 }
 
 func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height int64, timestamp string) error {
-	err := m.db.SaveDataReport(msg, txHash)
+	countBeforeSaving, err := m.db.GetReportCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgReportData")
+	}
+
+	err = m.db.SaveDataReport(msg, txHash)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data report from MsgReportData")
+	}
+
+	countAfterSaving, err := m.db.GetReportCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgReportData")
+	}
+
+	if countAfterSaving > countBeforeSaving {
+		err = m.db.AddReportCount(msg.RequestID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
