@@ -1,17 +1,14 @@
 table:
   name: account_balance
   schema: public
-object_relationships:
-- name: account
-  using:
-    foreign_key_constraint_on: address
 select_permissions:
   - permission:
       allow_aggregations: true
       columns:
         - address
         - loki_balance
-        - minigeo_balance
+        - mgeo_balance
+        - all_balances
         - height
       filter: {}
     role: anonymous
