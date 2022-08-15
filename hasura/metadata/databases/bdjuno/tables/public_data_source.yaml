@@ -2,12 +2,12 @@ table:
   name: data_source
   schema: public
 array_relationships:
-  - name: requests
+  - name: requests_data_source
     using:
       foreign_key_constraint_on:
         column: data_source_id
         table:
-          name: request
+          name: request_data_source
           schema: public
 select_permissions:
   - permission:
