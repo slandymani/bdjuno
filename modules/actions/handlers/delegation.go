@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
 	"strings"
 
 	"github.com/forbole/bdjuno/v3/modules/actions/types"
@@ -12,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func DelegationHandler(ctx *types.Context, payload *types.Payload) (interface{}, error) {
+func DelegationHandler(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
 	log.Debug().Str("action", "delegations").
 		Str("address", payload.GetAddress()).
 		Msg("executing delegations action")

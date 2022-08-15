@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
 
 	"github.com/forbole/bdjuno/v3/modules/actions/types"
 
 	"github.com/rs/zerolog/log"
 )
 
-func DelegatorWithdrawAddressHandler(ctx *types.Context, payload *types.Payload) (interface{}, error) {
+func DelegatorWithdrawAddressHandler(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
 	log.Debug().Str("address", payload.GetAddress()).
 		Msg("executing delegator withdraw address action")
 

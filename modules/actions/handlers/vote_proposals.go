@@ -14,6 +14,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibctypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
 	ibc1 "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
+	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/actions/types"
 	"reflect"
 	"strings"
@@ -29,7 +30,7 @@ type ModuleParamsInfo struct {
 	ParamPairs paramtypes.ParamSetPairs
 }
 
-func GetVoteProposals(ctx *types.Context, payload *types.Payload) (interface{}, error) {
+func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
 	var typesMap = map[string]string{
 		"types.Coins":           "[]{\"amount\": string, \"denom\": string}",
 		"[]types.Exchange":      "[]{\"from\": string, \"to\": string, \"rate_multiplier\": types.Dec}",

@@ -30,5 +30,5 @@ func NewModule(source telemetrysource.Source, cdc codec.Codec, db *database.Db) 
 
 // Name implements modules.Module
 func (m *Module) Name() string {
-	return "telemetry"
+	return "telemetry-new"
 }
