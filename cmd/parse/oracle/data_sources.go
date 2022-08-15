@@ -5,11 +5,11 @@ import (
 	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/oracle"
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/pkg/errors"
-
+	"github.com/forbole/bdjuno/v3/utils"
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
 	"github.com/spf13/cobra"
+	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // dataSourcesCmd returns a Cobra command that allows to refresh data sources.
@@ -34,24 +34,30 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Build the oracle module
 			oracleModule := oracle.NewModule(sources.OracleSource, db)
 
-			// Get latest height
-			height, err := parseCtx.Node.LatestHeight()
-			if err != nil {
-				return fmt.Errorf("error while getting latest block height: %s", err)
-			}
-
 			// Get all data sources
-			dataSources, err := sources.OracleSource.GetDataSourcesInfo(height)
+			var txs []*tmctypes.ResultTx
+
+			// Firstly, MsgCreateDataSource
+			query := fmt.Sprintf("message.action='/oracle.v1.MsgCreateDataSource'")
+			createDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
-				return fmt.Errorf("error while getting data sources: %s", err)
+				return err
 			}
 
-			// Refresh data sources
-			for _, dataSource := range dataSources {
-				err = oracleModule.RefreshDataSourceInfo(height, dataSource)
-				if err != nil {
-					return errors.Wrap(err, "error while refreshing data sources")
-				}
+			txs = append(txs, createDataSourceTxs...)
+
+			// Then - MsgEditDataSource
+			query = fmt.Sprintf("message.action='/oracle.v1.MsgEditDataSource'")
+			editDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
+			if err != nil {
+				return err
+			}
+
+			txs = append(txs, editDataSourceTxs...)
+
+			err = oracleModule.HandleOracleTxs(txs, parseCtx)
+			if err != nil {
+				return fmt.Errorf("error while handling oracle module message: %s", err)
 			}
 
 			// Everything is ok

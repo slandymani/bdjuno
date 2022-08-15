@@ -5,14 +5,13 @@ import (
 	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/oracle"
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/pkg/errors"
-
+	"github.com/forbole/bdjuno/v3/utils"
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
 	"github.com/spf13/cobra"
+	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
-// requestsCmd returns a Cobra command that allows to refresh requests.
 func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
 		Use:   "requests",
@@ -34,28 +33,26 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Build the oracle module
 			oracleModule := oracle.NewModule(sources.OracleSource, db)
 
-			// Get latest height
-			height, err := parseCtx.Node.LatestHeight()
-			if err != nil {
-				return fmt.Errorf("error while getting latest block height: %s", err)
-			}
-
 			// Get all requests
-			requests, err := sources.OracleSource.GetRequestsInfo(height)
+			var txs []*tmctypes.ResultTx
+
+			query := fmt.Sprintf("message.action='/oracle.v1.MsgRequestData'")
+			requestsTx, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
-				return errors.Wrap(err, "error while getting requests")
+				return err
 			}
 
-			//Refresh each request
-			for _, request := range requests {
-				err = oracleModule.RefreshRequestInfos(height, request)
-				if err != nil {
-					return fmt.Errorf("error while refreshing requests: %s", err)
-				}
+			txs = append(txs, requestsTx...)
+
+			//TODO: REQ REPORTS
+
+			err = oracleModule.HandleOracleTxs(txs, parseCtx)
+			if err != nil {
+				return fmt.Errorf("error while handling oracle module message: %s", err)
 			}
 
-			//s := fmt.Sprintf("Norm?: %d", int(requests.OracleScriptID))
-			return errors.New("Norm?: ")
+			// Everything is ok
+			return nil
 		},
 	}
 }

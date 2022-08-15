@@ -12,17 +12,10 @@ func NewOracleCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 		Short: "Refresh things related to the x/oracle module",
 	}
 
-	//TODO: REQ REPORTS
 	cmd.AddCommand(
-		//requestCmd(parseConfig),
-		//requestsCmd(parseConfig),
-		//dataSourceCmd(parseConfig),
-		//dataSourcesCmd(parseConfig),
-		//oracleScriptCmd(parseConfig),
-		//oracleScriptsCmd(parseConfig),
-		//-_-_-_--_-_--__---__--_--_--_--
-		alternativeRequestCmd(parseConfig),
-		alternativeRequestsCmd(parseConfig),
+		requestsCmd(parseConfig),
+		dataSourcesCmd(parseConfig),
+		oracleScriptsCmd(parseConfig),
 	)
 
 	return cmd

@@ -101,14 +101,26 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 }
 
 func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
-	err := m.db.SetRequestsPerDate(timestamp)
+	countBeforeSaving, err := m.db.GetRequestCount()
 	if err != nil {
-		return errors.Wrap(err, "error while setting requests per date")
+		return errors.Wrap(err, "error while saving data request from MsgRequestData")
 	}
 
 	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, txHash, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgRequestData")
+	}
+
+	countAfterSaving, err := m.db.GetRequestCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgRequestData")
+	}
+
+	if countAfterSaving > countBeforeSaving {
+		err := m.db.SetRequestsPerDate(timestamp)
+		if err != nil {
+			return errors.Wrap(err, "error while setting requests per date")
+		}
 	}
 
 	return nil

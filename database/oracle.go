@@ -38,7 +38,8 @@ WHERE oracle_params.height <= excluded.height`
 func (db *Db) SaveDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
 	stmt := `
 INSERT INTO data_source (id, create_block, edit_block, name, description, executable, fee, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.Sql.Exec(
 		stmt, dataSourceId, height, height,
@@ -78,7 +79,8 @@ UPDATE data_source
 func (db *Db) SaveOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
 	stmt := `
 INSERT INTO oracle_script (id, create_block, edit_block, name, description, schema, source_code_url, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.Sql.Exec(
 		stmt, oracleScriptId, height, height,
@@ -259,4 +261,10 @@ WHERE data_providers_pool.height <= excluded.height`
 	}
 
 	return nil
+}
+
+func (db *Db) GetRequestCount() (int64, error) {
+	var count int64
+	err := db.Sqlx.Get(&count, `SELECT COUNT(*) FROM request`)
+	return count, err
 }

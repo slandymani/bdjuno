@@ -5,10 +5,11 @@ import (
 	"github.com/forbole/bdjuno/v3/database"
 	"github.com/forbole/bdjuno/v3/modules/oracle"
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
+	"github.com/forbole/bdjuno/v3/utils"
 	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
 	"github.com/forbole/juno/v3/types/config"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // oracleScriptsCmd returns a Cobra command that allows to refresh oracle scripts.
@@ -33,27 +34,33 @@ func oracleScriptsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			// Build the oracle module
 			oracleModule := oracle.NewModule(sources.OracleSource, db)
 
-			// Get latest height
-			height, err := parseCtx.Node.LatestHeight()
-			if err != nil {
-				return fmt.Errorf("error while getting latest block height: %s", err)
-			}
-
 			// Get all oracle scripts
-			oracleScripts, err := sources.OracleSource.GetOracleScriptsInfo(height)
+			var txs []*tmctypes.ResultTx
+
+			// Firstly, MsgCreateOracleScript
+			query := fmt.Sprintf("message.action='/oracle.v1.MsgCreateOracleScript'")
+			createOracleScriptTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
-				return fmt.Errorf("error while getting data sources: %s", err)
+				return err
 			}
 
-			// Refresh each oracle script
-			for _, oracleScript := range oracleScripts {
-				err = oracleModule.RefreshOracleScriptInfo(height, oracleScript)
-				if err != nil {
-					return errors.Wrap(err, "error while refreshing oracle scripts")
-				}
+			txs = append(txs, createOracleScriptTxs...)
+
+			// Then - MsgEditOracleScript
+			query = fmt.Sprintf("message.action='/oracle.v1.MsgEditOracleScript'")
+			editOracleScriptTxs, err := utils.QueryTxs(parseCtx.Node, query)
+			if err != nil {
+				return err
 			}
 
-			// Everything is ok
+			txs = append(txs, editOracleScriptTxs...)
+
+			err = oracleModule.HandleOracleTxs(txs, parseCtx)
+			if err != nil {
+				return fmt.Errorf("error while handling oracle module message: %s", err)
+			}
+
+			//// Everything is ok
 			return nil
 		},
 	}
