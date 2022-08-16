@@ -3,6 +3,7 @@ package types
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -16,13 +17,15 @@ import (
 type ActionsWorker struct {
 	mux     *http.ServeMux
 	context *Context
+	db      *database.Db
 }
 
 // NewActionsWorker returns a new ActionsWorker instance
-func NewActionsWorker(context *Context) *ActionsWorker {
+func NewActionsWorker(context *Context, db *database.Db) *ActionsWorker {
 	return &ActionsWorker{
 		mux:     http.NewServeMux(),
 		context: context,
+		db:      db,
 	}
 }
 
@@ -52,7 +55,7 @@ func (w *ActionsWorker) RegisterHandler(path string, handler ActionHandler) {
 		}
 
 		// Handle the request
-		res, err := handler(w.context, &payload)
+		res, err := handler(w.context, &payload, w.db)
 		if err != nil {
 			logging.ErrorCounter(path)
 			w.handleError(writer, path, err)

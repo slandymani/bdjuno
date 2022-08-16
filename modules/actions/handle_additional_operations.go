@@ -17,7 +17,7 @@ var (
 func (m *Module) RunAdditionalOperations() error {
 	// Build the worker
 	context := actionstypes.NewContext(m.node, m.sources)
-	worker := actionstypes.NewActionsWorker(context)
+	worker := actionstypes.NewActionsWorker(context, m.db)
 
 	// Register the endpoints
 
@@ -43,6 +43,9 @@ func (m *Module) RunAdditionalOperations() error {
 	worker.RegisterHandler("/validator_delegations", handlers.ValidatorDelegation)
 	worker.RegisterHandler("/validator_redelegations_from", handlers.ValidatorRedelegationsFromHandler)
 	worker.RegisterHandler("/validator_unbonding_delegations", handlers.ValidatorUnbondingDelegationsHandler)
+
+	// -- Telemetry --
+	worker.RegisterHandler("/top_accounts", handlers.TopAccountsHandler)
 
 	// Listen for and trap any OS signal to gracefully shutdown and exit
 	m.trapSignal()

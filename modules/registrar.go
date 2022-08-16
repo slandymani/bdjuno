@@ -1,8 +1,10 @@
 package modules
 
 import (
+	"fmt"
 	"github.com/forbole/bdjuno/v3/modules/actions"
 	"github.com/forbole/bdjuno/v3/modules/types"
+	"github.com/rs/zerolog/log"
 
 	telemetry1 "github.com/forbole/bdjuno/v3/modules/telemetry"
 	"github.com/forbole/juno/v3/modules/pruning"
@@ -66,6 +68,7 @@ func NewRegistrar(parser messages.MessageAddressesParser) *Registrar {
 
 // BuildModules implements modules.Registrar
 func (r *Registrar) BuildModules(ctx registrar.Context) jmodules.Modules {
+	log.Debug().Msg(fmt.Sprintf("%s", ctx.JunoConfig.Chain.Modules))
 	cdc := ctx.EncodingConfig.Marshaler
 	db := database.Cast(ctx.Database)
 

@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+	"github.com/lib/pq"
 )
 
 func (db *Db) SaveAccountBalances(height int64, balances []banktypes.Balance) error {
@@ -16,7 +18,7 @@ func (db *Db) SaveAccountBalances(height int64, balances []banktypes.Balance) er
 			params, balance.Address,
 			balance.Coins.AmountOf("loki").Int64(),
 			balance.Coins.AmountOf("mGeo").Int64(),
-			balance.Coins,
+			pq.Array(dbtypes.NewDbCoins(balance.Coins)),
 			height,
 		)
 	}

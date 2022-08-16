@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
 
 	"github.com/forbole/juno/v3/node"
 
@@ -37,4 +38,4 @@ func (c *Context) GetHeight(payload *Payload) (int64, error) {
 
 // ActionHandler represents a Hasura action request handler.
 // It returns an interface to be returned to the called, or an error if something is wrong
-type ActionHandler = func(context *Context, payload *Payload) (interface{}, error)
+type ActionHandler = func(context *Context, payload *Payload, db *database.Db) (interface{}, error)

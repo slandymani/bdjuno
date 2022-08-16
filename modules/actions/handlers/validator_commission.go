@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/forbole/bdjuno/v3/database"
 
 	"github.com/forbole/bdjuno/v3/modules/actions/types"
 
 	"github.com/rs/zerolog/log"
 )
 
-func ValidatorCommissionAmountHandler(ctx *types.Context, payload *types.Payload) (interface{}, error) {
+func ValidatorCommissionAmountHandler(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
 	log.Debug().Str("address", payload.GetAddress()).
 		Int64("height", payload.Input.Height).
 		Msg("executing validator commission action")
