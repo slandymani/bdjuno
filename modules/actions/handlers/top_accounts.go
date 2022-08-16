@@ -14,7 +14,9 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, COUNT(t.sender) as tx_number
 				FROM account_balance ab
 				FULL OUTER JOIN transaction t ON ab.address = t.sender
-				GROUP BY t.sender`
+				WHERE t.sender IS NOT NULL
+				GROUP BY ab.address
+				ORDER BY ab.loki_balance DESC`
 
 	var rows []dbtypes.TopAccountRow
 	err := db.Sqlx.Select(&rows, stmt)
