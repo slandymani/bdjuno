@@ -9,6 +9,7 @@ import (
 	dbtypes "github.com/forbole/bdjuno/v3/database/types"
 	"github.com/forbole/bdjuno/v3/types"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -186,11 +187,11 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 	return requests, nil
 }
 
-func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string) error {
+func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, reportId int64) error {
 	stmt := `
-INSERT INTO report (validator, oracle_script_id, tx_hash)
-VALUES ($1, $2, $3)
-ON CONFLICT (tx_hash) DO NOTHING`
+INSERT INTO report (id, validator, oracle_script_id, tx_hash)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING`
 
 	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
 	var scriptID []int
@@ -198,7 +199,11 @@ ON CONFLICT (tx_hash) DO NOTHING`
 		return fmt.Errorf("error while getting oracle script name: %s", err)
 	}
 
-	_, err := db.Sql.Exec(stmt, msg.Validator, scriptID[0], txHash)
+	if len(scriptID) == 0 {
+		return errors.New("Failed to retrieve oracle script id")
+	}
+
+	_, err := db.Sql.Exec(stmt, reportId, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}

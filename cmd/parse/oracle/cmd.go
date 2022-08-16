@@ -12,8 +12,6 @@ func NewOracleCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 		Short: "Refresh things related to the x/oracle module",
 	}
 
-	//TODO: REPLACE REPORT AUTOINCREMENT
-
 	cmd.AddCommand(
 		requestsCmd(parseConfig),
 		dataSourcesCmd(parseConfig),

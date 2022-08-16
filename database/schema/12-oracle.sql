@@ -60,10 +60,10 @@ CREATE INDEX request_id_index ON request (id);
 
 CREATE TABLE report
 (
-    id               BIGSERIAL PRIMARY KEY,
+    id               BIGINT PRIMARY KEY,
     validator        TEXT,
     oracle_script_id INT REFERENCES oracle_script (id),
-    tx_hash          TEXT UNIQUE
+    tx_hash          TEXT
 );
 CREATE INDEX report_id_index ON report (id);
 

@@ -58,7 +58,11 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
-		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, tx.Timestamp)
+		reportId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeReport, oracletypes.AttributeKeyID)
+		if err != nil {
+			return errors.Wrap(err, "error while parsing report id")
+		}
+		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, reportId, tx.Timestamp)
 	}
 
 	return nil
@@ -126,13 +130,13 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 	return nil
 }
 
-func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height int64, timestamp string) error {
+func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height, reportId int64, timestamp string) error {
 	countBeforeSaving, err := m.db.GetReportCount()
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgReportData")
 	}
 
-	err = m.db.SaveDataReport(msg, txHash)
+	err = m.db.SaveDataReport(msg, txHash, reportId)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data report from MsgReportData")
 	}
