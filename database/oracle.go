@@ -9,6 +9,7 @@ import (
 	dbtypes "github.com/forbole/bdjuno/v3/database/types"
 	"github.com/forbole/bdjuno/v3/types"
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -38,7 +39,8 @@ WHERE oracle_params.height <= excluded.height`
 func (db *Db) SaveDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
 	stmt := `
 INSERT INTO data_source (id, create_block, edit_block, name, description, executable, fee, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.Sql.Exec(
 		stmt, dataSourceId, height, height,
@@ -78,7 +80,8 @@ UPDATE data_source
 func (db *Db) SaveOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
 	stmt := `
 INSERT INTO oracle_script (id, create_block, edit_block, name, description, schema, source_code_url, owner, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.Sql.Exec(
 		stmt, oracleScriptId, height, height,
@@ -114,15 +117,16 @@ UPDATE oracle_script
 	return nil
 }
 
-func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
+func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
-INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, timestamp)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
+INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, tx_hash, timestamp)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+ON CONFLICT (id) DO NOTHING`
 	_, err := db.Sql.Exec(
 		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
-		msg.PrepareGas, msg.ExecuteGas, msg.Sender, timestamp,
+		msg.PrepareGas, msg.ExecuteGas, msg.Sender, txHash, timestamp,
 	)
 	if err != nil {
 		return fmt.Errorf("error while storing data request: %s", err)
@@ -146,6 +150,9 @@ func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) err
 		params = append(params, requestId, sourceId)
 	}
 	query = query[:len(query)-1] // remove trailing ","
+
+	query += `
+	ON CONFLICT (request_id, data_source_id) DO NOTHING`
 
 	_, err := db.Sql.Exec(query, params...)
 	if err != nil {
@@ -180,10 +187,11 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 	return requests, nil
 }
 
-func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string) error {
+func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, reportId int64) error {
 	stmt := `
-INSERT INTO report (validator, oracle_script_id, tx_hash)
-VALUES ($1, $2, $3)`
+INSERT INTO report (id, validator, oracle_script_id, tx_hash)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT (id) DO NOTHING`
 
 	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
 	var scriptID []int
@@ -191,13 +199,21 @@ VALUES ($1, $2, $3)`
 		return fmt.Errorf("error while getting oracle script name: %s", err)
 	}
 
-	_, err := db.Sql.Exec(stmt, msg.Validator, scriptID[0], txHash)
+	if len(scriptID) == 0 {
+		return errors.New("Failed to retrieve oracle script id")
+	}
+
+	_, err := db.Sql.Exec(stmt, reportId, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}
 
+	return nil
+}
+
+func (db *Db) AddReportCount(id oracletypes.RequestID) error {
 	stmtIncrement := `UPDATE request SET reports_count = reports_count + 1 WHERE id = $1`
-	_, err = db.Sql.Exec(stmtIncrement, msg.RequestID)
+	_, err := db.Sql.Exec(stmtIncrement, id)
 	if err != nil {
 		return fmt.Errorf("error while incrementing reports count: %s", err)
 	}
@@ -255,4 +271,16 @@ WHERE data_providers_pool.height <= excluded.height`
 	}
 
 	return nil
+}
+
+func (db *Db) GetRequestCount() (int64, error) {
+	var count int64
+	err := db.Sqlx.Get(&count, `SELECT COUNT(*) FROM request`)
+	return count, err
+}
+
+func (db *Db) GetReportCount() (int64, error) {
+	var count int64
+	err := db.Sqlx.Get(&count, `SELECT COUNT(*) FROM report`)
+	return count, err
 }

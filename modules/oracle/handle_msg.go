@@ -55,10 +55,14 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 			}
 			dataSourceIds[i] = dataSourceId
 		}
-		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, cosmosMsg)
+		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
 
 	case *oracletypes.MsgReportData:
-		return m.handleMsgReportData(cosmosMsg, tx.TxHash)
+		reportId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeReport, oracletypes.AttributeKeyID)
+		if err != nil {
+			return errors.Wrap(err, "error while parsing report id")
+		}
+		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, reportId, tx.Timestamp)
 	}
 
 	return nil
@@ -100,24 +104,53 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 	return nil
 }
 
-func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp string, msg *oracletypes.MsgRequestData) error {
-	err := m.db.SetRequestsPerDate(timestamp)
-	if err != nil {
-		return errors.Wrap(err, "error while setting requests per date")
-	}
-
-	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, msg)
+func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
+	countBeforeSaving, err := m.db.GetRequestCount()
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgRequestData")
+	}
+
+	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, txHash, msg)
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgRequestData")
+	}
+
+	countAfterSaving, err := m.db.GetRequestCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgRequestData")
+	}
+
+	if countAfterSaving > countBeforeSaving {
+		err := m.db.SetRequestsPerDate(timestamp)
+		if err != nil {
+			return errors.Wrap(err, "error while setting requests per date")
+		}
 	}
 
 	return nil
 }
 
-func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string) error {
-	err := m.db.SaveDataReport(msg, txHash)
+func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height, reportId int64, timestamp string) error {
+	countBeforeSaving, err := m.db.GetReportCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgReportData")
+	}
+
+	err = m.db.SaveDataReport(msg, txHash, reportId)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data report from MsgReportData")
+	}
+
+	countAfterSaving, err := m.db.GetReportCount()
+	if err != nil {
+		return errors.Wrap(err, "error while saving data request from MsgReportData")
+	}
+
+	if countAfterSaving > countBeforeSaving {
+		err = m.db.AddReportCount(msg.RequestID)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

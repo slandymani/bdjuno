@@ -3,8 +3,10 @@ package local
 import (
 	"fmt"
 	telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	telemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source"
 	"github.com/forbole/juno/v3/node/local"
