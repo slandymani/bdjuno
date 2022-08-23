@@ -38,8 +38,8 @@ func RemoveEmpty(s []string) []string {
 
 // DbCoin represents the information stored inside the database about a single coin
 type DbCoin struct {
-	Denom  string
-	Amount string
+	Amount string `json:"amount"`
+	Denom  string `json:"denom"`
 }
 
 // NewDbCoin builds a DbCoin starting from an SDK Coin
