@@ -14,7 +14,23 @@ actions:
         name: Content-Type
   permissions:
     - role: anonymous
-
+##### Telemetry #####
+- name: action_top_accounts
+  definition:
+    kind: synchronous
+    handler: "{{ACTION_BASE_URL}}/top_accounts"
+    output_type: "[ActionTopAccounts]"
+    arguments:
+      - name: offset
+        type: Int
+      - name: limit
+        type: Int
+    type: query
+    headers:
+      - value: application/json
+        name: Content-Type
+    permissions:
+      - role: anonymous
 ##### Bank #####
 - name: action_account_balance
   definition:
@@ -204,7 +220,7 @@ actions:
     - value: application/json
       name: Content-Type
   permissions:
-  - role: anonymous  
+  - role: anonymous
 
 - name: action_validator_redelegations_from
   definition:
@@ -266,6 +282,19 @@ custom_types:
     - name: gov_modules
       type: [ActionModuleVoteProposal]
 
+  - name: ActionTopAccounts
+    fields:
+      - name: address
+        type: String!
+      - name: loki_balance
+        type: Int!
+      - name: mgeo_balance
+        type: Int!
+      - name: all_balances
+        type: [ActionCoin]
+      - name: txs_count
+        type: Int!
+
   - name: ActionModuleVoteProposal
     fields:
     - name: vote_proposals
@@ -298,7 +327,7 @@ custom_types:
       type: ActionPagination
 
   - name: ActionAddress
-    fields: 
+    fields:
     - name: address
       type: String!
 
@@ -315,7 +344,7 @@ custom_types:
       type: [ActionUnbondingDelegation]
     - name: pagination
       type: ActionPagination
-  
+
   - name: ActionValidatorCommissionAmount
     fields:
     - name: coins
