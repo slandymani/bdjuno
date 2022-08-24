@@ -292,7 +292,7 @@ custom_types:
         type: Int!
       - name: all_balances
         type: [ActionCoin]
-      - name: txs_count
+      - name: tx_number
         type: Int!
 
   - name: ActionModuleVoteProposal

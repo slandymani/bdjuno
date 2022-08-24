@@ -105,7 +105,7 @@ type ActionTopAccounts{
     loki_balance: Int!
     mgeo_balance: Int!
     all_balances: [ActionCoin]
-    txs_count: Int!
+    tx_number: Int!
 }
 
 type ActionDelegationReward {
