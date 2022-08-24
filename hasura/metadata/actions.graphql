@@ -8,6 +8,11 @@ type Query {
         height: Int
     ): ActionBalance
 
+    action_top_accounts(
+        limit: Int
+        offset: Int
+    ): [ActionTopAccounts]
+
     action_delegation_reward(
         address: String!
         height: Int
@@ -16,7 +21,7 @@ type Query {
     action_delegator_withdraw_address(
         address: String!
     ): ActionAddress!
-    
+
     action_delegation(
         address: String!
         height: Int
@@ -93,6 +98,14 @@ type ActionVoteProposal {
 
 type ActionBalance {
     coins: [ActionCoin]
+}
+
+type ActionTopAccounts{
+    address: String!
+    loki_balance: Int!
+    mgeo_balance: Int!
+    all_balances: [ActionCoin]
+    txs_count: Int!
 }
 
 type ActionDelegationReward {

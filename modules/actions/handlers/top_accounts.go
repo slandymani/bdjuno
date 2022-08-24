@@ -14,12 +14,25 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, COUNT(t.sender) as tx_number
 				FROM account_balance ab
 				FULL OUTER JOIN transaction t ON ab.address = t.sender
-				WHERE t.sender IS NOT NULL
+				WHERE ab.address IS NOT NULL
 				GROUP BY ab.address
-				ORDER BY ab.loki_balance DESC`
+				ORDER BY ab.loki_balance DESC
+				OFFSET $1`
 
+	pagination := *payload.GetPagination()
 	var rows []dbtypes.TopAccountRow
-	err := db.Sqlx.Select(&rows, stmt)
+	var err error
+
+	// To avoid nil result when pagination params undefined (by default set to 0)
+	if pagination.Limit != 0 {
+		stmt = stmt + `
+		LIMIT $2`
+
+		err = db.Sqlx.Select(&rows, stmt, pagination.Offset, pagination.Limit)
+	} else {
+		err = db.Sqlx.Select(&rows, stmt, pagination.Offset)
+	}
+
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select top accounts")
 	}
