@@ -47,7 +47,7 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 
 	err = db.Sqlx.Select(&totalCount, countStmt)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to select top accounts")
+		return nil, errors.Wrap(err, "failed to select total count")
 	}
 
 	return TopAccountsResponse{
