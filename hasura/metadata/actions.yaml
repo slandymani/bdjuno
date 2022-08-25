@@ -19,7 +19,7 @@ actions:
   definition:
     kind: synchronous
     handler: "{{ACTION_BASE_URL}}/top_accounts"
-    output_type: "[ActionTopAccounts]"
+    output_type: ActionTopAccounts
     arguments:
       - name: offset
         type: Int
@@ -284,6 +284,13 @@ custom_types:
 
   - name: ActionTopAccounts
     fields:
+      - name: accounts
+        type: [ActionTopAccount]
+      - name: total_count
+        type: Int!
+
+  - name: ActionTopAccount
+    fields:
       - name: address
         type: String!
       - name: loki_balance
@@ -292,7 +299,7 @@ custom_types:
         type: Int!
       - name: all_balances
         type: [ActionCoin]
-      - name: txs_count
+      - name: tx_number
         type: Int!
 
   - name: ActionModuleVoteProposal
