@@ -30,22 +30,24 @@ func (s Source) GetTopAccounts(height int64) ([]banktypes.Balance, error) {
 	ctx := remote.GetHeightRequestContext(s.Ctx, height)
 
 	var balances []banktypes.Balance
-	var nextKey []byte
+
+	pagination := &query.PageRequest{
+		Offset: 0,
+		Limit:  1000,
+	}
 	stop := false
+
 	for !stop {
 		res, err := s.querier.TopBalances(ctx, &telemetrytypes.QueryTopBalancesRequest{
-			Denom: "loki",
-			Pagination: &query.PageRequest{
-				Key:   nextKey,
-				Limit: 1000,
-			},
+			Denom:      "loki",
+			Pagination: pagination,
 		})
 		if err != nil {
 			return nil, err
 		}
 
-		nextKey = res.Pagination.NextKey
-		stop = len(res.Pagination.NextKey) == 0
+		stop = len(res.Balances) == 0
+		pagination.Offset += pagination.Limit
 		balances = append(balances, res.Balances...)
 	}
 
