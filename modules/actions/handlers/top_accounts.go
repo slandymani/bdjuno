@@ -41,5 +41,22 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 		return nil, nil
 	}
 
-	return rows, nil
+	var totalCount []int64
+
+	countStmt := `SELECT COUNT(*) FROM account_balance`
+
+	err = db.Sqlx.Select(&totalCount, countStmt)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select total count")
+	}
+
+	return TopAccountsResponse{
+		Rows:       &rows,
+		TotalCount: totalCount[0],
+	}, nil
+}
+
+type TopAccountsResponse struct {
+	Rows       *[]dbtypes.TopAccountRow `json:"accounts"`
+	TotalCount int64                    `json:"total_count"`
 }
