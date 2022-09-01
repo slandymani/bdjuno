@@ -11,6 +11,7 @@ type Query {
     action_top_accounts(
         limit: Int
         offset: Int
+        sorting_by: String
     ): ActionTopAccounts
 
     action_delegation_reward(
@@ -110,6 +111,7 @@ type ActionTopAccount {
     loki_balance: Int!
     mgeo_balance: Int!
     all_balances: [ActionCoin]
+    delegated_amount: Int!
     tx_number: Int!
 }
 
