@@ -25,6 +25,8 @@ actions:
         type: Int
       - name: limit
         type: Int
+      - name: sorting_by
+        type: String
     type: query
     headers:
       - value: application/json
@@ -299,6 +301,8 @@ custom_types:
         type: Int!
       - name: all_balances
         type: [ActionCoin]
+      - name: delegated_amount
+        type: Int!
       - name: tx_number
         type: Int!
 

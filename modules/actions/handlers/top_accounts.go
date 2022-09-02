@@ -11,15 +11,19 @@ import (
 func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing top accounts action")
 
-	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, COUNT(t.sender) as tx_number
+	sortingParam := payload.GetSortingParam()
+	pagination := payload.GetPagination()
+
+	// SQL Injection unavailable - sortingParam by default will be `ab.loki_balance`
+	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, d.delegations as delegated_amount,COUNT(t.sender) as tx_number
 				FROM account_balance ab
 				FULL OUTER JOIN transaction t ON ab.address = t.sender
+				FULL OUTER JOIN delegator d ON ab.address = d.address
 				WHERE ab.address IS NOT NULL
-				GROUP BY ab.address
-				ORDER BY ab.loki_balance DESC
+				GROUP BY ab.address, d.delegations
+				ORDER BY ` + sortingParam + ` DESC NULLS LAST
 				OFFSET $1`
 
-	pagination := *payload.GetPagination()
 	var rows []dbtypes.TopAccountRow
 	var err error
 
@@ -37,8 +41,18 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 		return nil, errors.Wrap(err, "failed to select top accounts")
 	}
 
-	if len(rows) == 0 {
+	topAccountsLen := len(rows)
+	if topAccountsLen == 0 {
 		return nil, nil
+	}
+
+	//Change nil value to 0
+	var defaultIntValue int64 = 0
+	for i := 0; i < topAccountsLen; i++ {
+		if rows[i].DelegatedAmount == nil {
+			rows[i].DelegatedAmount = &defaultIntValue
+		}
+
 	}
 
 	var totalCount []int64
