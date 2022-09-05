@@ -3,6 +3,10 @@ type Query {
         height: Int
     ): ActionGovModules
 
+    action_voting_result(
+        id: Int!
+    ): ActionVotingResult
+
     action_account_balance(
         address: String!
         height: Int
@@ -86,6 +90,14 @@ type Query {
 
 type ActionGovModules {
     gov_modules: [ActionModuleVoteProposal]
+}
+
+type ActionVotingResult {
+    yes: Int!
+    no: Int!
+    no_with_veto: Int!
+    abstain: Int!
+    total_count: Int!
 }
 
 type ActionModuleVoteProposal {
