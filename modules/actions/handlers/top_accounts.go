@@ -8,6 +8,11 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	BondedTokensPoolAdr   = "odin1fl48vsnmsdzcv85q5d2q4z5ajdha8yu33m0v4a"
+	UnBondedTokensPoolAdr = "odin1tygms3xhhs3yv487phx3dw4a95jn7t7l9mnarf"
+)
+
 func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing top accounts action")
 
@@ -20,7 +25,7 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 				FROM account_balance ab
 				FULL OUTER JOIN transaction t ON ab.address = t.sender
 				FULL OUTER JOIN delegator d ON ab.address = d.address
-				WHERE ab.address IS NOT NULL
+				WHERE ab.address IS NOT NULL AND ab.address != '` + BondedTokensPoolAdr + `' AND ab.address != '` + UnBondedTokensPoolAdr + `'
 				GROUP BY ab.address, d.delegations
 				ORDER BY ` + sortingParam + ` DESC NULLS LAST
 				OFFSET $1`
