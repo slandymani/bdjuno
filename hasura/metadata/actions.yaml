@@ -305,6 +305,8 @@ custom_types:
         type: Int!
       - name: tx_number
         type: Int!
+      - name: total_amount
+        type: Int!
 
   - name: ActionModuleVoteProposal
     fields:

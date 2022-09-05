@@ -33,6 +33,8 @@ func (p *Payload) GetSortingParam() string {
 		return "delegated_amount"
 	case "txs":
 		return "tx_number"
+	case "total_amount":
+		return "total_amount"
 	default:
 		return "ab.loki_balance"
 	}

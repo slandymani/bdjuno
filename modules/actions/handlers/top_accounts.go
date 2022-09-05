@@ -15,7 +15,8 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 	pagination := payload.GetPagination()
 
 	// SQL Injection unavailable - sortingParam by default will be `ab.loki_balance`
-	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, d.delegations as delegated_amount,COUNT(t.sender) as tx_number
+	stmt := `SELECT ab.address, ab.loki_balance, ab.mgeo_balance, ab.all_balances, COALESCE(d.delegations, 0) as delegated_amount,
+       			COUNT(t.sender) as tx_number, (ab.loki_balance + COALESCE(d.delegations, 0)) as total_amount
 				FROM account_balance ab
 				FULL OUTER JOIN transaction t ON ab.address = t.sender
 				FULL OUTER JOIN delegator d ON ab.address = d.address
@@ -44,15 +45,6 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 	topAccountsLen := len(rows)
 	if topAccountsLen == 0 {
 		return nil, nil
-	}
-
-	//Change nil value to 0
-	var defaultIntValue int64 = 0
-	for i := 0; i < topAccountsLen; i++ {
-		if rows[i].DelegatedAmount == nil {
-			rows[i].DelegatedAmount = &defaultIntValue
-		}
-
 	}
 
 	var totalCount []int64

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/forbole/bdjuno/v3/database"
+	"github.com/rs/cors"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -98,7 +99,10 @@ func (w *ActionsWorker) handleError(writer http.ResponseWriter, path string, err
 
 // Start starts the worker
 func (w *ActionsWorker) Start(port uint) {
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), w.mux)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), c.Handler(w.mux))
 	if err != nil {
 		panic(err)
 	}
