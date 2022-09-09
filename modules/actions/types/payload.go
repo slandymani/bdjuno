@@ -8,6 +8,11 @@ type Payload struct {
 	Input            PayloadArgs            `json:"input"`
 }
 
+// GetAddress returns the id associated with this payload, if any
+func (p *Payload) GetID() int64 {
+	return p.Input.ID
+}
+
 // GetAddress returns the address associated with this payload, if any
 func (p *Payload) GetAddress() string {
 	return p.Input.Address
@@ -41,6 +46,7 @@ func (p *Payload) GetSortingParam() string {
 }
 
 type PayloadArgs struct {
+	ID         int64  `json:"id"`
 	Address    string `json:"address"`
 	Height     int64  `json:"height"`
 	Offset     uint64 `json:"offset"`
