@@ -301,6 +301,13 @@ custom_types:
 
   - name: ActionVotingResult
     fields:
+      - name: count
+        type: ActionVotingResultCount
+      - name: weighted
+        type: ActionVotingResultWeighted
+
+  - name: ActionVotingResultCount
+    fields:
       - name: yes
         type: Int!
       - name: no
@@ -311,6 +318,17 @@ custom_types:
         type: Int!
       - name: total_count
         type: Int!
+
+  - name: ActionVotingResultWeighted
+    fields:
+      - name: yes
+        type: String!
+      - name: no
+        type: String!
+      - name: no_with_veto
+        type: String!
+      - name: abstain
+        type: String!
 
   - name: ActionTopAccounts
     fields:

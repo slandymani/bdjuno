@@ -204,12 +204,12 @@ func NewVote(
 
 // TallyResult contains the data about the final results of a proposal
 type TallyResult struct {
-	ProposalID uint64
-	Yes        string
-	Abstain    string
-	No         string
-	NoWithVeto string
-	Height     int64
+	ProposalID uint64 `db:"proposal_id"`
+	Yes        string `db:"yes"`
+	Abstain    string `db:"abstain"`
+	No         string `db:"no"`
+	NoWithVeto string `db:"no_with_veto"`
+	Height     int64  `db:"height"`
 }
 
 // NewTallyResult return a new TallyResult instance

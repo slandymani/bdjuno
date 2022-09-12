@@ -3,7 +3,6 @@ package gov
 import (
 	"encoding/hex"
 	"fmt"
-
 	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -22,6 +21,7 @@ import (
 func proposalCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	return &cobra.Command{
 		Use:   "proposal [id]",
+		Args:  cobra.ExactArgs(1),
 		Short: "Get the description, votes and everything related to a proposal given its id",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			proposalID := args[0]
