@@ -93,11 +93,23 @@ type ActionGovModules {
 }
 
 type ActionVotingResult {
+    count: ActionVotingResultCount
+    weighted: ActionVotingResultWeighted
+}
+
+type ActionVotingResultCount {
     yes: Int!
     no: Int!
     no_with_veto: Int!
     abstain: Int!
     total_count: Int!
+}
+
+type ActionVotingResultWeighted {
+    yes: String!
+    no: String!
+    no_with_veto: String!
+    abstain: String!
 }
 
 type ActionModuleVoteProposal {

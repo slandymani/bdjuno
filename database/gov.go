@@ -212,6 +212,14 @@ func (db *Db) GetOpenProposalsIds() ([]uint64, error) {
 	return ids, err
 }
 
+// GetOpenProposalsIds returns all the ids of the proposals
+func (db *Db) GetAllProposalsIds() ([]uint64, error) {
+	var ids []uint64
+	stmt := `SELECT id FROM proposal`
+	err := db.Sqlx.Select(&ids, stmt)
+	return ids, err
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 
 // UpdateProposal updates a proposal stored inside the database
