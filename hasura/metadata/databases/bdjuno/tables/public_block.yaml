@@ -51,7 +51,7 @@ array_relationships:
         schema: public
 select_permissions:
 - permission:
-    allow_aggregations: true
+    allow_aggregations: false
     columns:
     - num_txs
     - height
@@ -61,4 +61,5 @@ select_permissions:
     - size
     - timestamp
     filter: {}
+    limit: 100
   role: anonymous

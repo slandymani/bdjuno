@@ -2,11 +2,12 @@ package local
 
 import (
 	"fmt"
+
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/juno/v3/node/local"
+	"github.com/forbole/juno/v5/node/local"
 
-	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"
+	mintsource "github.com/forbole/bdjuno/v4/modules/mint/source"
 )
 
 var (

@@ -3,9 +3,9 @@ package remote
 import (
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v5/node/remote"
 
-	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"
+	mintsource "github.com/forbole/bdjuno/v4/modules/mint/source"
 )
 
 var (

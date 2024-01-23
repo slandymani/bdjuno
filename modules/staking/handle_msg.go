@@ -3,14 +3,20 @@ package staking
 import (
 	"fmt"
 
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	juno "github.com/forbole/juno/v3/types"
+	juno "github.com/forbole/juno/v5/types"
 )
 
+// HandleMsgExec implements modules.AuthzMessageModule
+func (m *Module) HandleMsgExec(index int, _ *authz.MsgExec, _ int, executedMsg sdk.Msg, tx *juno.Tx) error {
+	return m.HandleMsg(index, executedMsg, tx)
+}
+
 // HandleMsg implements MessageModule
-func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
+func (m *Module) HandleMsg(_ int, msg sdk.Msg, tx *juno.Tx) error {
 	if len(tx.Logs) == 0 {
 		return nil
 	}
@@ -22,14 +28,18 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	case *stakingtypes.MsgEditValidator:
 		return m.handleEditValidator(tx.Height, cosmosMsg)
 
+	// update validators statuses, voting power
+	// and proposals validators satatus snapshots
+	// when there is a voting power change
 	case *stakingtypes.MsgDelegate:
-		return m.handleDelegate(tx.Height, cosmosMsg)
-
-	case *stakingtypes.MsgUndelegate:
-		return m.handleUndelegate(tx.Height, cosmosMsg)
+		return m.UpdateValidatorStatuses()
 
 	case *stakingtypes.MsgBeginRedelegate:
-		return m.handleBeginRedelegate(tx.Height, cosmosMsg)
+		return m.UpdateValidatorStatuses()
+
+	case *stakingtypes.MsgUndelegate:
+		return m.UpdateValidatorStatuses()
+
 	}
 
 	return nil
@@ -57,6 +67,7 @@ func (m *Module) handleEditValidator(height int64, msg *stakingtypes.MsgEditVali
 	return nil
 }
 
+// TODO: mb remove next 3 funcs
 func (m *Module) handleDelegate(height int64, msg *stakingtypes.MsgDelegate) error {
 	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
 	if err != nil {

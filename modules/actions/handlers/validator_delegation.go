@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/forbole/bdjuno/v3/database"
 
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
+	"github.com/forbole/bdjuno/v4/modules/actions/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/rs/zerolog/log"

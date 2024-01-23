@@ -5,7 +5,7 @@ import (
 	"github.com/forbole/bdjuno/v3/database"
 	"strings"
 
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
+	"github.com/forbole/bdjuno/v4/modules/actions/types"
 
 	"google.golang.org/grpc/codes"
 

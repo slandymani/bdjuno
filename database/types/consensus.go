@@ -119,3 +119,11 @@ type AverageFee struct {
 	BlockFees    int64     `db:"block_fees"`
 	AverageFee   int64     `db:"average_fee"`
 }
+
+// -------------------------------------------------------------------------------------------------------------------
+
+// BlockHeightAndTimestamp represents last block height and timestamp stored inside the database
+type BlockHeightAndTimestamp struct {
+	Height         int64     `db:"height"`
+	BlockTimestamp time.Time `db:"timestamp"`
+}

@@ -2,52 +2,52 @@ package types
 
 import (
 	"fmt"
-	telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
-	telemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source"
+	"os"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
-	"github.com/tendermint/tendermint/libs/log"
-
-	"github.com/cosmos/cosmos-sdk/simapp/params"
-	"github.com/forbole/juno/v3/node/remote"
+	"cosmossdk.io/simapp"
+	"cosmossdk.io/simapp/params"
+	"github.com/cometbft/cometbft/libs/log"
+	"github.com/forbole/juno/v5/node/remote"
 
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
+	oraclekeeper "github.com/ODIN-PROTOCOL/odin-core/x/oracle/keeper"
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
+	telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/forbole/juno/v3/node/local"
+	"github.com/forbole/juno/v5/node/local"
 
-	nodeconfig "github.com/forbole/juno/v3/node/config"
+	nodeconfig "github.com/forbole/juno/v5/node/config"
 
 	odinapp "github.com/ODIN-PROTOCOL/odin-core/app"
-	oraclekeeper "github.com/ODIN-PROTOCOL/odin-core/x/oracle/keeper"
-	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	banksource "github.com/forbole/bdjuno/v3/modules/bank/source"
-	localbanksource "github.com/forbole/bdjuno/v3/modules/bank/source/local"
-	remotebanksource "github.com/forbole/bdjuno/v3/modules/bank/source/remote"
-	distrsource "github.com/forbole/bdjuno/v3/modules/distribution/source"
-	localdistrsource "github.com/forbole/bdjuno/v3/modules/distribution/source/local"
-	remotedistrsource "github.com/forbole/bdjuno/v3/modules/distribution/source/remote"
-	govsource "github.com/forbole/bdjuno/v3/modules/gov/source"
-	localgovsource "github.com/forbole/bdjuno/v3/modules/gov/source/local"
-	remotegovsource "github.com/forbole/bdjuno/v3/modules/gov/source/remote"
-	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"
-	localmintsource "github.com/forbole/bdjuno/v3/modules/mint/source/local"
-	remotemintsource "github.com/forbole/bdjuno/v3/modules/mint/source/remote"
-	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
-	localoraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source/local"
-	remoteoraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source/remote"
-	slashingsource "github.com/forbole/bdjuno/v3/modules/slashing/source"
-	localslashingsource "github.com/forbole/bdjuno/v3/modules/slashing/source/local"
-	remoteslashingsource "github.com/forbole/bdjuno/v3/modules/slashing/source/remote"
-	stakingsource "github.com/forbole/bdjuno/v3/modules/staking/source"
-	localstakingsource "github.com/forbole/bdjuno/v3/modules/staking/source/local"
-	remotestakingsource "github.com/forbole/bdjuno/v3/modules/staking/source/remote"
-	localtelemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source/local"
-	remotetelemetrysource "github.com/forbole/bdjuno/v3/modules/telemetry/source/remote"
+	banksource "github.com/forbole/bdjuno/v4/modules/bank/source"
+	localbanksource "github.com/forbole/bdjuno/v4/modules/bank/source/local"
+	remotebanksource "github.com/forbole/bdjuno/v4/modules/bank/source/remote"
+	distrsource "github.com/forbole/bdjuno/v4/modules/distribution/source"
+	localdistrsource "github.com/forbole/bdjuno/v4/modules/distribution/source/local"
+	remotedistrsource "github.com/forbole/bdjuno/v4/modules/distribution/source/remote"
+	govsource "github.com/forbole/bdjuno/v4/modules/gov/source"
+	localgovsource "github.com/forbole/bdjuno/v4/modules/gov/source/local"
+	remotegovsource "github.com/forbole/bdjuno/v4/modules/gov/source/remote"
+	mintsource "github.com/forbole/bdjuno/v4/modules/mint/source"
+	localmintsource "github.com/forbole/bdjuno/v4/modules/mint/source/local"
+	remotemintsource "github.com/forbole/bdjuno/v4/modules/mint/source/remote"
+	oraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source"
+	localoraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source/local"
+	remoteoraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source/remote"
+	slashingsource "github.com/forbole/bdjuno/v4/modules/slashing/source"
+	localslashingsource "github.com/forbole/bdjuno/v4/modules/slashing/source/local"
+	remoteslashingsource "github.com/forbole/bdjuno/v4/modules/slashing/source/remote"
+	stakingsource "github.com/forbole/bdjuno/v4/modules/staking/source"
+	localstakingsource "github.com/forbole/bdjuno/v4/modules/staking/source/local"
+	remotestakingsource "github.com/forbole/bdjuno/v4/modules/staking/source/remote"
+	telemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source"
+	localtelemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source/local"
+	remotetelemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source/remote"
 )
 
 type Sources struct {
@@ -80,18 +80,18 @@ func buildLocalSources(cfg *local.Details, encodingConfig *params.EncodingConfig
 	}
 
 	app := odinapp.NewOdinApp(
-		log.NewNopLogger(), source.StoreDB, nil, false, map[int64]bool{}, cfg.Home, 0,
+		log.NewTMLogger(log.NewSyncWriter(os.Stdout)), source.StoreDB, nil, false, map[int64]bool{}, cfg.Home, 0,
 		odinapp.MakeEncodingConfig(), simapp.EmptyAppOptions{}, false, 0,
 	)
 
 	sources := &Sources{
-		BankSource:      localbanksource.NewSource(source, banktypes.QueryServer(app.BankKeeper)),
-		DistrSource:     localdistrsource.NewSource(source, distrtypes.QueryServer(app.DistrKeeper)),
-		GovSource:       localgovsource.NewSource(source, govtypes.QueryServer(app.GovKeeper)),
-		MintSource:      localmintsource.NewSource(source, minttypes.QueryServer(app.MintKeeper)),
+		BankSource:     localbanksource.NewSource(source, banktypes.QueryServer(app.BankKeeper)),
+		DistrSource:    localdistrsource.NewSource(source, distrtypes.QueryServer(app.DistrKeeper)),
+		GovSource:      localgovsource.NewSource(source, govtypesv1.QueryServer(app.GovKeeper)),
+		MintSource:     localmintsource.NewSource(source, minttypes.QueryServer(app.MintKeeper)),
 		OracleSource:    localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),
-		SlashingSource:  localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
-		StakingSource:   localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
+		SlashingSource: localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
+		StakingSource:  localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
 		TelemetrySource: localtelemetrysource.NewSource(source, telemetrytypes.QueryServer(app.TelemetryKeeper)),
 	}
 
@@ -128,7 +128,7 @@ func buildRemoteSources(cfg *remote.Details) (*Sources, error) {
 	return &Sources{
 		BankSource:      remotebanksource.NewSource(source, banktypes.NewQueryClient(source.GrpcConn)),
 		DistrSource:     remotedistrsource.NewSource(source, distrtypes.NewQueryClient(source.GrpcConn)),
-		GovSource:       remotegovsource.NewSource(source, govtypes.NewQueryClient(source.GrpcConn)),
+		GovSource:       remotegovsource.NewSource(source, govtypesv1.NewQueryClient(source.GrpcConn)),
 		MintSource:      remotemintsource.NewSource(source, minttypes.NewQueryClient(source.GrpcConn)),
 		OracleSource:    remoteoraclesource.NewSource(source, oracletypes.NewQueryClient(source.GrpcConn)),
 		SlashingSource:  remoteslashingsource.NewSource(source, slashingtypes.NewQueryClient(source.GrpcConn)),
