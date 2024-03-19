@@ -5,7 +5,7 @@ go 1.20
 require (
 	cosmossdk.io/math v1.2.0
 	cosmossdk.io/simapp v0.0.0-20230602123434-616841b9704d
-	github.com/ODIN-PROTOCOL/odin-core v0.7.9
+	github.com/ODIN-PROTOCOL/odin-core v0.7.11
 	github.com/cometbft/cometbft v0.37.4
 	github.com/cosmos/cosmos-sdk v0.47.7
 	github.com/cosmos/gogoproto v1.4.10
