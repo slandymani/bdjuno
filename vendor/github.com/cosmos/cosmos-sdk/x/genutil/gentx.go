@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/tendermint/tendermint/abci/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -18,7 +18,6 @@ import (
 func SetGenTxsInAppGenesisState(
 	cdc codec.JSONCodec, txJSONEncoder sdk.TxEncoder, appGenesisState map[string]json.RawMessage, genTxs []sdk.Tx,
 ) (map[string]json.RawMessage, error) {
-
 	genesisState := types.GetGenesisStateFromAppState(cdc, appGenesisState)
 	genTxsBz := make([]json.RawMessage, 0, len(genTxs))
 
@@ -41,7 +40,6 @@ func ValidateAccountInGenesis(
 	appGenesisState map[string]json.RawMessage, genBalIterator types.GenesisBalancesIterator,
 	addr sdk.Address, coins sdk.Coins, cdc codec.JSONCodec,
 ) error {
-
 	var stakingData stakingtypes.GenesisState
 	cdc.MustUnmarshalJSON(appGenesisState[stakingtypes.ModuleName], &stakingData)
 	bondDenom := stakingData.Params.BondDenom
@@ -96,21 +94,20 @@ func DeliverGenTxs(
 	stakingKeeper types.StakingKeeper, deliverTx deliverTxfn,
 	txEncodingConfig client.TxEncodingConfig,
 ) ([]abci.ValidatorUpdate, error) {
-
 	for _, genTx := range genTxs {
 		tx, err := txEncodingConfig.TxJSONDecoder()(genTx)
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("failed to decode GenTx '%s': %s", genTx, err)
 		}
 
 		bz, err := txEncodingConfig.TxEncoder()(tx)
 		if err != nil {
-			panic(err)
+			return nil, fmt.Errorf("failed to encode GenTx '%s': %s", genTx, err)
 		}
 
 		res := deliverTx(abci.RequestDeliverTx{Tx: bz})
 		if !res.IsOK() {
-			panic(res.Log)
+			return nil, fmt.Errorf("failed to execute DeliverTx for '%s': %s", genTx, res.Log)
 		}
 	}
 

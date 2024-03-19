@@ -79,13 +79,13 @@ func (tkv *Store) Has(key []byte) bool {
 }
 
 // Iterator implements the KVStore interface. It delegates the Iterator call
-// the to the parent KVStore.
+// to the parent KVStore.
 func (tkv *Store) Iterator(start, end []byte) types.Iterator {
 	return tkv.iterator(start, end, true)
 }
 
 // ReverseIterator implements the KVStore interface. It delegates the
-// ReverseIterator call the to the parent KVStore.
+// ReverseIterator call to the parent KVStore.
 func (tkv *Store) ReverseIterator(start, end []byte) types.Iterator {
 	return tkv.iterator(start, end, false)
 }
@@ -173,11 +173,6 @@ func (tkv *Store) CacheWrapWithTrace(_ io.Writer, _ types.TraceContext) types.Ca
 	panic("cannot CacheWrapWithTrace a TraceKVStore")
 }
 
-// CacheWrapWithListeners implements the CacheWrapper interface.
-func (tkv *Store) CacheWrapWithListeners(_ types.StoreKey, _ []types.WriteListener) types.CacheWrap {
-	panic("cannot CacheWrapWithListeners a TraceKVStore")
-}
-
 // writeOperation writes a KVStore operation to the underlying io.Writer as
 // JSON-encoded data where the key/value pair is base64 encoded.
 func writeOperation(w io.Writer, op operation, tc types.TraceContext, key, value []byte) {
@@ -200,5 +195,7 @@ func writeOperation(w io.Writer, op operation, tc types.TraceContext, key, value
 		panic(errors.Wrap(err, "failed to write trace operation"))
 	}
 
-	io.WriteString(w, "\n")
+	if _, err = io.WriteString(w, "\n"); err != nil {
+		panic(errors.Wrap(err, "failed to write newline"))
+	}
 }

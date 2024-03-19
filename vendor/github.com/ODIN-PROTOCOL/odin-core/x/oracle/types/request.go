@@ -1,13 +1,14 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"time"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	_ RequestSpec = &OracleRequestPacketData{}
 	_ RequestSpec = &MsgRequestData{}
+	_ RequestSpec = &OracleRequestPacketData{}
 )
 
 // RequestSpec captures the essence of what it means to be a request-making object.
@@ -43,7 +44,7 @@ func NewRequest(
 	requestTime time.Time,
 	clientID string,
 	rawRequests []RawRequest,
-	iBCSource *IBCSource,
+	ibcChannel *IBCChannel,
 	executeGas uint64,
 ) Request {
 	requestedVals := make([]string, len(requestedValidators))
@@ -60,10 +61,10 @@ func NewRequest(
 		RequestedValidators: requestedVals,
 		MinCount:            minCount,
 		RequestHeight:       requestHeight,
-		RequestTime:         uint64(requestTime.Unix()),
+		RequestTime:         requestTime.Unix(),
 		ClientID:            clientID,
 		RawRequests:         rawRequests,
-		IBCSource:           iBCSource,
+		IBCChannel:          ibcChannel,
 		ExecuteGas:          executeGas,
 	}
 }

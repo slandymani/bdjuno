@@ -2,6 +2,7 @@ package modules
 
 import (
 	"fmt"
+
 	"github.com/rs/zerolog/log"
 
 	"github.com/forbole/bdjuno/v4/modules/actions"

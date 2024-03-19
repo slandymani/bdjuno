@@ -1,8 +1,9 @@
 package database_test
 
 import (
-	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 	"math/big"
+
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/forbole/bdjuno/v4/types"
 

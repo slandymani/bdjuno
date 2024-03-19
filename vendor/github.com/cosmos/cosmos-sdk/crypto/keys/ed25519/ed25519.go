@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/cometbft/cometbft/crypto"
+	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/hdevalence/ed25519consensus"
-	"github.com/tendermint/tendermint/crypto"
-	"github.com/tendermint/tendermint/crypto/tmhash"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -34,8 +34,10 @@ const (
 	keyType = "ed25519"
 )
 
-var _ cryptotypes.PrivKey = &PrivKey{}
-var _ codec.AminoMarshaler = &PrivKey{}
+var (
+	_ cryptotypes.PrivKey  = &PrivKey{}
+	_ codec.AminoMarshaler = &PrivKey{}
+)
 
 // Bytes returns the privkey byte format.
 func (privKey *PrivKey) Bytes() []byte {
@@ -150,8 +152,10 @@ func GenPrivKeyFromSecret(secret []byte) *PrivKey {
 
 //-------------------------------------
 
-var _ cryptotypes.PubKey = &PubKey{}
-var _ codec.AminoMarshaler = &PubKey{}
+var (
+	_ cryptotypes.PubKey   = &PubKey{}
+	_ codec.AminoMarshaler = &PubKey{}
+)
 
 // Address is the SHA256-20 of the raw pubkey bytes.
 // It doesn't implement ADR-28 addresses and it must not be used

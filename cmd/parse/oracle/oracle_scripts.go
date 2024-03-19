@@ -2,15 +2,16 @@ package oracle
 
 import (
 	"fmt"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/forbole/bdjuno/v3/modules/oracle"
-	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/forbole/bdjuno/v3/utils"
-	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
-	"github.com/forbole/juno/v3/types/config"
+
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/forbole/bdjuno/v4/database"
+	"github.com/forbole/bdjuno/v4/modules/oracle"
+	modulestypes "github.com/forbole/bdjuno/v4/modules/types"
+	"github.com/forbole/bdjuno/v4/utils"
+	parsecmdtypes "github.com/forbole/juno/v5/cmd/parse/types"
+	"github.com/forbole/juno/v5/types/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // oracleScriptsCmd returns a Cobra command that allows to refresh oracle scripts.

@@ -2,13 +2,14 @@ package remote
 
 import (
 	"fmt"
+
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v5/node/remote"
 	"github.com/pkg/errors"
 
-	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
+	oraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source"
 )
 
 var (

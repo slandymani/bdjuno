@@ -13,8 +13,10 @@ import (
 const MaxGasWanted = uint64((1 << 63) - 1)
 
 // Interface implementation checks.
-var _, _, _, _ codectypes.UnpackInterfacesMessage = &Tx{}, &TxBody{}, &AuthInfo{}, &SignerInfo{}
-var _ sdk.Tx = &Tx{}
+var (
+	_, _, _, _ codectypes.UnpackInterfacesMessage = &Tx{}, &TxBody{}, &AuthInfo{}, &SignerInfo{}
+	_          sdk.Tx                             = &Tx{}
+)
 
 // GetMsgs implements the GetMsgs method on sdk.Tx.
 func (t *Tx) GetMsgs() []sdk.Msg {
@@ -23,13 +25,9 @@ func (t *Tx) GetMsgs() []sdk.Msg {
 	}
 
 	anys := t.Body.Messages
-	res := make([]sdk.Msg, len(anys))
-	for i, any := range anys {
-		cached := any.GetCachedValue()
-		if cached == nil {
-			panic("Any cached value is nil. Transaction messages must be correctly packed Any values.")
-		}
-		res[i] = cached.(sdk.Msg)
+	res, err := GetMsgs(anys, "transaction")
+	if err != nil {
+		panic(err)
 	}
 	return res
 }
@@ -118,10 +116,7 @@ func (t *Tx) GetSigners() []sdk.AccAddress {
 	// ensure any specified fee payer is included in the required signers (at the end)
 	feePayer := t.AuthInfo.Fee.Payer
 	if feePayer != "" && !seen[feePayer] {
-		payerAddr, err := sdk.AccAddressFromBech32(feePayer)
-		if err != nil {
-			panic(err)
-		}
+		payerAddr := sdk.MustAccAddressFromBech32(feePayer)
 		signers = append(signers, payerAddr)
 		seen[feePayer] = true
 	}
@@ -132,17 +127,15 @@ func (t *Tx) GetSigners() []sdk.AccAddress {
 func (t *Tx) GetGas() uint64 {
 	return t.AuthInfo.Fee.GasLimit
 }
+
 func (t *Tx) GetFee() sdk.Coins {
 	return t.AuthInfo.Fee.Amount
 }
+
 func (t *Tx) FeePayer() sdk.AccAddress {
 	feePayer := t.AuthInfo.Fee.Payer
 	if feePayer != "" {
-		payerAddr, err := sdk.AccAddressFromBech32(feePayer)
-		if err != nil {
-			panic(err)
-		}
-		return payerAddr
+		return sdk.MustAccAddressFromBech32(feePayer)
 	}
 	// use first signer as default if no payer specified
 	return t.GetSigners()[0]
@@ -151,11 +144,7 @@ func (t *Tx) FeePayer() sdk.AccAddress {
 func (t *Tx) FeeGranter() sdk.AccAddress {
 	feePayer := t.AuthInfo.Fee.Granter
 	if feePayer != "" {
-		granterAddr, err := sdk.AccAddressFromBech32(feePayer)
-		if err != nil {
-			panic(err)
-		}
-		return granterAddr
+		return sdk.MustAccAddressFromBech32(feePayer)
 	}
 	return nil
 }
@@ -177,12 +166,16 @@ func (t *Tx) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 
 // UnpackInterfaces implements the UnpackInterfaceMessages.UnpackInterfaces method
 func (m *TxBody) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
-	for _, any := range m.Messages {
-		var msg sdk.Msg
-		err := unpacker.UnpackAny(any, &msg)
-		if err != nil {
-			return err
-		}
+	if err := UnpackInterfaces(unpacker, m.Messages); err != nil {
+		return err
+	}
+
+	if err := unpackTxExtensionOptionsI(unpacker, m.ExtensionOptions); err != nil {
+		return err
+	}
+
+	if err := unpackTxExtensionOptionsI(unpacker, m.NonCriticalExtensionOptions); err != nil {
+		return err
 	}
 
 	return nil
@@ -204,8 +197,14 @@ func (m *SignerInfo) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	return unpacker.UnpackAny(m.PublicKey, new(cryptotypes.PubKey))
 }
 
-// RegisterInterfaces registers the sdk.Tx interface.
+// RegisterInterfaces registers the sdk.Tx and MsgResponse interfaces.
+// Note: the registration of sdk.Msg is done in sdk.RegisterInterfaces, but it
+// could be moved inside this function.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
+	registry.RegisterInterface(msgResponseInterfaceProtoName, (*MsgResponse)(nil))
+
 	registry.RegisterInterface("cosmos.tx.v1beta1.Tx", (*sdk.Tx)(nil))
 	registry.RegisterImplementations((*sdk.Tx)(nil), &Tx{})
+
+	registry.RegisterInterface("cosmos.tx.v1beta1.TxExtensionOptionI", (*TxExtensionOptionI)(nil))
 }

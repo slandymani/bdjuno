@@ -4,13 +4,14 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
-	"github.com/forbole/bdjuno/v3/types"
+	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	"github.com/forbole/bdjuno/v4/types"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
-	"time"
 )
 
 // SaveOracleParams allows to store the given params inside the database
@@ -28,7 +29,7 @@ ON CONFLICT (one_row_id) DO UPDATE
         height = excluded.height
 WHERE oracle_params.height <= excluded.height`
 
-	_, err = db.Sql.Exec(stmt, string(paramsBz), params.Height)
+	_, err = db.SQL.Exec(stmt, string(paramsBz), params.Height)
 	if err != nil {
 		return fmt.Errorf("error while storing oracle params: %s", err)
 	}
@@ -42,7 +43,7 @@ INSERT INTO data_source (id, create_block, edit_block, name, description, execut
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (id) DO NOTHING`
 
-	_, err := db.Sql.Exec(
+	_, err := db.SQL.Exec(
 		stmt, dataSourceId, height, height,
 		msg.Name, msg.Description,
 		string(msg.Executable), pq.Array(dbtypes.NewDbCoins(msg.Fee)),
@@ -64,7 +65,7 @@ UPDATE data_source
 		fee = CASE WHEN $5 = '' THEN data_source.fee ELSE $6 END,
 		edit_block = $1 WHERE id = $7`
 
-	_, err := db.Sql.Exec(
+	_, err := db.SQL.Exec(
 		stmt, height, msg.Name,
 		msg.Description, string(msg.Executable),
 		msg.Fee.String(), pq.Array(dbtypes.NewDbCoins(msg.Fee)),
@@ -83,7 +84,7 @@ INSERT INTO oracle_script (id, create_block, edit_block, name, description, sche
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (id) DO NOTHING`
 
-	_, err := db.Sql.Exec(
+	_, err := db.SQL.Exec(
 		stmt, oracleScriptId, height, height,
 		msg.Name, msg.Description,
 		msg.Schema, msg.SourceCodeURL,
@@ -105,7 +106,7 @@ UPDATE oracle_script
 		source_code_url = CASE WHEN $5 = '[do-not-modify]' THEN oracle_script.source_code_url ELSE $5 END,
 		edit_block = $1 WHERE id = $6`
 
-	_, err := db.Sql.Exec(
+	_, err := db.SQL.Exec(
 		stmt, height, msg.Name,
 		msg.Description, msg.Schema,
 		msg.SourceCodeURL, msg.OracleScriptID,
@@ -123,7 +124,7 @@ func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, ti
 INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, tx_hash, timestamp)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT (id) DO NOTHING`
-	_, err := db.Sql.Exec(
+	_, err := db.SQL.Exec(
 		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
 		msg.PrepareGas, msg.ExecuteGas, msg.Sender, txHash, timestamp,
@@ -154,7 +155,7 @@ func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) err
 	query += `
 	ON CONFLICT (request_id, data_source_id) DO NOTHING`
 
-	_, err := db.Sql.Exec(query, params...)
+	_, err := db.SQL.Exec(query, params...)
 	if err != nil {
 		return fmt.Errorf("error while storing request data sources: %s", err)
 	}
@@ -168,7 +169,7 @@ UPDATE request
 	SET resolve_timestamp = CASE WHEN $1 = 1 THEN $2 ELSE request.resolve_timestamp END
 WHERE id = $3`
 
-	_, err := db.Sql.Exec(stmt, result.ResolveStatus, time.Unix(result.ResolveTime, 0), result.RequestID)
+	_, err := db.SQL.Exec(stmt, result.ResolveStatus, time.Unix(result.ResolveTime, 0), result.RequestID)
 	if err != nil {
 		return fmt.Errorf("error while setting request report timestamp: %s", err)
 	}
@@ -203,7 +204,7 @@ ON CONFLICT (id) DO NOTHING`
 		return errors.New("Failed to retrieve oracle script id")
 	}
 
-	_, err := db.Sql.Exec(stmt, reportId, msg.Validator, scriptID[0], txHash)
+	_, err := db.SQL.Exec(stmt, reportId, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}
@@ -213,7 +214,7 @@ ON CONFLICT (id) DO NOTHING`
 
 func (db *Db) AddReportCount(id oracletypes.RequestID) error {
 	stmtIncrement := `UPDATE request SET reports_count = reports_count + 1 WHERE id = $1`
-	_, err := db.Sql.Exec(stmtIncrement, id)
+	_, err := db.SQL.Exec(stmtIncrement, id)
 	if err != nil {
 		return fmt.Errorf("error while incrementing reports count: %s", err)
 	}
@@ -265,7 +266,7 @@ ON CONFLICT (one_row_id) DO UPDATE
         height = excluded.height
 WHERE data_providers_pool.height <= excluded.height`
 
-	_, err := db.Sql.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
+	_, err := db.SQL.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
 	if err != nil {
 		return fmt.Errorf("error while storing data providers pool: %s", err)
 	}

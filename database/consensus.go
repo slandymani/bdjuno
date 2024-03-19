@@ -2,9 +2,10 @@ package database
 
 import (
 	"fmt"
-	junotypes "github.com/forbole/juno/v3/types"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"time"
+
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	junotypes "github.com/forbole/juno/v5/types"
 
 	"github.com/forbole/bdjuno/v4/types"
 
@@ -194,7 +195,7 @@ func (db *Db) GetGenesis() (*types.Genesis, error) {
 func (db *Db) SetBlockSize(size int, height int64) error {
 	stmt := `UPDATE block SET size = $1 WHERE height = $2`
 
-	_, err := db.Sql.Exec(stmt, size, height)
+	_, err := db.SQL.Exec(stmt, size, height)
 	if err != nil {
 		return fmt.Errorf("error while setting block size: %s", err)
 	}

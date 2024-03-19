@@ -2,14 +2,15 @@ package remote
 
 import (
 	"fmt"
+
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/forbole/juno/v3/node/local"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v5/node/local"
+	"github.com/forbole/juno/v5/node/remote"
 	"github.com/pkg/errors"
 
-	oraclesource "github.com/forbole/bdjuno/v3/modules/oracle/source"
+	oraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source"
 )
 
 var (
@@ -53,7 +54,7 @@ func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) 
 
 	res, err := s.client.Request(
 		remote.GetHeightRequestContext(sdk.WrapSDKContext(ctx), height),
-		&oracletypes.QueryRequestRequest{RequestId: id},
+		&oracletypes.QueryRequestRequest{RequestId: uint64(id)},
 	)
 	if err != nil {
 		return oracletypes.Result{}, fmt.Errorf("error while getting request result: %s", err)
@@ -126,7 +127,7 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	return *response.DataSource, nil
 }
 
-func (s Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, error) {
+func (s *Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, error) {
 	ctx, err := s.LoadHeight(height)
 	if err != nil {
 		return oracletypes.RequestResult{}, fmt.Errorf("error while loading height: %s", err)

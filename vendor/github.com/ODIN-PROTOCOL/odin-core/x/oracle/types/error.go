@@ -37,7 +37,7 @@ var (
 	ErrTooLongSchema            = sdkerrors.Register(ModuleName, 31, "too long schema")
 	ErrTooLongURL               = sdkerrors.Register(ModuleName, 32, "too long url")
 	ErrTooLargeRawReportData    = sdkerrors.Register(ModuleName, 33, "too large raw report data")
-	ErrInsufficientValidators   = sdkerrors.Register(ModuleName, 34, "insufficent available validators")
+	ErrInsufficientValidators   = sdkerrors.Register(ModuleName, 34, "insufficient available validators")
 	ErrCreateWithDoNotModify    = sdkerrors.Register(ModuleName, 35, "cannot create with [do-not-modify] content")
 	ErrSelfReferenceAsReporter  = sdkerrors.Register(ModuleName, 36, "cannot reference self as reporter")
 	ErrOBIDecode                = sdkerrors.Register(ModuleName, 37, "obi decode failed")
@@ -49,7 +49,6 @@ var (
 	ErrNotEnoughFee             = sdkerrors.Register(ModuleName, 43, "not enough fee")
 	ErrInvalidOwasmGas          = sdkerrors.Register(ModuleName, 44, "invalid owasm gas")
 	ErrIBCRequestDisabled       = sdkerrors.Register(ModuleName, 45, "sending oracle request via IBC is disabled")
-	ErrInvalidFeeDenom          = sdkerrors.Register(ModuleName, 46, "given fee denom is invalid")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.

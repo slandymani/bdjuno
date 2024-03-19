@@ -10,13 +10,13 @@ import (
 
 	parsetransaction "github.com/forbole/juno/v5/cmd/parse/transactions"
 
-	parseoracle "github.com/forbole/bdjuno/v3/cmd/parse/oracle"
 	parseauth "github.com/forbole/bdjuno/v4/cmd/parse/auth"
 	parsebank "github.com/forbole/bdjuno/v4/cmd/parse/bank"
 	parsedistribution "github.com/forbole/bdjuno/v4/cmd/parse/distribution"
 	parsefeegrant "github.com/forbole/bdjuno/v4/cmd/parse/feegrant"
 	parsegov "github.com/forbole/bdjuno/v4/cmd/parse/gov"
 	parsemint "github.com/forbole/bdjuno/v4/cmd/parse/mint"
+	parseoracle "github.com/forbole/bdjuno/v4/cmd/parse/oracle"
 	parsepricefeed "github.com/forbole/bdjuno/v4/cmd/parse/pricefeed"
 	parsestaking "github.com/forbole/bdjuno/v4/cmd/parse/staking"
 )

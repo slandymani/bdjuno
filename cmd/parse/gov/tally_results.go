@@ -2,16 +2,17 @@ package gov
 
 import (
 	"fmt"
-	govsource "github.com/forbole/bdjuno/v3/modules/gov/source"
-	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/forbole/bdjuno/v3/types"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
-	"github.com/forbole/juno/v3/types/config"
+	govsource "github.com/forbole/bdjuno/v4/modules/gov/source"
+	modulestypes "github.com/forbole/bdjuno/v4/modules/types"
+	"github.com/forbole/bdjuno/v4/types"
+
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	parsecmdtypes "github.com/forbole/juno/v5/cmd/parse/types"
+	"github.com/forbole/juno/v5/types/config"
 	"github.com/spf13/cobra"
 
-	"github.com/forbole/bdjuno/v3/database"
+	"github.com/forbole/bdjuno/v4/database"
 )
 
 // tallyResultsCmd returns the Cobra command allowing to fix all things related to a tally results
@@ -67,13 +68,13 @@ func refreshTallyResults(db *database.Db, source govsource.Source) error {
 	return db.SaveTallyResults(tallys)
 }
 
-func parseTally(id uint64, height int64, tally govtypes.TallyResult) types.TallyResult {
+func parseTally(id uint64, height int64, tally *govtypesv1.TallyResult) types.TallyResult {
 	return types.TallyResult{
 		ProposalID: id,
-		Yes:        tally.Yes.String(),
-		Abstain:    tally.Abstain.String(),
-		No:         tally.No.String(),
-		NoWithVeto: tally.NoWithVeto.String(),
+		Yes:        tally.YesCount,
+		Abstain:    tally.AbstainCount,
+		No:         tally.NoCount,
+		NoWithVeto: tally.NoWithVetoCount,
 		Height:     height,
 	}
 }

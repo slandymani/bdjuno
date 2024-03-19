@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"reflect"
+	"strings"
+
 	auctiontypes "github.com/ODIN-PROTOCOL/odin-core/x/auction/types"
 	coinswaptypes "github.com/ODIN-PROTOCOL/odin-core/x/coinswap/types"
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
@@ -12,12 +15,10 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibc1 "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
-	"reflect"
-	"strings"
+	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibc1 "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	"github.com/forbole/bdjuno/v4/database"
+	"github.com/forbole/bdjuno/v4/modules/actions/types"
 )
 
 type Params struct {

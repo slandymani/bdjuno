@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/forbole/bdjuno/v3/database"
 	"strings"
+
+	"github.com/forbole/bdjuno/v4/database"
 
 	"github.com/forbole/bdjuno/v4/modules/actions/types"
 

@@ -2,11 +2,11 @@ package types
 
 import (
 	"encoding/binary"
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
+	"github.com/cosmos/cosmos-sdk/types/kv"
 )
 
 const (
@@ -18,9 +18,6 @@ const (
 
 	// RouterKey is the message route for gov
 	RouterKey = ModuleName
-
-	// QuerierRoute is the querier route for gov
-	QuerierRoute = ModuleName
 )
 
 // Keys for governance store
@@ -34,18 +31,26 @@ const (
 //
 // - 0x03: nextProposalID
 //
+// - 0x04<proposalID_Bytes>: []byte{0x01} if proposalID is in the voting period
+//
 // - 0x10<proposalID_Bytes><depositorAddrLen (1 Byte)><depositorAddr_Bytes>: Deposit
 //
 // - 0x20<proposalID_Bytes><voterAddrLen (1 Byte)><voterAddr_Bytes>: Voter
+//
+// - 0x30: Params
 var (
-	ProposalsKeyPrefix          = []byte{0x00}
-	ActiveProposalQueuePrefix   = []byte{0x01}
-	InactiveProposalQueuePrefix = []byte{0x02}
-	ProposalIDKey               = []byte{0x03}
+	ProposalsKeyPrefix            = []byte{0x00}
+	ActiveProposalQueuePrefix     = []byte{0x01}
+	InactiveProposalQueuePrefix   = []byte{0x02}
+	ProposalIDKey                 = []byte{0x03}
+	VotingPeriodProposalKeyPrefix = []byte{0x04}
 
 	DepositsKeyPrefix = []byte{0x10}
 
 	VotesKeyPrefix = []byte{0x20}
+
+	// ParamsKey is the key to query all gov params
+	ParamsKey = []byte{0x30}
 )
 
 var lenTime = len(sdk.FormatTimeBytes(time.Now()))
@@ -65,6 +70,11 @@ func GetProposalIDFromBytes(bz []byte) (proposalID uint64) {
 // ProposalKey gets a specific proposal from the store
 func ProposalKey(proposalID uint64) []byte {
 	return append(ProposalsKeyPrefix, GetProposalIDBytes(proposalID)...)
+}
+
+// VotingPeriodProposalKey gets if a proposal is in voting period.
+func VotingPeriodProposalKey(proposalID uint64) []byte {
+	return append(VotingPeriodProposalKeyPrefix, GetProposalIDBytes(proposalID)...)
 }
 
 // ActiveProposalByTimeKey gets the active proposal queue key by endTime
@@ -111,9 +121,7 @@ func VoteKey(proposalID uint64, voterAddr sdk.AccAddress) []byte {
 
 // SplitProposalKey split the proposal key and returns the proposal id
 func SplitProposalKey(key []byte) (proposalID uint64) {
-	if len(key[1:]) != 8 {
-		panic(fmt.Sprintf("unexpected key length (%d ≠ 8)", len(key[1:])))
-	}
+	kv.AssertKeyLength(key[1:], 8)
 
 	return GetProposalIDFromBytes(key[1:])
 }
@@ -141,9 +149,7 @@ func SplitKeyVote(key []byte) (proposalID uint64, voterAddr sdk.AccAddress) {
 // private functions
 
 func splitKeyWithTime(key []byte) (proposalID uint64, endTime time.Time) {
-	if len(key[1:]) != 8+lenTime {
-		panic(fmt.Sprintf("unexpected key length (%d ≠ %d)", len(key[1:]), lenTime+8))
-	}
+	kv.AssertKeyLength(key[1:], 8+lenTime)
 
 	endTime, err := sdk.ParseTimeBytes(key[1 : 1+lenTime])
 	if err != nil {
@@ -157,7 +163,9 @@ func splitKeyWithTime(key []byte) (proposalID uint64, endTime time.Time) {
 func splitKeyWithAddress(key []byte) (proposalID uint64, addr sdk.AccAddress) {
 	// Both Vote and Deposit store keys are of format:
 	// <prefix (1 Byte)><proposalID (8 bytes)><addrLen (1 Byte)><addr_Bytes>
+	kv.AssertKeyAtLeastLength(key, 10)
 	proposalID = GetProposalIDFromBytes(key[1:9])
+	kv.AssertKeyAtLeastLength(key, 11)
 	addr = sdk.AccAddress(key[10:])
 	return
 }

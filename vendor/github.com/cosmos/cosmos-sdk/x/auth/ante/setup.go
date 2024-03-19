@@ -5,12 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 )
 
-var (
-	_ GasTx = (*legacytx.StdTx)(nil) // assert StdTx implements GasTx
-)
+var _ GasTx = (*legacytx.StdTx)(nil) // assert StdTx implements GasTx
 
 // GasTx defines a Tx with a GetGas() method which is needed to use SetUpContextDecorator
 type GasTx interface {
@@ -40,6 +38,14 @@ func (sud SetUpContextDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate
 	}
 
 	newCtx = SetGasMeter(simulate, ctx, gasTx.GetGas())
+
+	if cp := ctx.ConsensusParams(); cp != nil && cp.Block != nil {
+		// If there exists a maximum block gas limit, we must ensure that the tx
+		// does not exceed it.
+		if cp.Block.MaxGas > 0 && gasTx.GetGas() > uint64(cp.Block.MaxGas) {
+			return newCtx, sdkerrors.Wrapf(sdkerrors.ErrInvalidGasLimit, "tx gas limit %d exceeds block max gas %d", gasTx.GetGas(), cp.Block.MaxGas)
+		}
+	}
 
 	// Decorator will catch an OutOfGasPanic caused in the next antehandler
 	// AnteHandlers must have their own defer/recover in order for the BaseApp

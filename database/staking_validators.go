@@ -2,7 +2,8 @@ package database
 
 import (
 	"fmt"
-	tmtypes "github.com/tendermint/tendermint/types"
+
+	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/forbole/bdjuno/v4/types"
 
@@ -517,7 +518,7 @@ VALUES ($1, $2, $3)
 ON CONFLICT (consensus_address) DO UPDATE
    SET proposed_blocks = validator_blocks.proposed_blocks + 1`
 
-	_, err = db.Sql.Exec(stmt, consAddr, operAddr.String(), 1)
+	_, err = db.SQL.Exec(stmt, consAddr, operAddr.String(), 1)
 	if err != nil {
 		return fmt.Errorf("error while storing validator blocks: %s", err)
 	}

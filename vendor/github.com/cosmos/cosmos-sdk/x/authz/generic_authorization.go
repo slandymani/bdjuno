@@ -1,12 +1,12 @@
 package authz
 
 import (
+	"errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
-	_ Authorization = &GenericAuthorization{}
-)
+var _ Authorization = &GenericAuthorization{}
 
 // NewGenericAuthorization creates a new GenericAuthorization object.
 func NewGenericAuthorization(msgTypeURL string) *GenericAuthorization {
@@ -27,5 +27,8 @@ func (a GenericAuthorization) Accept(ctx sdk.Context, msg sdk.Msg) (AcceptRespon
 
 // ValidateBasic implements Authorization.ValidateBasic.
 func (a GenericAuthorization) ValidateBasic() error {
+	if a.Msg == "" {
+		return errors.New("msg type cannot be empty")
+	}
 	return nil
 }

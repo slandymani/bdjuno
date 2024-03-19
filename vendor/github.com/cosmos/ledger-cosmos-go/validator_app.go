@@ -1,5 +1,5 @@
 /*******************************************************************************
-*   (c) 2018 ZondaX GmbH
+*   (c) 2018 - 2022 ZondaX AG
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package ledger_cosmos_go
 
 import (
-	"fmt"
+	"errors"
 	"math"
 
-	"github.com/cosmos/ledger-go"
+	"github.com/zondax/ledger-go"
 )
 
 const (
@@ -36,41 +36,43 @@ const (
 // Validator app
 type LedgerTendermintValidator struct {
 	// Add support for this app
-	api *ledger_go.Ledger
+	api ledger_go.LedgerDevice
 }
 
 // RequiredCosmosUserAppVersion indicates the minimum required version of the Tendermint app
 func RequiredTendermintValidatorAppVersion() VersionInfo {
-	return VersionInfo{0, 0, 5, 0,}
+	return VersionInfo{0, 0, 5, 0}
 }
 
 // FindLedgerCosmosValidatorApp finds a Cosmos validator app running in a ledger device
-func FindLedgerTendermintValidatorApp() (*LedgerTendermintValidator, error) {
-	ledgerAPI, err := ledger_go.FindLedger()
-
+func FindLedgerTendermintValidatorApp() (_ *LedgerTendermintValidator, rerr error) {
+	ledgerAdmin := ledger_go.NewLedgerAdmin()
+	ledgerAPI, err := ledgerAdmin.Connect(0)
 	if err != nil {
 		return nil, err
 	}
 
-	ledgerCosmosValidatorApp := LedgerTendermintValidator{ledgerAPI}
+	defer func() {
+		if rerr != nil {
+			defer ledgerAPI.Close()
+		}
+	}()
 
+	ledgerCosmosValidatorApp := &LedgerTendermintValidator{ledgerAPI}
 	appVersion, err := ledgerCosmosValidatorApp.GetVersion()
-
 	if err != nil {
 		if err.Error() == "[APDU_CODE_CLA_NOT_SUPPORTED] Class not supported" {
-			return nil, fmt.Errorf("are you sure the Tendermint Validator app is open?")
+			err = errors.New("are you sure the Tendermint Validator app is open?")
 		}
-		defer ledgerAPI.Close()
 		return nil, err
 	}
 
 	req := RequiredTendermintValidatorAppVersion()
-	err = CheckVersion(*appVersion, req)
-	if err !=nil {
+	if err := CheckVersion(*appVersion, req); err != nil {
 		return nil, err
 	}
 
-	return &ledgerCosmosValidatorApp, err
+	return ledgerCosmosValidatorApp, err
 }
 
 // Close closes a connection with the Cosmos user app
@@ -88,7 +90,7 @@ func (ledger *LedgerTendermintValidator) GetVersion() (*VersionInfo, error) {
 	}
 
 	if len(response) < 4 {
-		return nil, fmt.Errorf("invalid response")
+		return nil, errors.New("invalid response")
 	}
 
 	return &VersionInfo{
@@ -116,7 +118,7 @@ func (ledger *LedgerTendermintValidator) GetPublicKeyED25519(bip32Path []uint32)
 	}
 
 	if len(response) < 4 {
-		return nil, fmt.Errorf("invalid response. Too short")
+		return nil, errors.New("invalid response. Too short")
 	}
 
 	return response, nil

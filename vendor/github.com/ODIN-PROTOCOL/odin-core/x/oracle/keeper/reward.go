@@ -1,9 +1,11 @@
-package oraclekeeper
+package keeper
 
 import (
-	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 )
 
 func (k Keeper) SetDataProviderAccumulatedReward(ctx sdk.Context, acc sdk.AccAddress, reward sdk.Coins) {
@@ -61,7 +63,7 @@ func (k Keeper) AllocateRewardsToDataProviders(ctx sdk.Context, rid oracletypes.
 		}
 		feePool.CommunityPool = diff
 
-		err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, ownerAccAddr, reward)
+		err = k.BankKeeper.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, ownerAccAddr, reward)
 		if err != nil {
 			panic(err)
 		}

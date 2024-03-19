@@ -1,12 +1,13 @@
 package oracle
 
 import (
-	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	juno "github.com/forbole/juno/v3/types"
-	"github.com/pkg/errors"
-	abcitypes "github.com/tendermint/tendermint/abci/types"
 	"strconv"
+
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	juno "github.com/forbole/juno/v5/types"
+	"github.com/pkg/errors"
 )
 
 func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {

@@ -3,7 +3,8 @@ package database
 import (
 	"encoding/json"
 	"fmt"
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+
+	dbtypes "github.com/forbole/bdjuno/v4/database/types"
 	"github.com/lib/pq"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -61,7 +62,7 @@ ON CONFLICT (one_row_id) DO UPDATE
         height = excluded.height
 WHERE treasury_pool.height <= excluded.height`
 
-	_, err := db.Sql.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
+	_, err := db.SQL.Exec(stmt, pq.Array(dbtypes.NewDbCoins(pool)), height)
 	if err != nil {
 		return fmt.Errorf("error while storing treasury pool: %s", err)
 	}

@@ -2,8 +2,8 @@ package iavl
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"errors"
+	"fmt"
 )
 
 // exportBufferSize is the number of nodes to buffer in the exporter. It improves throughput by
@@ -11,8 +11,11 @@ import (
 // especially since callers may export several IAVL stores in parallel (e.g. the Cosmos SDK).
 const exportBufferSize = 32
 
-// ExportDone is returned by Exporter.Next() when all items have been exported.
-var ExportDone = errors.New("export is complete") // nolint:golint
+// ErrorExportDone is returned by Exporter.Next() when all items have been exported.
+var ErrorExportDone = errors.New("export is complete")
+
+// ErrNotInitalizedTree when chains introduce a store without initializing data
+var ErrNotInitalizedTree = errors.New("iavl/export newExporter failed to create")
 
 // ExportNode contains exported node data.
 type ExportNode struct {
@@ -34,7 +37,15 @@ type Exporter struct {
 }
 
 // NewExporter creates a new Exporter. Callers must call Close() when done.
-func newExporter(tree *ImmutableTree) *Exporter {
+func newExporter(tree *ImmutableTree) (*Exporter, error) {
+	if tree == nil {
+		return nil, fmt.Errorf("tree is nil: %w", ErrNotInitalizedTree)
+	}
+	// CV Prevent crash on incrVersionReaders if tree.ndb == nil
+	if tree.ndb == nil {
+		return nil, fmt.Errorf("tree.ndb is nil: %w", ErrNotInitalizedTree)
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	exporter := &Exporter{
 		tree:   tree,
@@ -45,7 +56,7 @@ func newExporter(tree *ImmutableTree) *Exporter {
 	tree.ndb.incrVersionReaders(tree.version)
 	go exporter.export(ctx)
 
-	return exporter
+	return exporter, nil
 }
 
 // export exports nodes
@@ -55,7 +66,7 @@ func (e *Exporter) export(ctx context.Context) {
 			Key:     node.key,
 			Value:   node.value,
 			Version: node.version,
-			Height:  node.height,
+			Height:  node.subtreeHeight,
 		}
 
 		select {
@@ -73,7 +84,7 @@ func (e *Exporter) Next() (*ExportNode, error) {
 	if exportNode, ok := <-e.ch; ok {
 		return exportNode, nil
 	}
-	return nil, ExportDone
+	return nil, ErrorExportDone
 }
 
 // Close closes the exporter. It is safe to call multiple times.

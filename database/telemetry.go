@@ -2,8 +2,9 @@ package database
 
 import (
 	"fmt"
+
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+	dbtypes "github.com/forbole/bdjuno/v4/database/types"
 	"github.com/lib/pq"
 )
 
@@ -32,7 +33,7 @@ ON CONFLICT (address) DO UPDATE
 		height = excluded.height
 WHERE account_balance.height <= excluded.height`
 
-	_, err := db.Sql.Exec(stmt, params...)
+	_, err := db.SQL.Exec(stmt, params...)
 	if err != nil {
 		return fmt.Errorf("error while storing accounts balances: %s", err)
 	}

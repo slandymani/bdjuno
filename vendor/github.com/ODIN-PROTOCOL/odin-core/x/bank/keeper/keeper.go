@@ -3,15 +3,16 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/ODIN-PROTOCOL/odin-core/x/bank/types"
-	"github.com/tendermint/tendermint/libs/log"
+	"github.com/cometbft/cometbft/libs/log"
 
+	errortypes "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/ODIN-PROTOCOL/odin-core/x/bank/types"
 )
 
 // WrappedBankKeeper encapsulates the underlying bank keeper and overrides
@@ -47,7 +48,7 @@ func (k *WrappedBankKeeper) SetMintKeeper(mintKeeper types.MintKeeper) {
 
 // Logger returns a module-specific logger.
 func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprint("x/wrappedbank"))
+	return ctx.Logger().With("module", "x/wrappedbank")
 }
 
 // BurnCoins moves the specified amount of coins from the given module name to
@@ -55,6 +56,7 @@ func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
 func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
 	// If distrKeeper is not set OR we want to burn coins in distr itself, we will
 	// just use the original BurnCoins function.
+
 	if k.distrKeeper == nil || moduleName == distrtypes.ModuleName {
 		return k.Keeper.BurnCoins(ctx, moduleName, amt)
 	}
@@ -62,14 +64,14 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	// Create the account if it doesn't yet exist.
 	acc := k.accountKeeper.GetModuleAccount(ctx, moduleName)
 	if acc == nil {
-		panic(sdkerrors.Wrapf(
+		panic(errortypes.Wrapf(
 			sdkerrors.ErrUnknownAddress,
 			"module account %s does not exist", moduleName,
 		))
 	}
 
 	if !acc.HasPermission(authtypes.Burner) {
-		panic(sdkerrors.Wrapf(
+		panic(errortypes.Wrapf(
 			sdkerrors.ErrUnauthorized,
 			"module account %s does not have permissions to burn tokens",
 			moduleName,
@@ -101,17 +103,17 @@ func (k WrappedBankKeeper) MintCoins(ctx sdk.Context, moduleName string, amt sdk
 	}
 	acc := k.accountKeeper.GetModuleAccount(ctx, moduleName)
 	if acc == nil {
-		panic(sdkerrors.Wrapf(sdkerrors.ErrUnknownAddress, "module account %s does not exist", moduleName))
+		panic(errortypes.Wrapf(sdkerrors.ErrUnknownAddress, "module account %s does not exist", moduleName))
 	}
 
 	if !acc.HasPermission(authtypes.Minter) {
-		panic(sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "module account %s does not have permissions to mint tokens", moduleName))
+		panic(errortypes.Wrapf(sdkerrors.ErrUnauthorized, "module account %s does not have permissions to mint tokens", moduleName))
 	}
 
 	logger := k.Logger(ctx)
 	err := k.SendCoinsFromModuleToModule(ctx, distrtypes.ModuleName, moduleName, amt)
 	if err != nil {
-		err = sdkerrors.Wrap(err, fmt.Sprintf("failed to mint %s from %s module account", amt.String(), moduleName))
+		err = errortypes.Wrap(err, fmt.Sprintf("failed to mint %s from %s module account", amt.String(), moduleName))
 		logger.Error(err.Error())
 		return err
 	}

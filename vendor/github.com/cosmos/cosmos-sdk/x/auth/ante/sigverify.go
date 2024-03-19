@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/cosmos/cosmos-sdk/x/auth/legacy/legacytx"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -136,6 +136,10 @@ type SigGasConsumeDecorator struct {
 }
 
 func NewSigGasConsumeDecorator(ak AccountKeeper, sigGasConsumer SignatureVerificationGasConsumer) SigGasConsumeDecorator {
+	if sigGasConsumer == nil {
+		sigGasConsumer = DefaultSigVerificationGasConsumer
+	}
+
 	return SigGasConsumeDecorator{
 		ak:             ak,
 		sigGasConsumer: sigGasConsumer,
@@ -191,7 +195,7 @@ func (sgcd SigGasConsumeDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simula
 }
 
 // Verify all signatures for a tx and return an error if any are invalid. Note,
-// the SigVerificationDecorator decorator will not get executed on ReCheck.
+// the SigVerificationDecorator will not check signatures on ReCheck.
 //
 // CONTRACT: Pubkeys are set in context for all signers before this decorator runs
 // CONTRACT: Tx must implement SigVerifiableTx interface
@@ -229,10 +233,6 @@ func OnlyLegacyAminoSigners(sigData signing.SignatureData) bool {
 }
 
 func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	// no need to verify signatures on recheck tx
-	if ctx.IsReCheckTx() {
-		return next(ctx, tx, simulate)
-	}
 	sigTx, ok := tx.(authsigning.SigVerifiableTx)
 	if !ok {
 		return ctx, sdkerrors.Wrap(sdkerrors.ErrTxDecode, "invalid transaction type")
@@ -280,12 +280,15 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 			accNum = acc.GetAccountNumber()
 		}
 		signerData := authsigning.SignerData{
+			Address:       acc.GetAddress().String(),
 			ChainID:       chainID,
 			AccountNumber: accNum,
 			Sequence:      acc.GetSequence(),
+			PubKey:        pubKey,
 		}
 
-		if !simulate {
+		// no need to verify signatures on recheck tx
+		if !simulate && !ctx.IsReCheckTx() {
 			err := authsigning.VerifySignature(pubKey, signerData, sig.Data, svd.signModeHandler, tx)
 			if err != nil {
 				var errMsg string
@@ -307,8 +310,8 @@ func (svd SigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simul
 
 // IncrementSequenceDecorator handles incrementing sequences of all signers.
 // Use the IncrementSequenceDecorator decorator to prevent replay attacks. Note,
-// there is no need to execute IncrementSequenceDecorator on RecheckTX since
-// CheckTx would already bump the sequence number.
+// there is need to execute IncrementSequenceDecorator on RecheckTx since
+// BaseApp.Commit() will set the check state based on the latest header.
 //
 // NOTE: Since CheckTx and DeliverTx state are managed separately, subsequent and
 // sequential txs orginating from the same account cannot be handled correctly in
@@ -422,7 +425,6 @@ func ConsumeMultisignatureVerificationGas(
 	meter sdk.GasMeter, sig *signing.MultiSignatureData, pubkey multisig.PubKey,
 	params types.Params, accSeq uint64,
 ) error {
-
 	size := sig.BitArray.Count()
 	sigIndex := 0
 

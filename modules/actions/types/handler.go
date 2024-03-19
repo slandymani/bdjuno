@@ -2,7 +2,8 @@ package types
 
 import (
 	"fmt"
-	"github.com/forbole/bdjuno/v3/database"
+
+	"github.com/forbole/bdjuno/v4/database"
 
 	"github.com/forbole/juno/v5/node"
 
