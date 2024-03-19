@@ -13,6 +13,7 @@ import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	//telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	distrkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -89,7 +90,7 @@ func buildLocalSources(cfg *local.Details, encodingConfig *params.EncodingConfig
 
 	sources := &Sources{
 		BankSource:     localbanksource.NewSource(source, banktypes.QueryServer(app.BankKeeper)),
-		DistrSource:    localdistrsource.NewSource(source, distrtypes.QueryServer(app.DistrKeeper)),
+		DistrSource:    localdistrsource.NewSource(source, distrtypes.QueryServer(distrkeeper.NewQuerier(app.DistrKeeper))),
 		GovSource:      localgovsource.NewSource(source, govtypesv1.QueryServer(app.GovKeeper)),
 		MintSource:     localmintsource.NewSource(source, minttypes.QueryServer(app.MintKeeper)),
 		OracleSource:   localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),

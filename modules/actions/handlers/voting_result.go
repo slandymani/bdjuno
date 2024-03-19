@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/forbole/bdjuno/v4/database"
 	"github.com/forbole/bdjuno/v4/modules/actions/types"
 	types2 "github.com/forbole/bdjuno/v4/types"
@@ -62,7 +62,7 @@ func getVotingCountResult(id int64, db *database.Db) (VotingResultCountResponse,
 	}
 
 	for _, option := range options {
-		switch govtypes.VoteOption_value[option] {
+		switch govtypesv1.VoteOption_value[option] {
 		case 0:
 			continue
 		case 1:

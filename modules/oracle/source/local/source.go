@@ -117,7 +117,7 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	response, err := s.client.DataSource(
 		sdk.WrapSDKContext(ctx),
 		&oracletypes.QueryDataSourceRequest{
-			DataSourceId: id,
+			DataSourceId: uint64(id),
 		},
 	)
 	if err != nil {
@@ -135,7 +135,9 @@ func (s *Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, er
 
 	response, err := s.client.Request(
 		sdk.WrapSDKContext(ctx),
-		&oracletypes.QueryRequestRequest{RequestId: id},
+		&oracletypes.QueryRequestRequest{
+			RequestId: uint64(id),
+		},
 	)
 	if err != nil {
 		return oracletypes.RequestResult{}, errors.Wrap(err, "error while loading request")
@@ -190,7 +192,7 @@ func (s *Source) GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript
 	res, err := s.client.OracleScript(
 		sdk.WrapSDKContext(ctx),
 		&oracletypes.QueryOracleScriptRequest{
-			OracleScriptId: id,
+			OracleScriptId: uint64(id),
 		},
 	)
 	if err != nil {

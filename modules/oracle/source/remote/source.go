@@ -46,7 +46,9 @@ func (s *Source) GetParams(height int64) (oracletypes.Params, error) {
 func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) {
 	res, err := s.client.Request(
 		remote.GetHeightRequestContext(s.Ctx, height),
-		&oracletypes.QueryRequestRequest{RequestId: id},
+		&oracletypes.QueryRequestRequest{
+			RequestId: uint64(id),
+		},
 	)
 	if err != nil {
 		return oracletypes.Result{}, fmt.Errorf("error while getting oracle params: %s", err)
@@ -120,7 +122,7 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	response, err := s.client.DataSource(
 		remote.GetHeightRequestContext(s.Ctx, height),
 		&oracletypes.QueryDataSourceRequest{
-			DataSourceId: id,
+			DataSourceId: uint64(id),
 		},
 	)
 	if err != nil {
@@ -128,7 +130,7 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	}
 
 	res := oracletypes.DataSource{
-		ID:          response.DataSource.ID,
+		//ID:          response.DataSource.ID,
 		Owner:       response.DataSource.Owner,
 		Name:        response.DataSource.Name,
 		Description: response.DataSource.Description,
@@ -139,10 +141,12 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	return res, nil
 }
 
-func (s Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, error) {
+func (s *Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, error) {
 	response, err := s.client.Request(
 		remote.GetHeightRequestContext(s.Ctx, height),
-		&oracletypes.QueryRequestRequest{RequestId: id},
+		&oracletypes.QueryRequestRequest{
+			RequestId: uint64(id),
+		},
 	)
 	if err != nil {
 		return oracletypes.RequestResult{}, errors.Wrap(err, "error while loading request")
@@ -160,7 +164,7 @@ func (s *Source) GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript
 	res, err := s.client.OracleScript(
 		remote.GetHeightRequestContext(s.Ctx, height),
 		&oracletypes.QueryOracleScriptRequest{
-			OracleScriptId: id,
+			OracleScriptId: uint64(id),
 		},
 	)
 	if err != nil {

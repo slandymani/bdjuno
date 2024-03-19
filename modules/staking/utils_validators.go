@@ -3,8 +3,10 @@ package staking
 import (
 	"fmt"
 
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/forbole/bdjuno/v4/modules/staking/keybase"
 	"github.com/forbole/bdjuno/v4/types"
+	juno "github.com/forbole/juno/v5/types"
 
 	"github.com/rs/zerolog/log"
 
@@ -319,4 +321,37 @@ func (m *Module) updateValidatorStatusAndVP(height int64, validators []stakingty
 	}
 
 	return nil
+}
+
+func (m *Module) GetValidatorsVotingPowers(height int64, vals *tmctypes.ResultValidators) ([]types.ValidatorVotingPower, error) {
+	stakingVals, _, err := m.getValidators(height)
+	if err != nil {
+		return nil, err
+	}
+
+	votingPowers := make([]types.ValidatorVotingPower, len(stakingVals))
+	for index, validator := range stakingVals {
+		// Get the validator consensus address
+		consAddr, err := validator.GetConsAddr()
+		if err != nil {
+			return nil, err
+		}
+
+		// Find the voting power of this validator
+		var votingPower int64 = 0
+		for _, blockVal := range vals.Validators {
+			blockValConsAddr := juno.ConvertValidatorAddressToBech32String(blockVal.Address)
+			if blockValConsAddr == consAddr.String() {
+				votingPower = blockVal.VotingPower
+			}
+		}
+
+		if found, _ := m.db.HasValidator(consAddr.String()); !found {
+			continue
+		}
+
+		votingPowers[index] = types.NewValidatorVotingPower(consAddr.String(), votingPower, height)
+	}
+
+	return votingPowers, nil
 }
