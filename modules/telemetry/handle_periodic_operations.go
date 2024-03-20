@@ -11,6 +11,8 @@ import (
 
 // RegisterPeriodicOperations implements modules.PeriodicOperationsModule
 func (m *Module) RegisterPeriodicOperations(scheduler *gocron.Scheduler) error {
+	// TODO: find another way to update balances
+	return nil
 	log.Debug().Str("module", "telemetry").Msg("setting up periodic tasks")
 
 	// Update accounts balances every 15 mins

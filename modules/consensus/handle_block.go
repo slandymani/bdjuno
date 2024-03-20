@@ -2,6 +2,7 @@ package consensus
 
 import (
 	"fmt"
+
 	app "github.com/ODIN-PROTOCOL/odin-core/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/juno/v5/types"

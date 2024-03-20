@@ -1,8 +1,6 @@
 package oracle
 
 import (
-	"fmt"
-
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/forbole/bdjuno/v4/database"
 	"github.com/forbole/bdjuno/v4/modules/oracle"
@@ -33,13 +31,13 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			db := database.Cast(parseCtx.Database)
 
 			// Build the oracle module
-			oracleModule := oracle.NewModule(sources.OracleSource, db)
+			oracleModule := oracle.NewModule(sources.OracleSource, db, parseCtx.EncodingConfig.Codec)
 
 			// Get all requests
 			var txs []*tmctypes.ResultTx
 
 			// Firstly, MsgRequestData
-			query := fmt.Sprintf("message.action='/oracle.v1.MsgRequestData'")
+			query := "message.action='/oracle.v1.MsgRequestData'"
 			requestsTx, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgRequestData messages")
@@ -48,7 +46,7 @@ func requestsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			txs = append(txs, requestsTx...)
 
 			// Secondly, MsgReportData
-			query = fmt.Sprintf("message.action='/oracle.v1.MsgReportData'")
+			query = "message.action='/oracle.v1.MsgReportData'"
 			reportsTx, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgReportData messages")

@@ -90,7 +90,7 @@ type BlockRow struct {
 }
 
 type AverageBlockSize struct {
-	Id           int64     `db:"id"`
+	ID           int64     `db:"id"`
 	Date         time.Time `db:"date"`
 	BlocksNumber int64     `db:"blocks_number"`
 	BlockSizes   int64     `db:"block_sizes"`
@@ -98,7 +98,7 @@ type AverageBlockSize struct {
 }
 
 type AverageBlockTime struct {
-	Id            int64     `db:"id"`
+	ID            int64     `db:"id"`
 	Date          time.Time `db:"date"`
 	LastTimestamp int64     `db:"last_timestamp"`
 	BlocksNumber  int64     `db:"blocks_number"`
@@ -107,13 +107,13 @@ type AverageBlockTime struct {
 }
 
 type TxsPerDate struct {
-	Id        int64     `db:"id"`
+	ID        int64     `db:"id"`
 	Date      time.Time `db:"date"`
 	TxsNumber int64     `db:"txs_number"`
 }
 
 type AverageFee struct {
-	Id           int64     `db:"id"`
+	ID           int64     `db:"id"`
 	Date         time.Time `db:"date"`
 	BlocksNumber int64     `db:"blocks_number"`
 	BlockFees    int64     `db:"block_fees"`

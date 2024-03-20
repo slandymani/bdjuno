@@ -30,7 +30,7 @@ func (m *Module) updateRequestsResolveTime(height int64) error {
 
 	for _, request := range requests {
 		if request.ReportsCount >= request.MinCount || height-request.Height > 100 {
-			res, err := m.source.GetRequestStatus(height, request.Id)
+			res, err := m.source.GetRequestStatus(height, request.ID)
 			if err != nil {
 				return fmt.Errorf("error while getting request result: %s", err)
 			}

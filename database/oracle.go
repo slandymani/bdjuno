@@ -37,14 +37,14 @@ WHERE oracle_params.height <= excluded.height`
 	return nil
 }
 
-func (db *Db) SaveDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
+func (db *Db) SaveDataSource(dataSourceID, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
 	stmt := `
 INSERT INTO data_source (id, create_block, edit_block, name, description, executable, fee, owner, sender, timestamp)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.SQL.Exec(
-		stmt, dataSourceId, height, height,
+		stmt, dataSourceID, height, height,
 		msg.Name, msg.Description,
 		string(msg.Executable), pq.Array(dbtypes.NewDbCoins(msg.Fee)),
 		msg.Owner, msg.Owner, timestamp,
@@ -78,14 +78,14 @@ UPDATE data_source
 	return nil
 }
 
-func (db *Db) SaveOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
+func (db *Db) SaveOracleScript(oracleScriptID, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
 	stmt := `
 INSERT INTO oracle_script (id, create_block, edit_block, name, description, schema, source_code_url, owner, sender, timestamp)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 ON CONFLICT (id) DO NOTHING`
 
 	_, err := db.SQL.Exec(
-		stmt, oracleScriptId, height, height,
+		stmt, oracleScriptID, height, height,
 		msg.Name, msg.Description,
 		msg.Schema, msg.SourceCodeURL,
 		msg.Owner, msg.Owner, timestamp,
@@ -118,14 +118,14 @@ UPDATE oracle_script
 	return nil
 }
 
-func (db *Db) SaveDataRequest(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
+func (db *Db) SaveDataRequest(requestID, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
 	calldata := base64.StdEncoding.EncodeToString(msg.Calldata)
 	stmt := `
 INSERT INTO request (id, oracle_script_id, height, calldata, ask_count, min_count, client_id, fee_limit, prepare_gas, execute_gas, sender, tx_hash, timestamp)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 ON CONFLICT (id) DO NOTHING`
 	_, err := db.SQL.Exec(
-		stmt, requestId, msg.OracleScriptID, height, calldata, msg.AskCount,
+		stmt, requestID, msg.OracleScriptID, height, calldata, msg.AskCount,
 		msg.MinCount, msg.ClientID, pq.Array(dbtypes.NewDbCoins(msg.FeeLimit)),
 		msg.PrepareGas, msg.ExecuteGas, msg.Sender, txHash, timestamp,
 	)
@@ -133,7 +133,7 @@ ON CONFLICT (id) DO NOTHING`
 		return fmt.Errorf("error while storing data request: %s", err)
 	}
 
-	err = db.saveRequestDataSources(requestId, dataSourceIDs)
+	err = db.saveRequestDataSources(requestID, dataSourceIDs)
 	if err != nil {
 		return fmt.Errorf("error while storing request data sources: %s", err)
 	}
@@ -141,14 +141,14 @@ ON CONFLICT (id) DO NOTHING`
 	return nil
 }
 
-func (db *Db) saveRequestDataSources(requestId int64, dataSourceIDs []int64) error {
+func (db *Db) saveRequestDataSources(requestID int64, dataSourceIDs []int64) error {
 	query := `INSERT INTO request_data_source (request_id, data_source_id) VALUES`
 
 	var params []interface{}
-	for i, sourceId := range dataSourceIDs {
+	for i, sourceID := range dataSourceIDs {
 		vi := i * 2 // number of rows in table
 		query += fmt.Sprintf("($%d,$%d),", vi+1, vi+2)
-		params = append(params, requestId, sourceId)
+		params = append(params, requestID, sourceID)
 	}
 	query = query[:len(query)-1] // remove trailing ","
 
@@ -188,7 +188,7 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 	return requests, nil
 }
 
-func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, reportId int64) error {
+func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, reportID int64) error {
 	stmt := `
 INSERT INTO report (id, validator, oracle_script_id, tx_hash)
 VALUES ($1, $2, $3, $4)
@@ -204,7 +204,7 @@ ON CONFLICT (id) DO NOTHING`
 		return errors.New("Failed to retrieve oracle script id")
 	}
 
-	_, err := db.SQL.Exec(stmt, reportId, msg.Validator, scriptID[0], txHash)
+	_, err := db.SQL.Exec(stmt, reportID, msg.Validator, scriptID[0], txHash)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}

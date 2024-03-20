@@ -1,8 +1,6 @@
 package oracle
 
 import (
-	"fmt"
-
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/forbole/bdjuno/v4/database"
 	"github.com/forbole/bdjuno/v4/modules/oracle"
@@ -34,13 +32,13 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			db := database.Cast(parseCtx.Database)
 
 			// Build the oracle module
-			oracleModule := oracle.NewModule(sources.OracleSource, db)
+			oracleModule := oracle.NewModule(sources.OracleSource, db, parseCtx.EncodingConfig.Codec)
 
 			// Get all data sources
 			var txs []*tmctypes.ResultTx
 
 			// Firstly, MsgCreateDataSource
-			query := fmt.Sprintf("message.action='/oracle.v1.MsgCreateDataSource'")
+			query := "message.action='/oracle.v1.MsgCreateDataSource'"
 			createDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgCreateDataSource messages")
@@ -49,7 +47,7 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			txs = append(txs, createDataSourceTxs...)
 
 			// Then - MsgEditDataSource
-			query = fmt.Sprintf("message.action='/oracle.v1.MsgEditDataSource'")
+			query = "message.action='/oracle.v1.MsgEditDataSource'"
 			editDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgEditDataSource messages")

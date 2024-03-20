@@ -1,6 +1,7 @@
 package oracle
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/forbole/juno/v5/modules"
 
 	"github.com/forbole/bdjuno/v4/database"
@@ -16,13 +17,15 @@ var (
 type Module struct {
 	db     *database.Db
 	source oraclesource.Source
+	cdc    codec.Codec
 }
 
 // NewModule returns a new Module instance
-func NewModule(source oraclesource.Source, db *database.Db) *Module {
+func NewModule(source oraclesource.Source, db *database.Db, cdc codec.Codec) *Module {
 	return &Module{
 		db:     db,
 		source: source,
+		cdc:    cdc,
 	}
 }
 

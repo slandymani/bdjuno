@@ -113,7 +113,7 @@ func (r *Registrar) BuildModules(ctx registrar.Context) jmodules.Modules {
 		stakingModule,
 		upgradeModule,
 
-		oracle.NewModule(sources.OracleSource, db),
+		oracle.NewModule(sources.OracleSource, db, cdc),
 		//telemetryModule,
 	}
 }

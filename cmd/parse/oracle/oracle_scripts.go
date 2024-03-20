@@ -1,8 +1,6 @@
 package oracle
 
 import (
-	"fmt"
-
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/forbole/bdjuno/v4/database"
 	"github.com/forbole/bdjuno/v4/modules/oracle"
@@ -34,13 +32,13 @@ func oracleScriptsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			db := database.Cast(parseCtx.Database)
 
 			// Build the oracle module
-			oracleModule := oracle.NewModule(sources.OracleSource, db)
+			oracleModule := oracle.NewModule(sources.OracleSource, db, parseCtx.EncodingConfig.Codec)
 
 			// Get all oracle scripts
 			var txs []*tmctypes.ResultTx
 
 			// Firstly, MsgCreateOracleScript
-			query := fmt.Sprintf("message.action='/oracle.v1.MsgCreateOracleScript'")
+			query := "message.action='/oracle.v1.MsgCreateOracleScript'"
 			createOracleScriptTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgCreateOracleScript messages")
@@ -49,7 +47,7 @@ func oracleScriptsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			txs = append(txs, createOracleScriptTxs...)
 
 			// Then - MsgEditOracleScript
-			query = fmt.Sprintf("message.action='/oracle.v1.MsgEditOracleScript'")
+			query = "message.action='/oracle.v1.MsgEditOracleScript'"
 			editOracleScriptTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgEditOracleScript messages")

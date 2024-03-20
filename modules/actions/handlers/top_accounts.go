@@ -35,7 +35,7 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 
 	// To avoid nil result when pagination params undefined (by default set to 0)
 	if pagination.Limit != 0 {
-		stmt = stmt + `
+		stmt += `
 		LIMIT $2`
 
 		err = db.Sqlx.Select(&rows, stmt, pagination.Offset, pagination.Limit)
