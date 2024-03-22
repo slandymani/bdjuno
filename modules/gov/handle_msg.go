@@ -90,14 +90,14 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 				Weight: opt.Weight.String(),
 			}
 		}
-		voteWieghted := govtypesv1.NewMsgVoteWeighted(
+		voteWeighted := govtypesv1.NewMsgVoteWeighted(
 			sdk.MustAccAddressFromBech32(cosmosMsg.Voter),
 			cosmosMsg.ProposalId,
 			opts,
 			"",
 		)
 
-		return m.handleMsgVoteWeighted(tx, voteWieghted)
+		return m.handleMsgVoteWeighted(tx, voteWeighted)
 	}
 
 	return nil
