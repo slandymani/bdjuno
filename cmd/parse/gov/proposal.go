@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/rs/zerolog/log"
 
 	modulestypes "github.com/forbole/bdjuno/v4/modules/types"
@@ -126,7 +127,9 @@ func refreshProposalDetails(parseCtx *parser.Context, proposalID uint64, govModu
 	// Handle the MsgSubmitProposal messages
 	for index, msg := range tx.GetMsgs() {
 		if _, ok := msg.(*govtypesv1.MsgSubmitProposal); !ok {
-			continue
+			if _, ok := msg.(*govtypesv1beta1.MsgSubmitProposal); !ok {
+				continue
+			}
 		}
 
 		err = govModule.HandleMsg(index, msg, tx)

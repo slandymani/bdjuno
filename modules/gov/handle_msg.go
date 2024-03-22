@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/x/authz"
-
+	govtypesv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/forbole/bdjuno/v4/types"
 	"google.golang.org/grpc/codes"
 
@@ -34,14 +34,70 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 	case *govtypesv1.MsgSubmitProposal:
 		return m.handleMsgSubmitProposal(tx, index, cosmosMsg)
 
+	case *govtypesv1beta1.MsgSubmitProposal:
+		contentMsg, err := govtypesv1.NewLegacyContent(cosmosMsg.GetContent(), "")
+		if err != nil {
+			return fmt.Errorf("error converting legacy content into proposal message: %w", err)
+		}
+
+		proposal, err := govtypesv1.NewMsgSubmitProposal(
+			[]sdk.Msg{contentMsg},
+			cosmosMsg.InitialDeposit,
+			cosmosMsg.Proposer,
+			"",
+			cosmosMsg.GetContent().GetTitle(),
+			cosmosMsg.GetContent().GetDescription(),
+		)
+		if err != nil {
+			return err
+		}
+
+		return m.handleMsgSubmitProposal(tx, index, proposal)
+
 	case *govtypesv1.MsgDeposit:
 		return m.handleMsgDeposit(tx, cosmosMsg)
+
+	case *govtypesv1beta1.MsgDeposit:
+		deposit := govtypesv1.NewMsgDeposit(
+			sdk.MustAccAddressFromBech32(cosmosMsg.Depositor),
+			cosmosMsg.ProposalId,
+			cosmosMsg.Amount,
+		)
+
+		return m.handleMsgDeposit(tx, deposit)
 
 	case *govtypesv1.MsgVote:
 		return m.handleMsgVote(tx, cosmosMsg)
 
+	case *govtypesv1beta1.MsgVote:
+		vote := govtypesv1.NewMsgVote(
+			sdk.MustAccAddressFromBech32(cosmosMsg.Voter),
+			cosmosMsg.ProposalId,
+			govtypesv1.VoteOption(cosmosMsg.Option),
+			"",
+		)
+
+		return m.handleMsgVote(tx, vote)
+
 	case *govtypesv1.MsgVoteWeighted:
 		return m.handleMsgVoteWeighted(tx, cosmosMsg)
+
+	case *govtypesv1beta1.MsgVoteWeighted:
+		opts := make([]*govtypesv1.WeightedVoteOption, len(cosmosMsg.Options))
+		for idx, opt := range cosmosMsg.Options {
+			opts[idx] = &govtypesv1.WeightedVoteOption{
+				Option: govtypesv1.VoteOption(opt.Option),
+				Weight: opt.Weight.String(),
+			}
+		}
+		voteWieghted := govtypesv1.NewMsgVoteWeighted(
+			sdk.MustAccAddressFromBech32(cosmosMsg.Voter),
+			cosmosMsg.ProposalId,
+			opts,
+			"",
+		)
+
+		return m.handleMsgVoteWeighted(tx, voteWieghted)
 	}
 
 	return nil

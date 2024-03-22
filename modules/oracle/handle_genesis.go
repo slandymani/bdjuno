@@ -3,6 +3,7 @@ package oracle
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -13,7 +14,7 @@ import (
 
 func (m *Module) HandleGenesis(doc *tmtypes.GenesisDoc, appState map[string]json.RawMessage) error {
 	log.Debug().Str("module", "oracle").Msg("parsing genesis")
-	genTime := doc.GenesisTime.String()
+	genTime := doc.GenesisTime.Format(time.DateTime)
 
 	// Read the genesis state
 	var genState oracletypes.GenesisState
