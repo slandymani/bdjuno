@@ -63,7 +63,8 @@ CREATE TABLE report
     id               BIGINT PRIMARY KEY,
     validator        TEXT,
     oracle_script_id INT REFERENCES oracle_script (id),
-    tx_hash          TEXT
+    tx_hash          TEXT,
+    request_id       INT REFERENCES request (id)
 );
 CREATE INDEX report_id_index ON report (id);
 

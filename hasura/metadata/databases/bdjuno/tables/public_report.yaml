@@ -1,6 +1,16 @@
 table:
   name: report
   schema: public
+object_relationships:
+  - name: request
+    using:
+      manual_configuration:
+        column_mapping:
+          request_id: id
+        insertion_order: null
+        remote_table:
+          name: request
+          schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
@@ -9,5 +19,6 @@ select_permissions:
         - validator
         - oracle_script_id
         - tx_hash
+        - request_id
       filter: {}
     role: anonymous

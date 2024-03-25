@@ -190,8 +190,8 @@ func (db *Db) GetUnresolvedRequests() ([]dbtypes.RequestStatus, error) {
 
 func (db *Db) SaveDataReport(msg *oracletypes.MsgReportData, txHash string, reportID int64) error {
 	stmt := `
-INSERT INTO report (id, validator, oracle_script_id, tx_hash)
-VALUES ($1, $2, $3, $4)
+INSERT INTO report (id, validator, oracle_script_id, tx_hash, request_id)
+VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (id) DO NOTHING`
 
 	stmtSelect := `SELECT oracle_script_id FROM request WHERE id = $1`
@@ -204,7 +204,7 @@ ON CONFLICT (id) DO NOTHING`
 		return errors.New("Failed to retrieve oracle script id")
 	}
 
-	_, err := db.SQL.Exec(stmt, reportID, msg.Validator, scriptID[0], txHash)
+	_, err := db.SQL.Exec(stmt, reportID, msg.Validator, scriptID[0], txHash, msg.RequestID)
 	if err != nil {
 		return fmt.Errorf("error while saving request report: %s", err)
 	}
