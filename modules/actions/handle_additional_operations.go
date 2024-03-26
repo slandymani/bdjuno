@@ -32,6 +32,7 @@ func (m *Module) RunAdditionalOperations() error {
 	// -- Gov --
 	worker.RegisterHandler("/vote_proposals", handlers.GetVoteProposals)
 	worker.RegisterHandler("/voting_result", handlers.GetVotingResult)
+	worker.RegisterHandler("/proposals_statistics", handlers.GetVoteProposalsStatistics)
 
 	// -- Staking Delegator --
 	worker.RegisterHandler("/delegation", handlers.DelegationHandler)

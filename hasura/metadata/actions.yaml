@@ -29,6 +29,19 @@ actions:
         name: Content-Type
     permissions:
     - role: anonymous
+
+- name: action_proposals_statistics
+  definition:
+    kind: synchronous
+    handler: "{{ACTION_BASE_URL}}/proposals_statistics"
+    output_type: ActionModuleProposalsStatistics
+    arguments:
+    type: query
+    headers:
+      - value: application/json
+        name: Content-Type
+  permissions:
+    - role: anonymous
 ##### Telemetry #####
 - name: action_top_accounts
   definition:
@@ -365,6 +378,18 @@ custom_types:
       type: String!
     - name: value_type
       type: String!
+
+  - name: ActionModuleProposalsStatistics
+    fields:
+      - name: statuses
+        type: [ActionProposalStatus]
+
+  - name: ActionProposalStatus
+    fields:
+      - name: status
+        type: String!
+      - name: count
+        type: Int!
 
   - name: ActionBalance
     fields:
