@@ -7,7 +7,9 @@ type Query {
         id: Int!
     ): ActionVotingResult
 
-    action_proposals_statistics():
+    action_proposals_statistics(
+        height: Int
+    ): ActionModuleProposalsStatistics
 
     action_account_balance(
         address: String!

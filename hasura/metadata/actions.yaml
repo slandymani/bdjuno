@@ -40,8 +40,8 @@ actions:
     headers:
       - value: application/json
         name: Content-Type
-  permissions:
-    - role: anonymous
+    permissions:
+      - role: anonymous
 ##### Telemetry #####
 - name: action_top_accounts
   definition:
@@ -381,15 +381,15 @@ custom_types:
 
   - name: ActionModuleProposalsStatistics
     fields:
-      - name: statuses
-        type: [ActionProposalStatus]
+    - name: statuses
+      type: [ActionProposalStatus]
 
   - name: ActionProposalStatus
     fields:
-      - name: status
-        type: String!
-      - name: count
-        type: Int!
+    - name: status
+      type: String!
+    - name: count
+      type: Int!
 
   - name: ActionBalance
     fields:
