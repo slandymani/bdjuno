@@ -22,13 +22,18 @@ import (
 )
 
 type Params struct {
-	Key       string
-	ValueType string
+	Key       string `json:"key"`
+	ValueType string `json:"value_type"`
 }
 
 type ModuleParamsInfo struct {
 	ModuleName string
 	ParamPairs paramtypes.ParamSetPairs
+}
+
+type VoteParams struct {
+	Module string   `json:"module"`
+	Params []Params `json:"params"`
 }
 
 func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
@@ -138,7 +143,16 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 		},
 	}
 
-	return keyParams, nil
+	response := make([]VoteParams, 0)
+
+	for module, params := range keyParams {
+		response = append(response, VoteParams{
+			Module: module,
+			Params: params,
+		})
+	}
+
+	return response, nil
 }
 
 func GetModuleParams(moduleParamsPairs paramtypes.ParamSetPairs, typesMap map[string]string) []Params {

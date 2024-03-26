@@ -1,7 +1,7 @@
 type Query {
     action_vote_proposals(
         height: Int
-    ): ActionGovModules
+    ): [ActionModuleVoteProposal]
 
     action_voting_result(
         id: Int!
@@ -117,7 +117,8 @@ type ActionVotingResultWeighted {
 }
 
 type ActionModuleVoteProposal {
-    vote_proposals: [ActionVoteProposal]
+    module: String!
+    params: [ActionVoteProposal]
 }
 
 type ActionVoteProposal {

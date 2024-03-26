@@ -6,7 +6,7 @@ actions:
   definition:
     kind: synchronous
     handler: "{{ACTION_BASE_URL}}/vote_proposals"
-    output_type: ActionGovModules
+    output_type: "[ActionModuleVoteProposal]"
     arguments:
     type: query
     headers:
@@ -369,7 +369,9 @@ custom_types:
 
   - name: ActionModuleVoteProposal
     fields:
-    - name: vote_proposals
+    - name: module
+      type: String!
+    - name: params
       type: [ActionVoteProposal]
 
   - name: ActionVoteProposal
