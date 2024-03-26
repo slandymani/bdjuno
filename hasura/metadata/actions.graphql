@@ -7,6 +7,8 @@ type Query {
         id: Int!
     ): ActionVotingResult
 
+    action_proposals_statistics():
+
     action_account_balance(
         address: String!
         height: Int
@@ -119,6 +121,15 @@ type ActionModuleVoteProposal {
 type ActionVoteProposal {
     key: String!
     value_type: String!
+}
+
+type ActionModuleProposalsStatistics {
+    statuses: [ActionProposalStatus]
+}
+
+type ActionProposalStatus {
+    status: String!
+    count: Int!
 }
 
 type ActionBalance {
