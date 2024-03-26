@@ -7,8 +7,8 @@ import (
 )
 
 type proposalStatistics struct {
-	Status string `db:"status"`
-	Count  uint64 `db:"count"`
+	Status string `db:"status" json:"status"`
+	Count  uint64 `db:"count" json:"count"`
 }
 
 func GetVoteProposalsStatistics(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {

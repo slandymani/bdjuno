@@ -34,7 +34,7 @@ actions:
   definition:
     kind: synchronous
     handler: "{{ACTION_BASE_URL}}/proposals_statistics"
-    output_type: ActionModuleProposalsStatistics
+    output_type: "[ActionProposalStatus]"
     arguments:
     type: query
     headers:

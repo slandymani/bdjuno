@@ -9,7 +9,7 @@ type Query {
 
     action_proposals_statistics(
         height: Int
-    ): ActionModuleProposalsStatistics
+    ): [ActionProposalStatus]
 
     action_account_balance(
         address: String!
