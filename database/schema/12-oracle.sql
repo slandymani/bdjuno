@@ -101,3 +101,9 @@ CREATE TABLE request_data_source
 );
 CREATE INDEX request_data_source_request_index ON request_data_source (request_id);
 CREATE INDEX request_data_source_data_source_index ON request_data_source (data_source_id);
+
+CREATE VIEW daily_request_counts AS
+SELECT DATE_TRUNC('day', timestamp) AS day,
+       COUNT(id) AS daily_request_count
+FROM request
+GROUP BY day;
