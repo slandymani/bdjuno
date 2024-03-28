@@ -18,7 +18,7 @@
 - "!include public_mint_params.yaml"
 - "!include public_modules.yaml"
 - "!include public_monthly_request_counts.yaml"
-- - "!include public_monthly_transaction_volume.yaml"
+- "!include public_monthly_transaction_volume.yaml"
 - "!include public_oracle_params.yaml"
 - "!include public_pre_commit.yaml"
 - "!include public_proposal.yaml"
