@@ -1,0 +1,12 @@
+table:
+  name: monthly_average_fee
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - month
+        - avg_monthly_fee
+      filter: {}
+      limit: 100
+    role: anonymous

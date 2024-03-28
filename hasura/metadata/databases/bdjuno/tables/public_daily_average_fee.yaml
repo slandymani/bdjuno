@@ -1,0 +1,12 @@
+table:
+  name: daily_average_fee
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - day
+        - avg_daily_fee
+      filter: {}
+      limit: 100
+    role: anonymous

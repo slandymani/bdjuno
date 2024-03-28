@@ -123,3 +123,17 @@ SELECT DATE_TRUNC('month', b.timestamp) AS month,
 FROM block b
 LEFT JOIN transaction t ON b.height = t.height
 GROUP BY month;
+
+CREATE VIEW daily_average_fee AS
+SELECT DATE_TRUNC('day', b.timestamp) AS day,
+       AVG((fee->'amount'->0->>'amount')::numeric) AS avg_daily_fee
+FROM block b
+LEFT JOIN transaction t ON b.height = t.height
+GROUP BY day;
+
+CREATE VIEW monthly_average_fee AS
+SELECT DATE_TRUNC('month', b.timestamp) AS month,
+       AVG((fee->'amount'->0->>'amount')::numeric) AS avg_monthly_fee
+FROM block b
+LEFT JOIN transaction t ON b.height = t.height
+GROUP BY month;
