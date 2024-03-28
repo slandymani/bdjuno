@@ -137,3 +137,31 @@ SELECT DATE_TRUNC('month', b.timestamp) AS month,
 FROM block b
 LEFT JOIN transaction t ON b.height = t.height
 GROUP BY month;
+
+CREATE VIEW daily_avg_block_time AS
+SELECT
+    DATE_TRUNC('day', timestamp) AS day,
+    AVG(block_time_seconds) AS avg_daily_block_time
+FROM
+    (
+        SELECT
+            b.timestamp,
+            EXTRACT(EPOCH FROM (LEAD(b.timestamp) OVER (ORDER BY b.timestamp) - b.timestamp)) AS block_time_seconds
+        FROM
+            block b
+    ) AS block_times
+GROUP BY day;
+
+CREATE VIEW monthly_avg_block_time AS
+SELECT
+    DATE_TRUNC('month', timestamp) AS month,
+    AVG(block_time_seconds) AS avg_monthly_block_time
+FROM
+    (
+        SELECT
+            b.timestamp,
+            EXTRACT(EPOCH FROM (LEAD(b.timestamp) OVER (ORDER BY b.timestamp) - b.timestamp)) AS block_time_seconds
+        FROM
+            block b
+    ) AS block_times
+GROUP BY month;
