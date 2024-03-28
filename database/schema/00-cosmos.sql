@@ -109,3 +109,17 @@ CREATE TABLE pruning
 (
     last_pruned_height BIGINT NOT NULL
 );
+
+CREATE VIEW daily_transaction_volume AS
+SELECT DATE_TRUNC('day', b.timestamp) AS day,
+       COUNT(t.height) AS transaction_volume
+FROM block b
+LEFT JOIN transaction t ON b.height = t.height
+GROUP BY day;
+
+CREATE VIEW monthly_transaction_volume AS
+SELECT DATE_TRUNC('month', b.timestamp) AS month,
+       COUNT(t.height) AS transaction_volume
+FROM block b
+LEFT JOIN transaction t ON b.height = t.height
+GROUP BY month;

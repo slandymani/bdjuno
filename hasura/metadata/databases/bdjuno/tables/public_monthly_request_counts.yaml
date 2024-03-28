@@ -1,12 +1,12 @@
 table:
-  name: daily_request_counts
+  name: monthly_request_counts
   schema: public
 select_permissions:
   - permission:
       allow_aggregations: true
       columns:
-        - day
-        - daily_request_count
+        - month
+        - monthly_request_count
       filter: {}
       limit: 100
     role: anonymous

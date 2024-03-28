@@ -107,3 +107,9 @@ SELECT DATE_TRUNC('day', timestamp) AS day,
        COUNT(id) AS daily_request_count
 FROM request
 GROUP BY day;
+
+CREATE VIEW monthly_request_counts AS
+SELECT DATE_TRUNC('month', timestamp) AS month,
+       COUNT(id) AS monthly_request_count
+FROM request
+GROUP BY month;
