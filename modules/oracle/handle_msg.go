@@ -96,7 +96,7 @@ func (m *Module) handleMsgCreateOracleScript(oracleScriptID, height int64, times
 	return nil
 }
 
-func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *oracletypes.MsgEditOracleScript) error {
+func (m *Module) handleMsgEditOracleScript(height int64, _ string, msg *oracletypes.MsgEditOracleScript) error {
 	err := m.db.EditOracleScript(height, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while editing oracle script from MsgEditOracleScript")
@@ -131,7 +131,7 @@ func (m *Module) handleMsgRequestData(requestID, height int64, dataSourceIDs []i
 	return nil
 }
 
-func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height, reportID int64, timestamp string) error {
+func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, _, reportID int64, _ string) error {
 	countBeforeSaving, err := m.db.GetReportCount()
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgReportData")
