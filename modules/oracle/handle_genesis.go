@@ -30,8 +30,8 @@ func (m *Module) HandleGenesis(doc *tmtypes.GenesisDoc, appState map[string]json
 			[]byte{},
 			dataSource.Fee,
 			sdk.AccAddress(dataSource.Treasury),
-			sdk.AccAddress(dataSource.Owner),
-			sdk.AccAddress(dataSource.Owner),
+			sdk.MustAccAddressFromBech32(dataSource.Owner),
+			sdk.MustAccAddressFromBech32(dataSource.Owner),
 		))
 		if err != nil {
 			return fmt.Errorf("failed to save data source: %s", err)
@@ -45,8 +45,8 @@ func (m *Module) HandleGenesis(doc *tmtypes.GenesisDoc, appState map[string]json
 			oracleScript.Schema,
 			oracleScript.SourceCodeURL,
 			[]byte{},
-			sdk.AccAddress(oracleScript.Owner),
-			sdk.AccAddress(oracleScript.Owner),
+			sdk.MustAccAddressFromBech32(oracleScript.Owner),
+			sdk.MustAccAddressFromBech32(oracleScript.Owner),
 		))
 		if err != nil {
 			return fmt.Errorf("failed to save oracle script: %s", err)
