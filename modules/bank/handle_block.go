@@ -1,6 +1,7 @@
 package bank
 
 import (
+	app "github.com/ODIN-PROTOCOL/odin-core/app"
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -35,6 +36,9 @@ func (m *Module) HandleBlock(
 	}
 
 	for addr, _ := range addrMap {
+		if len(addr) < 4 || addr[:4] != app.Bech32MainPrefix {
+			continue
+		}
 		addresses = append(addresses, addr)
 	}
 
