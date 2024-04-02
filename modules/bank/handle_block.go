@@ -42,6 +42,10 @@ func (m *Module) HandleBlock(
 		addresses = append(addresses, addr)
 	}
 
+	if len(addresses) == 0 {
+		return nil
+	}
+
 	balances, err := m.keeper.GetBalances(addresses, height)
 	if err != nil {
 		return err
