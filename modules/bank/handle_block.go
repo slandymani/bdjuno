@@ -36,7 +36,7 @@ func (m *Module) HandleBlock(
 	}
 
 	for addr, _ := range addrMap {
-		if len(addr) < 4 || addr[:4] != app.Bech32MainPrefix {
+		if len(addr) < 4 || addr[:4] != app.Bech32MainPrefix || addr[:11] == app.Bech32MainPrefix+sdk.PrefixValidator+sdk.PrefixOperator {
 			continue
 		}
 		addresses = append(addresses, addr)
