@@ -214,13 +214,13 @@ func (m *Module) UpdateValidatorStatuses() error {
 		return fmt.Errorf("error while getting latest block height from db: %s", err)
 	}
 
-	validators, _, err := m.GetValidatorsWithStatus(block.Height, stakingtypes.Bonded.String())
+	allValidators, _, err := m.GetValidatorsWithStatus(block.Height, "")
 	if err != nil {
-		return fmt.Errorf("error while getting validators with bonded status: %s", err)
+		return fmt.Errorf("error while getting all validators: %s", err)
 	}
 
 	// update validators status and voting power in database
-	err = m.updateValidatorStatusAndVP(block.Height, validators)
+	err = m.updateValidatorStatusAndVP(block.Height, allValidators)
 	if err != nil {
 		return fmt.Errorf("error while updating validators status and voting power: %s", err)
 	}
@@ -235,7 +235,7 @@ func (m *Module) UpdateValidatorStatuses() error {
 	// returned from database
 	for _, id := range ids {
 		// update validator status snapshot for given height and proposal ID
-		err = m.updateProposalValidatorStatusSnapshot(block.Height, id, validators)
+		err = m.updateProposalValidatorStatusSnapshot(block.Height, id, allValidators)
 		if err != nil {
 			return fmt.Errorf("error while updating proposal validator status snapshots: %s", err)
 		}
@@ -256,10 +256,15 @@ func (m *Module) updateProposalValidatorStatusSnapshot(
 			return err
 		}
 
+		vp := int64(0)
+		if validator.Status == stakingtypes.Bonded {
+			vp = validator.Tokens.Int64()
+		}
+
 		snapshots[index] = types.NewProposalValidatorStatusSnapshot(
 			proposalID,
 			consAddr.String(),
-			validator.Tokens.Int64(),
+			vp,
 			validator.Status,
 			validator.Jailed,
 			height,
@@ -292,7 +297,12 @@ func (m *Module) updateValidatorStatusAndVP(height int64, validators []stakingty
 			return err
 		}
 
-		votingPowers[index] = types.NewValidatorVotingPower(consAddr.String(), validator.Tokens.Int64(), height)
+		vp := int64(0)
+		if validator.Status == stakingtypes.Bonded {
+			vp = validator.Tokens.Int64()
+		}
+
+		votingPowers[index] = types.NewValidatorVotingPower(consAddr.String(), vp, height)
 
 		statuses[index] = types.NewValidatorStatus(
 			consAddr.String(),
