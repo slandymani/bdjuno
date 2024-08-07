@@ -45,12 +45,27 @@ func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error 
 	// and proposals validators satatus snapshots
 	// when there is a voting power change
 	case "/cosmos.staking.v1beta1.MsgDelegate":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &stakingtypes.MsgDelegate{})
+		err := m.RefreshDelegatorDelegations(int64(tx.Height), cosmosMsg.DelegatorAddress)
+		if err != nil {
+			return err
+		}
 		return m.UpdateValidatorStatuses()
 
 	case "/cosmos.staking.v1beta1.MsgBeginRedelegate":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &stakingtypes.MsgBeginRedelegate{})
+		err := m.RefreshDelegatorDelegations(int64(tx.Height), cosmosMsg.DelegatorAddress)
+		if err != nil {
+			return err
+		}
 		return m.UpdateValidatorStatuses()
 
 	case "/cosmos.staking.v1beta1.MsgUndelegate":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &stakingtypes.MsgUndelegate{})
+		err := m.RefreshDelegatorDelegations(int64(tx.Height), cosmosMsg.DelegatorAddress)
+		if err != nil {
+			return err
+		}
 		return m.UpdateValidatorStatuses()
 
 	}
@@ -75,34 +90,6 @@ func (m *Module) handleEditValidator(height int64, msg *stakingtypes.MsgEditVali
 	err := m.RefreshValidatorInfos(height, msg.ValidatorAddress)
 	if err != nil {
 		return fmt.Errorf("error while refreshing validator from MsgEditValidator: %s", err)
-	}
-
-	return nil
-}
-
-// TODO: mb remove next 3 funcs
-func (m *Module) handleDelegate(height int64, msg *stakingtypes.MsgDelegate) error {
-	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
-	if err != nil {
-		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
-	}
-
-	return nil
-}
-
-func (m *Module) handleUndelegate(height int64, msg *stakingtypes.MsgUndelegate) error {
-	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
-	if err != nil {
-		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
-	}
-
-	return nil
-}
-
-func (m *Module) handleBeginRedelegate(height int64, msg *stakingtypes.MsgBeginRedelegate) error {
-	err := m.RefreshDelegatorDelegations(height, msg.DelegatorAddress)
-	if err != nil {
-		return fmt.Errorf("error while refreshing delegator from MsgDelegate: %s", err)
 	}
 
 	return nil

@@ -46,22 +46,18 @@ import (
 	stakingsource "github.com/forbole/callisto/v4/modules/staking/source"
 	localstakingsource "github.com/forbole/callisto/v4/modules/staking/source/local"
 	remotestakingsource "github.com/forbole/callisto/v4/modules/staking/source/remote"
-	telemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source"
-	//localtelemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source/local"
-	//remotetelemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source/remote"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 )
 
 type Sources struct {
-	BankSource      banksource.Source
-	DistrSource     distrsource.Source
-	GovSource       govsource.Source
-	MintSource      mintsource.Source
-	OracleSource    oraclesource.Source
-	SlashingSource  slashingsource.Source
-	StakingSource   stakingsource.Source
-	TelemetrySource telemetrysource.Source
+	BankSource     banksource.Source
+	DistrSource    distrsource.Source
+	GovSource      govsource.Source
+	MintSource     mintsource.Source
+	OracleSource   oraclesource.Source
+	SlashingSource slashingsource.Source
+	StakingSource  stakingsource.Source
 }
 
 func BuildSources(nodeCfg nodeconfig.Config, cdc codec.Codec) (*Sources, error) {
@@ -97,8 +93,6 @@ func buildLocalSources(cfg *local.Details, cdc codec.Codec) (*Sources, error) {
 		OracleSource:   localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),
 		SlashingSource: localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
 		StakingSource:  localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
-		// TODO: decide what to do
-		//TelemetrySource: localtelemetrysource.NewSource(source, telemetrytypes.QueryServer(app.TelemetryKeeper)),
 	}
 
 	// Mount and initialize the stores
@@ -129,7 +123,5 @@ func buildRemoteSources(cfg *remote.Details) (*Sources, error) {
 		OracleSource:   remoteoraclesource.NewSource(source, oracletypes.NewQueryClient(source.GrpcConn)),
 		SlashingSource: remoteslashingsource.NewSource(source, slashingtypes.NewQueryClient(source.GrpcConn)),
 		StakingSource:  remotestakingsource.NewSource(source, stakingtypes.NewQueryClient(source.GrpcConn)),
-		// TODO: decide what to do
-		//TelemetrySource: remotetelemetrysource.NewSource(source, telemetrytypes.NewQueryClient(source.GrpcConn)),
 	}, nil
 }

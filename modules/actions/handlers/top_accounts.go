@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// #nosec
 var (
 	BondedTokensPoolAdr   = "odin1fl48vsnmsdzcv85q5d2q4z5ajdha8yu33m0v4a"
 	UnBondedTokensPoolAdr = "odin1tygms3xhhs3yv487phx3dw4a95jn7t7l9mnarf"
