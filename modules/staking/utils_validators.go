@@ -348,7 +348,7 @@ func (m *Module) GetValidatorsVotingPowers(height int64, vals *tmctypes.ResultVa
 		}
 
 		// Find the voting power of this validator
-		var votingPower int64 = 0
+		var votingPower int64
 		for _, blockVal := range vals.Validators {
 			blockValConsAddr := juno.ConvertValidatorAddressToBech32String(blockVal.Address)
 			if blockValConsAddr == consAddr.String() {

@@ -9,7 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetVotingResult(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
+func GetVotingResult(_ *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing voting result action")
 
 	proposalID := payload.GetID()

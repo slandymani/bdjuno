@@ -15,7 +15,7 @@ import (
 
 // HandleBlock implements BlockModule
 func (m *Module) HandleBlock(
-	block *tmctypes.ResultBlock, res *tmctypes.ResultBlockResults, _ []*juno.Transaction, vals *tmctypes.ResultValidators,
+	block *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, _ []*juno.Transaction, _ *tmctypes.ResultValidators,
 ) error {
 	// Update the validators
 	_, err := m.updateValidators(block.Block.Height)

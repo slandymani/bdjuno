@@ -22,11 +22,11 @@ func GetCodec() codec.Codec {
 }
 
 // UnpackMessage unpacks a message from a byte slice
-func UnpackMessage[T proto.Message](cdc codec.Codec, bz []byte, ptr T) T {
-	var any codectypes.Any
-	cdc.MustUnmarshalJSON(bz, &any)
+func UnpackMessage[T proto.Message](cdc codec.Codec, bz []byte, _ T) T {
+	var anyT codectypes.Any
+	cdc.MustUnmarshalJSON(bz, &anyT)
 	var cosmosMsg sdk.Msg
-	if err := cdc.UnpackAny(&any, &cosmosMsg); err != nil {
+	if err := cdc.UnpackAny(&anyT, &cosmosMsg); err != nil {
 		panic(err)
 	}
 	return cosmosMsg.(T)

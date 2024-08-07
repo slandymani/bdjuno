@@ -20,7 +20,7 @@ var msgFilter = map[string]bool{
 	"/oracle.v1.MsgActivate":           true,
 }
 
-func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) error {
+func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error {
 	if _, ok := msgFilter[msg.GetType()]; !ok {
 		return nil
 	}

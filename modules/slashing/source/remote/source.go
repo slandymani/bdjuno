@@ -68,7 +68,7 @@ func (s Source) GetParams(height int64) (slashingtypes.Params, error) {
 }
 
 // GetSigningInfo implements slashingsource.GetSigningInfo
-func (s Source) GetSigningInfo(height int64, consAddr sdk.ConsAddress) (slashingtypes.ValidatorSigningInfo, error) {
+func (s Source) GetSigningInfo(_ int64, consAddr sdk.ConsAddress) (slashingtypes.ValidatorSigningInfo, error) {
 	res, err := s.querier.SigningInfo(
 		s.Ctx,
 		&slashingtypes.QuerySigningInfoRequest{

@@ -1,4 +1,4 @@
-package message_type
+package messagetype
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"

@@ -34,7 +34,7 @@ type VoteParams struct {
 	Params []Params `json:"params"`
 }
 
-func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
+func GetVoteProposals(_ *types.Context, _ *types.Payload, _ *database.Db) (interface{}, error) {
 	var typesMap = map[string]string{
 		"types.Coins":           "[]{\"amount\": string, \"denom\": string}",
 		"[]types.Exchange":      "[]{\"from\": string, \"to\": string, \"rate_multiplier\": types.Dec}",

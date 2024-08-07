@@ -35,7 +35,7 @@ func GetGenesisAccounts(appState map[string]json.RawMessage, cdc codec.Codec) ([
 // --------------------------------------------------------------------------------------------------------------------
 
 // GetAccounts returns the account data for the given addresses
-func GetAccounts(height int64, addresses []string) []types.Account {
+func GetAccounts(_ int64, addresses []string) []types.Account {
 	log.Debug().Str("module", "auth").Str("operation", "accounts").Msg("getting accounts data")
 
 	// Get all the accounts information

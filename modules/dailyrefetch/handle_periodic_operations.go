@@ -1,4 +1,4 @@
-package daily_refetch
+package dailyrefetch
 
 import (
 	"fmt"

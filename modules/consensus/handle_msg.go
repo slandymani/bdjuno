@@ -6,7 +6,7 @@ import (
 	juno "github.com/forbole/juno/v6/types"
 )
 
-func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) error {
+func (m *Module) HandleMsg(_ int, _ juno.Message, tx *juno.Transaction) error {
 	if len(tx.Logs) == 0 {
 		return nil
 	}

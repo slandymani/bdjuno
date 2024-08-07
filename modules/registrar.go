@@ -30,9 +30,9 @@ import (
 
 	juno "github.com/forbole/juno/v6/types"
 
-	dailyrefetch "github.com/forbole/callisto/v4/modules/daily_refetch"
+	dailyrefetch "github.com/forbole/callisto/v4/modules/dailyrefetch"
 	"github.com/forbole/callisto/v4/modules/gov"
-	messagetype "github.com/forbole/callisto/v4/modules/message_type"
+	messagetype "github.com/forbole/callisto/v4/modules/messagetype"
 	"github.com/forbole/callisto/v4/modules/mint"
 	"github.com/forbole/callisto/v4/modules/modules"
 	"github.com/forbole/callisto/v4/modules/oracle"

@@ -14,7 +14,7 @@ var (
 	UnBondedTokensPoolAdr = "odin1tygms3xhhs3yv487phx3dw4a95jn7t7l9mnarf"
 )
 
-func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
+func TopAccountsHandler(_ *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing top accounts action")
 
 	sortingParam := payload.GetSortingParam()

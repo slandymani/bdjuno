@@ -11,7 +11,7 @@ type proposalStatistics struct {
 	Count  uint64 `db:"count" json:"count"`
 }
 
-func GetVoteProposalsStatistics(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
+func GetVoteProposalsStatistics(_ *types.Context, _ *types.Payload, db *database.Db) (interface{}, error) {
 	var response []proposalStatistics
 	stmt := `SELECT status, COUNT(*) AS count
 FROM proposal

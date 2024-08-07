@@ -15,7 +15,7 @@ import (
 )
 
 // SaveOracleParams allows to store the given params inside the database
-func (db *Db) SaveOracleParams(params types.OracleParams, height int64) error {
+func (db *Db) SaveOracleParams(params types.OracleParams, _ int64) error {
 	paramsBz, err := json.Marshal(&params.Params)
 	if err != nil {
 		return fmt.Errorf("error while marshaling oracle params: %s", err)
