@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/forbole/bdjuno/v4/database"
-
-	"github.com/forbole/bdjuno/v4/modules/actions/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 
 	"google.golang.org/grpc/codes"
 

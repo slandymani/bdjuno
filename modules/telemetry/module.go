@@ -2,9 +2,9 @@ package telemetry
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/forbole/bdjuno/v4/database"
-	telemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source"
-	"github.com/forbole/juno/v5/modules"
+	"github.com/forbole/callisto/v4/database"
+	telemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source"
+	"github.com/forbole/juno/v6/modules"
 )
 
 var (

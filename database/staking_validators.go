@@ -5,9 +5,9 @@ import (
 
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -446,7 +446,7 @@ ON CONFLICT (validator_address) DO UPDATE
 WHERE validator_status.height <= excluded.height`
 	_, err = db.SQL.Exec(statusStmt, statusParams...)
 	if err != nil {
-		return fmt.Errorf("error while stroring validators statuses: %s", err)
+		return fmt.Errorf("error while storing validators statuses: %s", err)
 	}
 
 	return nil

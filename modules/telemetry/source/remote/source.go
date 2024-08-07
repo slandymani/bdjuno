@@ -4,8 +4,8 @@ package remote
 //	//telemetrytypes "github.com/ODIN-PROTOCOL/odin-core/x/telemetry/types"
 //	"github.com/cosmos/cosmos-sdk/types/query"
 //	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-//	telemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source"
-//	"github.com/forbole/juno/v5/node/remote"
+//	telemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source"
+//	"github.com/forbole/juno/v6/node/remote"
 //)
 //
 //var (

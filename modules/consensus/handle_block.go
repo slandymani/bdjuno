@@ -5,7 +5,7 @@ import (
 
 	app "github.com/ODIN-PROTOCOL/odin-core/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/juno/v5/types"
+	juno "github.com/forbole/juno/v6/types"
 
 	"github.com/rs/zerolog/log"
 
@@ -14,7 +14,7 @@ import (
 
 // HandleBlock implements modules.Module
 func (m *Module) HandleBlock(
-	b *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, txs []*types.Tx, _ *tmctypes.ResultValidators,
+	b *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, txs []*juno.Transaction, _ *tmctypes.ResultValidators,
 ) error {
 	err := m.updateBlockTimeFromGenesis(b)
 	if err != nil {

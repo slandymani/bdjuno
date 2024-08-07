@@ -3,16 +3,17 @@ package gov
 import (
 	"fmt"
 
-	govsource "github.com/forbole/bdjuno/v4/modules/gov/source"
-	modulestypes "github.com/forbole/bdjuno/v4/modules/types"
-	"github.com/forbole/bdjuno/v4/types"
+	govsource "github.com/forbole/callisto/v4/modules/gov/source"
+	modulestypes "github.com/forbole/callisto/v4/modules/types"
+	"github.com/forbole/callisto/v4/types"
+	"github.com/forbole/callisto/v4/utils"
 
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	parsecmdtypes "github.com/forbole/juno/v5/cmd/parse/types"
-	"github.com/forbole/juno/v5/types/config"
+	parsecmdtypes "github.com/forbole/juno/v6/cmd/parse/types"
+	"github.com/forbole/juno/v6/types/config"
 	"github.com/spf13/cobra"
 
-	"github.com/forbole/bdjuno/v4/database"
+	"github.com/forbole/callisto/v4/database"
 )
 
 // tallyResultsCmd returns the Cobra command allowing to fix all things related to a tally results
@@ -26,7 +27,9 @@ func tallyResultsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 				return err
 			}
 
-			sources, err := modulestypes.BuildSources(config.Cfg.Node, parseCtx.EncodingConfig)
+			codec := utils.GetCodec()
+
+			sources, err := modulestypes.BuildSources(config.Cfg.Node, codec)
 			if err != nil {
 				return err
 			}

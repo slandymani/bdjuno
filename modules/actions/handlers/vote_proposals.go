@@ -4,8 +4,6 @@ import (
 	"reflect"
 	"strings"
 
-	auctiontypes "github.com/ODIN-PROTOCOL/odin-core/x/auction/types"
-	coinswaptypes "github.com/ODIN-PROTOCOL/odin-core/x/coinswap/types"
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -15,10 +13,10 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibc1 "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	"github.com/forbole/bdjuno/v4/database"
-	"github.com/forbole/bdjuno/v4/modules/actions/types"
+	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibc1 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 )
 
 type Params struct {
@@ -48,8 +46,6 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 	keyParams := make(map[string][]Params)
 
 	oracleParams := oracletypes.DefaultParams()
-	auctionParams := auctiontypes.DefaultParams()
-	coinswapParams := coinswaptypes.DefaultParams()
 	mintParams := minttypes.DefaultParams()
 	authParams := authtypes.DefaultParams()
 	bankParams := banktypes.DefaultParams()
@@ -64,14 +60,6 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 		{
 			ModuleName: "oracle",
 			ParamPairs: oracleParams.ParamSetPairs(),
-		},
-		{
-			ModuleName: "auction",
-			ParamPairs: auctionParams.ParamSetPairs(),
-		},
-		{
-			ModuleName: "coinswap",
-			ParamPairs: coinswapParams.ParamSetPairs(),
 		},
 		{
 			ModuleName: "mint",

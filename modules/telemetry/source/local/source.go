@@ -9,8 +9,8 @@ package local
 //"github.com/cosmos/cosmos-sdk/types/query"
 //
 //banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-//telemetrysource "github.com/forbole/bdjuno/v4/modules/telemetry/source"
-//"github.com/forbole/juno/v5/node/local"
+//telemetrysource "github.com/forbole/callisto/v4/modules/telemetry/source"
+//"github.com/forbole/juno/v6/node/local"
 //)
 
 //var (

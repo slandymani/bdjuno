@@ -4,12 +4,11 @@ import (
 	"fmt"
 
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/forbole/juno/v5/node/remote"
+	"github.com/forbole/juno/v6/node/remote"
 	"github.com/pkg/errors"
 
-	oraclesource "github.com/forbole/bdjuno/v4/modules/oracle/source"
+	oraclesource "github.com/forbole/callisto/v4/modules/oracle/source"
 )
 
 var (
@@ -55,15 +54,6 @@ func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) 
 	}
 
 	return *res.Result, nil
-}
-
-func (s *Source) GetDataProvidersPool(height int64) (sdk.Coins, error) {
-	res, err := s.client.DataProvidersPool(remote.GetHeightRequestContext(s.Ctx, height), &oracletypes.QueryDataProvidersPoolRequest{})
-	if err != nil {
-		return oracletypes.QueryDataProvidersPoolResponse{}.Pool, err
-	}
-
-	return res.Pool, nil
 }
 
 func (s *Source) GetRequestsInfo(height int64) ([]oracletypes.RequestResult, error) {

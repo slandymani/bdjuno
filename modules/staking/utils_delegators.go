@@ -3,7 +3,7 @@ package staking
 import (
 	"fmt"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 )
 
 func (m *Module) RefreshDelegatorDelegations(height int64, address string) error {

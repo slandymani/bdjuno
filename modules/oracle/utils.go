@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
-	"github.com/forbole/juno/v5/parser"
+	"github.com/forbole/juno/v6/parser"
 )
 
 func (m *Module) HandleOracleTxs(txs []*tmctypes.ResultTx, parseCtx *parser.Context) error {
@@ -14,8 +14,8 @@ func (m *Module) HandleOracleTxs(txs []*tmctypes.ResultTx, parseCtx *parser.Cont
 			return err
 		}
 
-		for index, msg := range transaction.GetMsgs() {
-			err = m.HandleMsg(index, msg, transaction)
+		for index := range transaction.GetMsgs() {
+			err = m.HandleMsg(index, transaction.Body.Messages[index], transaction)
 			if err != nil {
 				return err
 			}

@@ -8,7 +8,7 @@ import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -59,11 +59,6 @@ func (m *Module) HandleGenesis(doc *tmtypes.GenesisDoc, appState map[string]json
 	}, doc.InitialHeight)
 	if err != nil {
 		return fmt.Errorf("failed to save oracle params: %s", err)
-	}
-
-	err = m.db.SaveDataProvidersPool(doc.InitialHeight, genState.OraclePool.DataProvidersPool)
-	if err != nil {
-		return fmt.Errorf("failed to save data provides pool: %s", err)
 	}
 
 	return nil

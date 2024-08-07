@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"cosmossdk.io/errors"
-	"github.com/forbole/bdjuno/v4/database"
-	"github.com/forbole/bdjuno/v4/modules/actions/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 )
 
 type proposalStatistics struct {

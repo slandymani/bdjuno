@@ -5,11 +5,12 @@ import (
 	"time"
 
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
-	junotypes "github.com/forbole/juno/v5/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	junotypes "github.com/forbole/juno/v6/types"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 )
 
 // GetLastBlock returns the last block stored inside the database based on the heights
@@ -342,12 +343,17 @@ WHERE date = $4`
 	return nil
 }
 
-func (db *Db) SetTxSender(tx *junotypes.Tx) error {
+func (db *Db) SetTxSender(tx *junotypes.Transaction) error {
 	stmt := `UPDATE transaction SET sender = $1 WHERE hash LIKE $2`
 
 	hash := tx.TxHash[:len(tx.TxHash)-1] + "%"
 
-	_, err := db.Sqlx.Exec(stmt, tx.GetSigners()[0].String(), hash)
+	signers, _, err := tx.GetSigners(db.cdc)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Sqlx.Exec(stmt, sdk.AccAddress(signers[0]).String(), hash)
 	if err != nil {
 		return fmt.Errorf("error while setting tx senders: %s", err)
 	}

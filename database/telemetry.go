@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 	"github.com/lib/pq"
 )
 

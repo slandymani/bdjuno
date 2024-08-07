@@ -3,7 +3,7 @@ package telemetry
 import (
 	"fmt"
 
-	"github.com/forbole/bdjuno/v4/modules/utils"
+	"github.com/forbole/callisto/v4/modules/utils"
 	"github.com/go-co-op/gocron"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"

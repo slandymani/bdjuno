@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 	"github.com/lib/pq"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 )
 
 // SaveInflation allows to store the inflation for the given block height as well as timestamp
-func (db *Db) SaveInflation(inflation sdk.Dec, height int64) error {
+func (db *Db) SaveInflation(inflation math.LegacyDec, height int64) error {
 	stmt := `
 INSERT INTO inflation (value, height) 
 VALUES ($1, $2) 

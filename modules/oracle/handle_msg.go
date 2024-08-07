@@ -5,38 +5,52 @@ import (
 
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	juno "github.com/forbole/juno/v5/types"
+	"github.com/forbole/callisto/v4/utils"
+	juno "github.com/forbole/juno/v6/types"
 	"github.com/pkg/errors"
 )
 
-func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
-	if len(tx.Logs) == 0 {
+var msgFilter = map[string]bool{
+	"/oracle.v1.MsgRequestData":        true,
+	"/oracle.v1.MsgReportData":         true,
+	"/oracle.v1.MsgCreateDataSource":   true,
+	"/oracle.v1.MsgEditDataSource":     true,
+	"/oracle.v1.MsgCreateOracleScript": true,
+	"/oracle.v1.MsgEditOracleScript":   true,
+	"/oracle.v1.MsgActivate":           true,
+}
+
+func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) error {
+	if _, ok := msgFilter[msg.GetType()]; !ok {
 		return nil
 	}
 
-	switch cosmosMsg := msg.(type) {
-	case *oracletypes.MsgCreateDataSource:
+	switch msg.GetType() {
+	case "/oracle.v1.MsgCreateDataSource":
 		dataSourceID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing data source id")
 		}
-		return m.handleMsgCreateDataSource(dataSourceID, tx.Height, tx.Timestamp, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgCreateDataSource{})
+		return m.handleMsgCreateDataSource(dataSourceID, int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgEditDataSource:
-		return m.handleMsgEditDataSource(tx.Height, cosmosMsg)
+	case "/oracle.v1.MsgEditDataSource":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgEditDataSource{})
+		return m.handleMsgEditDataSource(int64(tx.Height), cosmosMsg)
 
-	case *oracletypes.MsgCreateOracleScript:
+	case "/oracle.v1.MsgCreateOracleScript":
 		oracleScriptID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing oracle script id")
 		}
-		return m.handleMsgCreateOracleScript(oracleScriptID, tx.Height, tx.Timestamp, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgCreateOracleScript{})
+		return m.handleMsgCreateOracleScript(oracleScriptID, int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgEditOracleScript:
-		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
+	case "/oracle.v1.MsgEditOracleScript":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgEditOracleScript{})
+		return m.handleMsgEditOracleScript(int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgRequestData:
+	case "/oracle.v1.MsgRequestData":
 		requestID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing request id")
@@ -56,14 +70,16 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 			}
 			dataSourceIds[i] = dataSourceID
 		}
-		return m.handleMsgRequestData(requestID, tx.Height, dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgRequestData{})
+		return m.handleMsgRequestData(requestID, int64(tx.Height), dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
 
-	case *oracletypes.MsgReportData:
+	case "/oracle.v1.MsgReportData":
 		reportID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeReport, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing report id")
 		}
-		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, reportID, tx.Timestamp)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgReportData{})
+		return m.handleMsgReportData(cosmosMsg, tx.TxHash, int64(tx.Height), reportID, tx.Timestamp)
 	}
 
 	return nil

@@ -2,21 +2,20 @@ package database_test
 
 import (
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/crypto"
 
+	"cosmossdk.io/math"
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 )
 
 func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 
 	// Save the data
-	err := suite.database.SaveInflation(sdk.NewDecWithPrec(10050, 2), 100)
+	err := suite.database.SaveInflation(math.LegacyNewDecWithPrec(10050, 2), 100)
 	suite.Require().NoError(err)
 
 	// Verify the data
@@ -31,7 +30,7 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	// Try updating with lower height
-	err = suite.database.SaveInflation(sdk.NewDecWithPrec(20000, 2), 90)
+	err = suite.database.SaveInflation(math.LegacyNewDecWithPrec(20000, 2), 90)
 	suite.Require().NoError(err, "double inflation insertion should return no error")
 
 	// Verify the data
@@ -46,7 +45,7 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	// Try updating with same height
-	err = suite.database.SaveInflation(sdk.NewDecWithPrec(30000, 2), 100)
+	err = suite.database.SaveInflation(math.LegacyNewDecWithPrec(30000, 2), 100)
 	suite.Require().NoError(err, "double inflation insertion should return no error")
 
 	// Verify the data
@@ -61,7 +60,7 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 	// ---------------------------------------------------------------------------------------------------------------
 
 	// Try updating with higher height
-	err = suite.database.SaveInflation(sdk.NewDecWithPrec(40000, 2), 110)
+	err = suite.database.SaveInflation(math.LegacyNewDecWithPrec(40000, 2), 110)
 	suite.Require().NoError(err, "double inflation insertion should return no error")
 
 	// Verify the data
@@ -75,27 +74,21 @@ func (suite *DbTestSuite) TestBigDipperDb_SaveInflation() {
 }
 
 func (suite *DbTestSuite) TestBigDipperDb_SaveMintParams() {
-	privateKey, err := crypto.GenerateKey()
-	suite.Require().NoError(err)
-
-	privateKeyBytes := crypto.FromECDSA(privateKey)
-
 	mintParams := minttypes.NewParams(
 		"loki",
-		sdk.NewDecWithPrec(4, 1),
-		sdk.NewDecWithPrec(8, 1),
-		sdk.NewDecWithPrec(4, 1),
-		sdk.NewDecWithPrec(8, 1),
+		math.LegacyNewDecWithPrec(4, 1),
+		math.LegacyNewDecWithPrec(8, 1),
+		math.LegacyNewDecWithPrec(4, 1),
+		math.LegacyNewDecWithPrec(8, 1),
 		sdk.Coins{},
 		uint64(60*60*8766/5),
 		true,
-		map[string]string{"eth": hexutil.Encode(privateKeyBytes)},
 		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 		sdk.NewCoins(),
 		[]*minttypes.AllowedDenom{{TokenUnitDenom: "minigeo", TokenDenom: "geo"}},
 		[]string{"odin1pl07tk6hcpp2an3rug75as4dfgd743qp80g63g"},
 	)
-	err = suite.database.SaveMintParams(types.NewMintParams(mintParams, 10))
+	err := suite.database.SaveMintParams(types.NewMintParams(mintParams, 10))
 	suite.Require().NoError(err)
 
 	var rows []dbtypes.MintParamsRow

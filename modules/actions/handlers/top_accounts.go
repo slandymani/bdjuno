@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/forbole/bdjuno/v4/database"
-	dbtypes "github.com/forbole/bdjuno/v4/database/types"
-	"github.com/forbole/bdjuno/v4/modules/actions/types"
+	"github.com/forbole/callisto/v4/database"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )

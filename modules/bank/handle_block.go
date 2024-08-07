@@ -5,12 +5,12 @@ import (
 	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/forbole/bdjuno/v4/types"
-	juno "github.com/forbole/juno/v5/types"
+	"github.com/forbole/callisto/v4/types"
+	juno "github.com/forbole/juno/v6/types"
 )
 
 func (m *Module) HandleBlock(
-	_ *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, txs []*juno.Tx, _ *tmctypes.ResultValidators,
+	_ *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, txs []*juno.Transaction, _ *tmctypes.ResultValidators,
 ) error {
 	height, err := m.db.GetLastBlockHeight()
 	if err != nil {
@@ -21,17 +21,9 @@ func (m *Module) HandleBlock(
 	addrMap := make(map[string]bool)
 
 	for _, tx := range txs {
-		for _, message := range tx.Body.Messages {
-			var stdMsg sdk.Msg
-			err := m.cdc.UnpackAny(message, &stdMsg)
-			if err != nil {
-				return err
-			}
-
-			addresses, _ := m.messageParser(m.cdc, stdMsg)
-			for _, address := range addresses {
-				addrMap[address] = true
-			}
+		addresses, _ := m.messageParser(tx)
+		for _, address := range addresses {
+			addrMap[address] = true
 		}
 	}
 

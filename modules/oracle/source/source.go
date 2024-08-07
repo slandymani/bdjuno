@@ -2,7 +2,6 @@ package source
 
 import (
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Source interface {
@@ -17,6 +16,4 @@ type Source interface {
 
 	GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript, error)
 	GetOracleScriptsInfo(height int64) ([]oracletypes.OracleScript, error)
-
-	GetDataProvidersPool(height int64) (sdk.Coins, error)
 }

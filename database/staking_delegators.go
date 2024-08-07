@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/types"
 )
 
 func (db *Db) SaveStakingDelegator(data types.Delegator) error {

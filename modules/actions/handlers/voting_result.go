@@ -2,9 +2,9 @@ package handlers
 
 import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
-	"github.com/forbole/bdjuno/v4/database"
-	"github.com/forbole/bdjuno/v4/modules/actions/types"
-	types2 "github.com/forbole/bdjuno/v4/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
+	types2 "github.com/forbole/callisto/v4/types"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
