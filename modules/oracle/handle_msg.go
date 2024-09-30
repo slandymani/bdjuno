@@ -1,42 +1,57 @@
 package oracle
 
 import (
-	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	juno "github.com/forbole/juno/v3/types"
-	"github.com/pkg/errors"
-	abcitypes "github.com/tendermint/tendermint/abci/types"
 	"strconv"
+
+	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/forbole/callisto/v4/utils"
+	juno "github.com/forbole/juno/v6/types"
+	"github.com/pkg/errors"
 )
 
-func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
-	if len(tx.Logs) == 0 {
+var msgFilter = map[string]bool{
+	"/oracle.v1.MsgRequestData":        true,
+	"/oracle.v1.MsgReportData":         true,
+	"/oracle.v1.MsgCreateDataSource":   true,
+	"/oracle.v1.MsgEditDataSource":     true,
+	"/oracle.v1.MsgCreateOracleScript": true,
+	"/oracle.v1.MsgEditOracleScript":   true,
+	"/oracle.v1.MsgActivate":           true,
+}
+
+func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error {
+	if _, ok := msgFilter[msg.GetType()]; !ok {
 		return nil
 	}
 
-	switch cosmosMsg := msg.(type) {
-	case *oracletypes.MsgCreateDataSource:
-		dataSourceId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)
+	switch msg.GetType() {
+	case "/oracle.v1.MsgCreateDataSource":
+		dataSourceID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeCreateDataSource, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing data source id")
 		}
-		return m.handleMsgCreateDataSource(dataSourceId, tx.Height, tx.Timestamp, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgCreateDataSource{})
+		return m.handleMsgCreateDataSource(dataSourceID, int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgEditDataSource:
-		return m.handleMsgEditDataSource(tx.Height, cosmosMsg)
+	case "/oracle.v1.MsgEditDataSource":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgEditDataSource{})
+		return m.handleMsgEditDataSource(int64(tx.Height), cosmosMsg)
 
-	case *oracletypes.MsgCreateOracleScript:
-		oracleScriptId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)
+	case "/oracle.v1.MsgCreateOracleScript":
+		oracleScriptID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeCreateOracleScript, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing oracle script id")
 		}
-		return m.handleMsgCreateOracleScript(oracleScriptId, tx.Height, tx.Timestamp, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgCreateOracleScript{})
+		return m.handleMsgCreateOracleScript(oracleScriptID, int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgEditOracleScript:
-		return m.handleMsgEditOracleScript(tx.Height, tx.Timestamp, cosmosMsg)
+	case "/oracle.v1.MsgEditOracleScript":
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgEditOracleScript{})
+		return m.handleMsgEditOracleScript(int64(tx.Height), tx.Timestamp, cosmosMsg)
 
-	case *oracletypes.MsgRequestData:
-		requestId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)
+	case "/oracle.v1.MsgRequestData":
+		requestID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeRequest, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing request id")
 		}
@@ -49,27 +64,29 @@ func (m *Module) HandleMsg(index int, msg sdk.Msg, tx *juno.Tx) error {
 
 		dataSourceIds := make([]int64, len(dataSources))
 		for i, v := range dataSources {
-			dataSourceId, err := strconv.ParseInt(v, 10, 64)
+			dataSourceID, err := strconv.ParseInt(v, 10, 64)
 			if err != nil {
 				return errors.Wrap(err, "error while parsing data source id")
 			}
-			dataSourceIds[i] = dataSourceId
+			dataSourceIds[i] = dataSourceID
 		}
-		return m.handleMsgRequestData(requestId, tx.Height, dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgRequestData{})
+		return m.handleMsgRequestData(requestID, int64(tx.Height), dataSourceIds, tx.Timestamp, tx.TxHash, cosmosMsg)
 
-	case *oracletypes.MsgReportData:
-		reportId, err := GetIdValueFromEvents(tx.Events, oracletypes.EventTypeReport, oracletypes.AttributeKeyID)
+	case "/oracle.v1.MsgReportData":
+		reportID, err := GetIDValueFromEvents(tx.Events, oracletypes.EventTypeReport, oracletypes.AttributeKeyID)
 		if err != nil {
 			return errors.Wrap(err, "error while parsing report id")
 		}
-		return m.handleMsgReportData(cosmosMsg, tx.TxHash, tx.Height, reportId, tx.Timestamp)
+		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &oracletypes.MsgReportData{})
+		return m.handleMsgReportData(cosmosMsg, tx.TxHash, int64(tx.Height), reportID, tx.Timestamp)
 	}
 
 	return nil
 }
 
-func (m *Module) handleMsgCreateDataSource(dataSourceId, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
-	err := m.db.SaveDataSource(dataSourceId, height, timestamp, msg)
+func (m *Module) handleMsgCreateDataSource(dataSourceID, height int64, timestamp string, msg *oracletypes.MsgCreateDataSource) error {
+	err := m.db.SaveDataSource(dataSourceID, height, timestamp, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data source from MsgCreateDataSource")
 	}
@@ -86,8 +103,8 @@ func (m *Module) handleMsgEditDataSource(height int64, msg *oracletypes.MsgEditD
 	return nil
 }
 
-func (m *Module) handleMsgCreateOracleScript(oracleScriptId, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
-	err := m.db.SaveOracleScript(oracleScriptId, height, timestamp, msg)
+func (m *Module) handleMsgCreateOracleScript(oracleScriptID, height int64, timestamp string, msg *oracletypes.MsgCreateOracleScript) error {
+	err := m.db.SaveOracleScript(oracleScriptID, height, timestamp, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while saving oracle script from MsgCreateOracleScript")
 	}
@@ -95,7 +112,7 @@ func (m *Module) handleMsgCreateOracleScript(oracleScriptId, height int64, times
 	return nil
 }
 
-func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *oracletypes.MsgEditOracleScript) error {
+func (m *Module) handleMsgEditOracleScript(height int64, _ string, msg *oracletypes.MsgEditOracleScript) error {
 	err := m.db.EditOracleScript(height, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while editing oracle script from MsgEditOracleScript")
@@ -104,13 +121,13 @@ func (m *Module) handleMsgEditOracleScript(height int64, timestamp string, msg *
 	return nil
 }
 
-func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
+func (m *Module) handleMsgRequestData(requestID, height int64, dataSourceIDs []int64, timestamp, txHash string, msg *oracletypes.MsgRequestData) error {
 	countBeforeSaving, err := m.db.GetRequestCount()
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgRequestData")
 	}
 
-	err = m.db.SaveDataRequest(requestId, height, dataSourceIDs, timestamp, txHash, msg)
+	err = m.db.SaveDataRequest(requestID, height, dataSourceIDs, timestamp, txHash, msg)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgRequestData")
 	}
@@ -130,13 +147,13 @@ func (m *Module) handleMsgRequestData(requestId, height int64, dataSourceIDs []i
 	return nil
 }
 
-func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, height, reportId int64, timestamp string) error {
+func (m *Module) handleMsgReportData(msg *oracletypes.MsgReportData, txHash string, _, reportID int64, _ string) error {
 	countBeforeSaving, err := m.db.GetReportCount()
 	if err != nil {
 		return errors.Wrap(err, "error while saving data request from MsgReportData")
 	}
 
-	err = m.db.SaveDataReport(msg, txHash, reportId)
+	err = m.db.SaveDataReport(msg, txHash, reportID)
 	if err != nil {
 		return errors.Wrap(err, "error while saving data report from MsgReportData")
 	}
@@ -162,8 +179,8 @@ func GetValueFromEvents(events []abcitypes.Event, eventType, key string) []strin
 	for _, event := range events {
 		if event.Type == eventType {
 			for _, attribute := range event.Attributes {
-				if string(attribute.Key) == key {
-					res = append(res, string(attribute.Value))
+				if attribute.Key == key {
+					res = append(res, attribute.Value)
 				}
 			}
 		}
@@ -172,7 +189,7 @@ func GetValueFromEvents(events []abcitypes.Event, eventType, key string) []strin
 	return res
 }
 
-func GetIdValueFromEvents(events []abcitypes.Event, eventType, key string) (int64, error) {
+func GetIDValueFromEvents(events []abcitypes.Event, eventType, key string) (int64, error) {
 	idValue := GetValueFromEvents(events, eventType, key)
 
 	if len(idValue) == 0 {

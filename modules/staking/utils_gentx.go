@@ -3,12 +3,13 @@ package staking
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/forbole/bdjuno/v3/modules/staking/keybase"
-	"github.com/forbole/bdjuno/v3/types"
+	"github.com/forbole/callisto/v4/modules/staking/keybase"
+	"github.com/forbole/callisto/v4/types"
 )
 
 // StoreValidatorFromMsgCreateValidator handles properly a MsgCreateValidator instance by
@@ -23,7 +24,7 @@ func (m *Module) StoreValidatorsFromMsgCreateValidator(height int64, msg *stakin
 	if err != nil {
 		return fmt.Errorf("error while getting Avatar URL: %s", err)
 	}
-	delegatorShares := sdk.NewDec(msg.Value.Amount.Int64())
+	delegatorShares := math.LegacyNewDec(msg.Value.Amount.Int64())
 
 	// Save the validators
 	err = m.db.SaveValidatorData(

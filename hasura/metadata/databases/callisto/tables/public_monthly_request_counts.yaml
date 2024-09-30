@@ -1,0 +1,12 @@
+table:
+  name: monthly_request_counts
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - month
+        - monthly_request_count
+      filter: {}
+      limit: 100
+    role: anonymous

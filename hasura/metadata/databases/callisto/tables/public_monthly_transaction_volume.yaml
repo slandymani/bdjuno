@@ -1,0 +1,12 @@
+table:
+  name: monthly_transaction_volume
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - month
+        - transaction_volume
+      filter: {}
+      limit: 100
+    role: anonymous

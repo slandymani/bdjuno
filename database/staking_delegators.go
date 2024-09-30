@@ -2,7 +2,8 @@ package database
 
 import (
 	"fmt"
-	"github.com/forbole/bdjuno/v3/types"
+
+	"github.com/forbole/callisto/v4/types"
 )
 
 func (db *Db) SaveStakingDelegator(data types.Delegator) error {
@@ -14,7 +15,7 @@ ON CONFLICT (address) DO UPDATE
     delegations_percentage = excluded.delegations_percentage,
     height = excluded.height
 WHERE delegator.height <= excluded.height`
-	_, err := db.Sql.Exec(stmt, data.Address, data.Delegations, data.DelegationsPercentage, data.Height)
+	_, err := db.SQL.Exec(stmt, data.Address, data.Delegations, data.DelegationsPercentage, data.Height)
 	if err != nil {
 		return fmt.Errorf("error while storing delegator stake: %s", err)
 	}

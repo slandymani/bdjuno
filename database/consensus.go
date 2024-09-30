@@ -2,13 +2,15 @@ package database
 
 import (
 	"fmt"
-	junotypes "github.com/forbole/juno/v3/types"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 	"time"
 
-	"github.com/forbole/bdjuno/v3/types"
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	junotypes "github.com/forbole/juno/v6/types"
 
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+	"github.com/forbole/callisto/v4/types"
+
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 )
 
 // GetLastBlock returns the last block stored inside the database based on the heights
@@ -27,16 +29,20 @@ func (db *Db) GetLastBlock() (*dbtypes.BlockRow, error) {
 	return &blocks[0], nil
 }
 
-// GetLastBlockHeight returns the last block height stored inside the database
-func (db *Db) GetLastBlockHeight() (int64, error) {
-	block, err := db.GetLastBlock()
-	if err != nil {
-		return 0, err
+// GetLastBlockHeight returns the last block height and timestamp stored inside the database
+func (db *Db) GetLastBlockHeightAndTimestamp() (dbtypes.BlockHeightAndTimestamp, error) {
+	stmt := `SELECT height, timestamp FROM block ORDER BY height DESC LIMIT 1`
+
+	var blockHeightAndTimestamp []dbtypes.BlockHeightAndTimestamp
+	if err := db.Sqlx.Select(&blockHeightAndTimestamp, stmt); err != nil {
+		return dbtypes.BlockHeightAndTimestamp{}, fmt.Errorf("cannot get last block height and timestamp from db: %s", err)
 	}
-	if block == nil {
-		return 0, fmt.Errorf("block table is empty")
+
+	if len(blockHeightAndTimestamp) == 0 {
+		return dbtypes.BlockHeightAndTimestamp{}, nil
 	}
-	return block.Height, nil
+
+	return blockHeightAndTimestamp[0], nil
 }
 
 // -------------------------------------------------------------------------------------------------------------------
@@ -190,7 +196,7 @@ func (db *Db) GetGenesis() (*types.Genesis, error) {
 func (db *Db) SetBlockSize(size int, height int64) error {
 	stmt := `UPDATE block SET size = $1 WHERE height = $2`
 
-	_, err := db.Sql.Exec(stmt, size, height)
+	_, err := db.SQL.Exec(stmt, size, height)
 	if err != nil {
 		return fmt.Errorf("error while setting block size: %s", err)
 	}
@@ -337,12 +343,17 @@ WHERE date = $4`
 	return nil
 }
 
-func (db *Db) SetTxSender(tx *junotypes.Tx) error {
+func (db *Db) SetTxSender(tx *junotypes.Transaction) error {
 	stmt := `UPDATE transaction SET sender = $1 WHERE hash LIKE $2`
 
 	hash := tx.TxHash[:len(tx.TxHash)-1] + "%"
 
-	_, err := db.Sqlx.Exec(stmt, tx.GetSigners()[0].String(), hash)
+	signers, _, err := tx.GetSigners(db.cdc)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Sqlx.Exec(stmt, sdk.AccAddress(signers[0]).String(), hash)
 	if err != nil {
 		return fmt.Errorf("error while setting tx senders: %s", err)
 	}

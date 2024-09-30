@@ -1,19 +1,20 @@
 package handlers
 
 import (
-	"github.com/forbole/bdjuno/v3/database"
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
+	"github.com/forbole/callisto/v4/database"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
+// #nosec
 var (
 	BondedTokensPoolAdr   = "odin1fl48vsnmsdzcv85q5d2q4z5ajdha8yu33m0v4a"
 	UnBondedTokensPoolAdr = "odin1tygms3xhhs3yv487phx3dw4a95jn7t7l9mnarf"
 )
 
-func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
+func TopAccountsHandler(_ *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing top accounts action")
 
 	sortingParam := payload.GetSortingParam()
@@ -35,7 +36,7 @@ func TopAccountsHandler(ctx *types.Context, payload *types.Payload, db *database
 
 	// To avoid nil result when pagination params undefined (by default set to 0)
 	if pagination.Limit != 0 {
-		stmt = stmt + `
+		stmt += `
 		LIMIT $2`
 
 		err = db.Sqlx.Select(&rows, stmt, pagination.Offset, pagination.Limit)

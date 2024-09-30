@@ -1,7 +1,7 @@
 package gov
 
 import (
-	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
+	parsecmdtypes "github.com/forbole/juno/v6/cmd/parse/types"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +15,7 @@ func NewGovCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 	cmd.AddCommand(
 		proposalCmd(parseConfig),
 		tallyResultsCmd(parseConfig),
+		paramsCmd(parseConfig),
 	)
 
 	return cmd

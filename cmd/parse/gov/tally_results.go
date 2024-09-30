@@ -2,16 +2,18 @@ package gov
 
 import (
 	"fmt"
-	govsource "github.com/forbole/bdjuno/v3/modules/gov/source"
-	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/forbole/bdjuno/v3/types"
 
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
-	"github.com/forbole/juno/v3/types/config"
+	govsource "github.com/forbole/callisto/v4/modules/gov/source"
+	modulestypes "github.com/forbole/callisto/v4/modules/types"
+	"github.com/forbole/callisto/v4/types"
+	"github.com/forbole/callisto/v4/utils"
+
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	parsecmdtypes "github.com/forbole/juno/v6/cmd/parse/types"
+	"github.com/forbole/juno/v6/types/config"
 	"github.com/spf13/cobra"
 
-	"github.com/forbole/bdjuno/v3/database"
+	"github.com/forbole/callisto/v4/database"
 )
 
 // tallyResultsCmd returns the Cobra command allowing to fix all things related to a tally results
@@ -25,7 +27,9 @@ func tallyResultsCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 				return err
 			}
 
-			sources, err := modulestypes.BuildSources(config.Cfg.Node, parseCtx.EncodingConfig)
+			codec := utils.GetCodec()
+
+			sources, err := modulestypes.BuildSources(config.Cfg.Node, codec)
 			if err != nil {
 				return err
 			}
@@ -67,13 +71,13 @@ func refreshTallyResults(db *database.Db, source govsource.Source) error {
 	return db.SaveTallyResults(tallys)
 }
 
-func parseTally(id uint64, height int64, tally govtypes.TallyResult) types.TallyResult {
+func parseTally(id uint64, height int64, tally *govtypesv1.TallyResult) types.TallyResult {
 	return types.TallyResult{
 		ProposalID: id,
-		Yes:        tally.Yes.String(),
-		Abstain:    tally.Abstain.String(),
-		No:         tally.No.String(),
-		NoWithVeto: tally.NoWithVeto.String(),
+		Yes:        tally.YesCount,
+		Abstain:    tally.AbstainCount,
+		No:         tally.NoCount,
+		NoWithVeto: tally.NoWithVetoCount,
 		Height:     height,
 	}
 }

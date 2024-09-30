@@ -3,13 +3,13 @@ package types
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/rs/cors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
 
-	"github.com/forbole/bdjuno/v3/modules/actions/logging"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/logging"
+	"github.com/rs/cors"
 
 	"github.com/rs/zerolog/log"
 )
@@ -40,7 +40,7 @@ func (w *ActionsWorker) RegisterHandler(path string, handler ActionHandler) {
 		writer.Header().Set("Content-Type", "application/json")
 
 		// Read the body
-		reqBody, err := ioutil.ReadAll(request.Body)
+		reqBody, err := io.ReadAll(request.Body)
 		if err != nil {
 			http.Error(writer, "invalid payload", http.StatusBadRequest)
 			return
@@ -98,11 +98,18 @@ func (w *ActionsWorker) handleError(writer http.ResponseWriter, path string, err
 }
 
 // Start starts the worker
-func (w *ActionsWorker) Start(port uint) {
+func (w *ActionsWorker) Start(host string, port uint) {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
 	})
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), c.Handler(w.mux))
+	server := &http.Server{
+		Addr:              fmt.Sprintf("%s:%d", host, port),
+		Handler:           c.Handler(w.mux),
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+
+	err := server.ListenAndServe()
+
 	if err != nil {
 		panic(err)
 	}

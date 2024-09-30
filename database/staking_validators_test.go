@@ -1,32 +1,33 @@
 package database_test
 
 import (
-	tmtypes "github.com/tendermint/tendermint/proto/tendermint/types"
 	"math/big"
 
-	"github.com/forbole/bdjuno/v3/types"
+	tmtypes "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/forbole/callisto/v4/types"
+
+	"cosmossdk.io/math"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	dbtypes "github.com/forbole/bdjuno/v3/database/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 )
 
-func newDecPts(value int64, prec int64) *sdk.Dec {
-	dec := sdk.NewDecWithPrec(value, prec)
+func newDecPts(value int64, prec int64) *math.LegacyDec {
+	dec := math.LegacyNewDecWithPrec(value, prec)
 	return &dec
 }
 
-func newIntPtr(value int64) *sdk.Int {
-	val := sdk.NewInt(value)
+func newIntPtr(value int64) *math.Int {
+	val := math.NewInt(value)
 	return &val
 }
 
 // -----------------------------------------------------------
 
 func (suite *DbTestSuite) TestSaveValidator() {
-	expectedMaxRate := sdk.NewDec(int64(1))
-	expectedMaxChangeRate := sdk.NewDec(int64(2))
+	expectedMaxRate := math.LegacyNewDec(int64(1))
+	expectedMaxChangeRate := math.LegacyNewDec(int64(2))
 
 	suite.getAccount("cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs")
 	validator := dbtypes.NewValidatorData(
@@ -66,7 +67,7 @@ func (suite *DbTestSuite) TestSaveValidator() {
 		"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
 		expectedMaxRate.String(),
 		expectedMaxChangeRate.String(),
-		sdk.NewDec(10000).String(),
+		math.LegacyNewDec(10000).String(),
 		10000,
 		1,
 	)))
@@ -110,9 +111,9 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl",
 			"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
 			"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
-			sdk.NewDec(int64(1)).String(),
-			sdk.NewDec(int64(2)).String(),
-			sdk.NewDec(1000).String(),
+			math.LegacyNewDec(int64(1)).String(),
+			math.LegacyNewDec(int64(2)).String(),
+			math.LegacyNewDec(1000).String(),
 			1000,
 			10,
 		),
@@ -120,9 +121,9 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y",
 			"cosmosvaloper1000ya26q2cmh399q4c5aaacd9lmmdqp90kw2jn",
 			"cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a",
-			sdk.NewDec(int64(1)).String(),
-			sdk.NewDec(int64(2)).String(),
-			sdk.NewDec(1000).String(),
+			math.LegacyNewDec(int64(1)).String(),
+			math.LegacyNewDec(int64(2)).String(),
+			math.LegacyNewDec(1000).String(),
 			1000,
 			10,
 		),
@@ -183,9 +184,9 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl",
 			"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
 			"cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs",
-			sdk.NewDec(int64(1)).String(),
-			sdk.NewDec(int64(2)).String(),
-			sdk.NewDec(1000).String(),
+			math.LegacyNewDec(int64(1)).String(),
+			math.LegacyNewDec(int64(2)).String(),
+			math.LegacyNewDec(1000).String(),
 			1000,
 			10,
 		),
@@ -193,9 +194,9 @@ func (suite *DbTestSuite) TestSaveValidators() {
 			"cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y",
 			"cosmosvaloper1000ya26q2cmh399q4c5aaacd9lmmdqp90kw2jn",
 			"cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a",
-			sdk.NewDec(int64(10)).String(),
-			sdk.NewDec(int64(5)).String(),
-			sdk.NewDec(1000).String(),
+			math.LegacyNewDec(int64(10)).String(),
+			math.LegacyNewDec(int64(5)).String(),
+			math.LegacyNewDec(1000).String(),
 			10000,
 			11,
 		),
@@ -224,17 +225,17 @@ func (suite *DbTestSuite) TestSaveValidators() {
 func (suite *DbTestSuite) TestGetValidator() {
 	var i int64 = 1
 	var ii int64 = 2
-	maxRate := sdk.NewDec(i)
-	maxChangeRate := sdk.NewDec(ii)
+	maxRate := math.LegacyNewDec(i)
+	maxChangeRate := math.LegacyNewDec(ii)
 	suite.getAccount("cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a")
 	// Insert test data
-	_, err := suite.database.Sql.Exec(`
+	_, err := suite.database.SQL.Exec(`
 INSERT INTO validator (consensus_address, consensus_pubkey) 
 VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl', 
         'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`)
 	suite.Require().NoError(err)
 
-	_, err = suite.database.Sql.Exec(`
+	_, err = suite.database.SQL.Exec(`
 INSERT INTO validator_info (consensus_address, operator_address,self_delegate_address,max_change_rate,max_rate,delegator_shares,delegated_amount,height) 
 VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl',
         'cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl',
@@ -267,7 +268,7 @@ VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl',
 func (suite *DbTestSuite) TestGetValidators() {
 	suite.getAccount("cosmos1z4hfrxvlgl4s8u4n5ngjcw8kdqrcv43599amxs")
 	suite.getAccount("cosmos184ma3twcfjqef6k95ne8w2hk80x2kah7vcwy4a")
-	// Inser the test data
+	// Insert the test data
 	queries := []string{
 		`INSERT INTO validator (consensus_address, consensus_pubkey) VALUES ('cosmosvalcons1qqqqrezrl53hujmpdch6d805ac75n220ku09rl', 'cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8')`,
 		`INSERT INTO validator (consensus_address, consensus_pubkey) VALUES ('cosmosvalcons1qq92t2l4jz5pt67tmts8ptl4p0jhr6utx5xa8y', 'cosmosvalconspub1zcjduepqe93asg05nlnj30ej2pe3r8rkeryyuflhtfw3clqjphxn4j3u27msrr63nk')`,
@@ -276,7 +277,7 @@ func (suite *DbTestSuite) TestGetValidators() {
 	}
 
 	for _, query := range queries {
-		_, err := suite.database.Sql.Exec(query)
+		_, err := suite.database.SQL.Exec(query)
 		suite.Require().NoError(err)
 	}
 
@@ -658,14 +659,12 @@ func (suite *DbTestSuite) TestSaveValidatorStatus() {
 			validator1.GetConsPubKey(),
 			1,
 			false,
-			false,
 			10,
 		),
 		types.NewValidatorStatus(
 			validator2.GetConsAddr(),
 			validator2.GetConsPubKey(),
 			2,
-			true,
 			true,
 			10,
 		),
@@ -681,13 +680,11 @@ func (suite *DbTestSuite) TestSaveValidatorStatus() {
 		dbtypes.NewValidatorStatusRow(
 			1,
 			false,
-			false,
 			validator1.GetConsAddr(),
 			10,
 		),
 		dbtypes.NewValidatorStatusRow(
 			2,
-			true,
 			true,
 			validator2.GetConsAddr(),
 			10,
@@ -705,14 +702,12 @@ func (suite *DbTestSuite) TestSaveValidatorStatus() {
 			validator1.GetConsPubKey(),
 			3,
 			true,
-			true,
 			9,
 		),
 		types.NewValidatorStatus(
 			validator2.GetConsAddr(),
 			validator2.GetConsPubKey(),
 			3,
-			true,
 			true,
 			11,
 		),
@@ -728,13 +723,11 @@ func (suite *DbTestSuite) TestSaveValidatorStatus() {
 		dbtypes.NewValidatorStatusRow(
 			1,
 			false,
-			false,
 			validator1.GetConsAddr(),
 			10,
 		),
 		dbtypes.NewValidatorStatusRow(
 			3,
-			true,
 			true,
 			validator2.GetConsAddr(),
 			11,
@@ -755,9 +748,9 @@ func (suite *DbTestSuite) TestSaveDoubleVoteEvidence() {
 		"cosmosvaloper1rcp29q3hpd246n6qak7jluqep4v006cdsc2kkl",
 		"cosmosvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8",
 	)
-
+	var evidences []types.DoubleSignEvidence
 	// Insert data
-	evidence := types.NewDoubleSignEvidence(
+	evidences = append(evidences, types.NewDoubleSignEvidence(
 		10,
 		types.NewDoubleSignVote(
 			int(tmtypes.PrevoteType),
@@ -777,8 +770,9 @@ func (suite *DbTestSuite) TestSaveDoubleVoteEvidence() {
 			1,
 			"A5m7SVuvZ8YNXcUfBKLgkeV+Vy5ea+7rPfzlbkEvHOPPce6B7A2CwOIbCmPSVMKUarUdta+HiyTV+IELaOYyDA==",
 		),
+	),
 	)
-	err := suite.database.SaveDoubleSignEvidence(evidence)
+	err := suite.database.SaveDoubleSignEvidences(evidences)
 	suite.Require().NoError(err)
 
 	// Verify insertion

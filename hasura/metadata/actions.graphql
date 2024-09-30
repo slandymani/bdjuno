@@ -1,11 +1,15 @@
 type Query {
     action_vote_proposals(
         height: Int
-    ): ActionGovModules
+    ): [ActionModuleVoteProposal]
 
     action_voting_result(
         id: Int!
     ): ActionVotingResult
+
+    action_proposals_statistics(
+        height: Int
+    ): [ActionProposalStatus]
 
     action_account_balance(
         address: String!
@@ -113,12 +117,22 @@ type ActionVotingResultWeighted {
 }
 
 type ActionModuleVoteProposal {
-    vote_proposals: [ActionVoteProposal]
+    module: String!
+    params: [ActionVoteProposal]
 }
 
 type ActionVoteProposal {
     key: String!
     value_type: String!
+}
+
+type ActionModuleProposalsStatistics {
+    statuses: [ActionProposalStatus]
+}
+
+type ActionProposalStatus {
+    status: String!
+    count: Int!
 }
 
 type ActionBalance {

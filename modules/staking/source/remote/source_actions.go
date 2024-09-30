@@ -4,9 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v6/node/remote"
 
-	"github.com/forbole/bdjuno/v3/utils"
+	"github.com/forbole/callisto/v4/utils"
 )
 
 func (s Source) GetDelegationsTotal(height int64, address string) (sdk.Coins, error) {

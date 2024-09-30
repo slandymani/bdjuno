@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	auctiontypes "github.com/ODIN-PROTOCOL/odin-core/x/auction/types"
-	coinswaptypes "github.com/ODIN-PROTOCOL/odin-core/x/coinswap/types"
+	"reflect"
+	"strings"
+
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -12,17 +13,15 @@ import (
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
-	ibc1 "github.com/cosmos/ibc-go/v2/modules/core/02-client/types"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
-	"reflect"
-	"strings"
+	ibctypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibc1 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
 )
 
 type Params struct {
-	Key       string
-	ValueType string
+	Key       string `json:"key"`
+	ValueType string `json:"value_type"`
 }
 
 type ModuleParamsInfo struct {
@@ -30,7 +29,12 @@ type ModuleParamsInfo struct {
 	ParamPairs paramtypes.ParamSetPairs
 }
 
-func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db) (interface{}, error) {
+type VoteParams struct {
+	Module string   `json:"module"`
+	Params []Params `json:"params"`
+}
+
+func GetVoteProposals(_ *types.Context, _ *types.Payload, _ *database.Db) (interface{}, error) {
 	var typesMap = map[string]string{
 		"types.Coins":           "[]{\"amount\": string, \"denom\": string}",
 		"[]types.Exchange":      "[]{\"from\": string, \"to\": string, \"rate_multiplier\": types.Dec}",
@@ -42,8 +46,6 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 	keyParams := make(map[string][]Params)
 
 	oracleParams := oracletypes.DefaultParams()
-	auctionParams := auctiontypes.DefaultParams()
-	coinswapParams := coinswaptypes.DefaultParams()
 	mintParams := minttypes.DefaultParams()
 	authParams := authtypes.DefaultParams()
 	bankParams := banktypes.DefaultParams()
@@ -58,14 +60,6 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 		{
 			ModuleName: "oracle",
 			ParamPairs: oracleParams.ParamSetPairs(),
-		},
-		{
-			ModuleName: "auction",
-			ParamPairs: auctionParams.ParamSetPairs(),
-		},
-		{
-			ModuleName: "coinswap",
-			ParamPairs: coinswapParams.ParamSetPairs(),
 		},
 		{
 			ModuleName: "mint",
@@ -137,7 +131,16 @@ func GetVoteProposals(ctx *types.Context, payload *types.Payload, _ *database.Db
 		},
 	}
 
-	return keyParams, nil
+	response := make([]VoteParams, 0)
+
+	for module, params := range keyParams {
+		response = append(response, VoteParams{
+			Module: module,
+			Params: params,
+		})
+	}
+
+	return response, nil
 }
 
 func GetModuleParams(moduleParamsPairs paramtypes.ParamSetPairs, typesMap map[string]string) []Params {

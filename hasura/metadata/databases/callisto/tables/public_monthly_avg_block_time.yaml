@@ -1,0 +1,12 @@
+table:
+  name: monthly_avg_block_time
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - month
+        - avg_monthly_block_time
+      filter: {}
+      limit: 100
+    role: anonymous

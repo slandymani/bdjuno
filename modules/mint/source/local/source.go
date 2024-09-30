@@ -2,11 +2,13 @@ package local
 
 import (
 	"fmt"
+
+	"cosmossdk.io/math"
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/juno/v3/node/local"
+	"github.com/forbole/juno/v6/node/local"
 
-	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"
+	mintsource "github.com/forbole/callisto/v4/modules/mint/source"
 )
 
 var (
@@ -19,7 +21,7 @@ type Source struct {
 	querier minttypes.QueryServer
 }
 
-// NewSource returns a new Source instace
+// NewSource returns a new Source instance
 func NewSource(source *local.Source, querier minttypes.QueryServer) *Source {
 	return &Source{
 		Source:  source,
@@ -28,15 +30,15 @@ func NewSource(source *local.Source, querier minttypes.QueryServer) *Source {
 }
 
 // GetInflation implements mintsource.Source
-func (s Source) GetInflation(height int64) (sdk.Dec, error) {
+func (s Source) GetInflation(height int64) (math.LegacyDec, error) {
 	ctx, err := s.LoadHeight(height)
 	if err != nil {
-		return sdk.Dec{}, fmt.Errorf("error while loading height: %s", err)
+		return math.LegacyDec{}, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.querier.Inflation(sdk.WrapSDKContext(ctx), &minttypes.QueryInflationRequest{})
+	res, err := s.querier.Inflation(ctx, &minttypes.QueryInflationRequest{})
 	if err != nil {
-		return sdk.Dec{}, err
+		return math.LegacyDec{}, err
 	}
 
 	return res.Inflation, nil
@@ -49,7 +51,7 @@ func (s Source) Params(height int64) (minttypes.Params, error) {
 		return minttypes.Params{}, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.querier.Params(sdk.WrapSDKContext(ctx), &minttypes.QueryParamsRequest{})
+	res, err := s.querier.Params(ctx, &minttypes.QueryParamsRequest{})
 	if err != nil {
 		return minttypes.Params{}, err
 	}
@@ -57,13 +59,13 @@ func (s Source) Params(height int64) (minttypes.Params, error) {
 	return res.Params, nil
 }
 
-func (s *Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
+func (s Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
 	ctx, err := s.LoadHeight(height)
 	if err != nil {
 		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.querier.TreasuryPool(sdk.WrapSDKContext(ctx), &minttypes.QueryTreasuryPoolRequest{})
+	res, err := s.querier.TreasuryPool(ctx, &minttypes.QueryTreasuryPoolRequest{})
 	if err != nil {
 		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, err
 	}

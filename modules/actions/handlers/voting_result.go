@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/forbole/bdjuno/v3/modules/actions/types"
-	types2 "github.com/forbole/bdjuno/v3/types"
+	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/actions/types"
+	types2 "github.com/forbole/callisto/v4/types"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )
 
-func GetVotingResult(ctx *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
+func GetVotingResult(_ *types.Context, payload *types.Payload, db *database.Db) (interface{}, error) {
 	log.Debug().Msg("executing voting result action")
 
 	proposalID := payload.GetID()
@@ -62,7 +62,7 @@ func getVotingCountResult(id int64, db *database.Db) (VotingResultCountResponse,
 	}
 
 	for _, option := range options {
-		switch govtypes.VoteOption_value[option] {
+		switch govtypesv1.VoteOption_value[option] {
 		case 0:
 			continue
 		case 1:

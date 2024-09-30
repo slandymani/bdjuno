@@ -2,13 +2,14 @@ package oracle
 
 import (
 	"fmt"
-	juno "github.com/forbole/juno/v3/types"
+
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	juno "github.com/forbole/juno/v6/types"
 	"github.com/rs/zerolog/log"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 func (m *Module) HandleBlock(
-	block *tmctypes.ResultBlock, res *tmctypes.ResultBlockResults, _ []*juno.Tx, vals *tmctypes.ResultValidators,
+	block *tmctypes.ResultBlock, _ *tmctypes.ResultBlockResults, _ []*juno.Transaction, _ *tmctypes.ResultValidators,
 ) error {
 	err := m.updateRequestsResolveTime(block.Block.Height)
 	if err != nil {
@@ -29,7 +30,7 @@ func (m *Module) updateRequestsResolveTime(height int64) error {
 
 	for _, request := range requests {
 		if request.ReportsCount >= request.MinCount || height-request.Height > 100 {
-			res, err := m.source.GetRequestStatus(height, request.Id)
+			res, err := m.source.GetRequestStatus(height, request.ID)
 			if err != nil {
 				return fmt.Errorf("error while getting request result: %s", err)
 			}

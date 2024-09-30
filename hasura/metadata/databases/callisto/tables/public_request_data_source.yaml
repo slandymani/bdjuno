@@ -1,0 +1,21 @@
+table:
+  name: request_data_source
+  schema: public
+object_relationships:
+  - name: request
+    using:
+      manual_configuration:
+        column_mapping:
+          request_id: id
+        insertion_order: null
+        remote_table:
+          name: request
+          schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - request_id
+        - data_source_id
+      filter: {}
+    role: anonymous

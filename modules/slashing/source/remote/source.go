@@ -5,9 +5,9 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v6/node/remote"
 
-	slashingsource "github.com/forbole/bdjuno/v3/modules/slashing/source"
+	slashingsource "github.com/forbole/callisto/v4/modules/slashing/source"
 )
 
 var (
@@ -68,7 +68,7 @@ func (s Source) GetParams(height int64) (slashingtypes.Params, error) {
 }
 
 // GetSigningInfo implements slashingsource.GetSigningInfo
-func (s Source) GetSigningInfo(height int64, consAddr sdk.ConsAddress) (slashingtypes.ValidatorSigningInfo, error) {
+func (s Source) GetSigningInfo(_ int64, consAddr sdk.ConsAddress) (slashingtypes.ValidatorSigningInfo, error) {
 	res, err := s.querier.SigningInfo(
 		s.Ctx,
 		&slashingtypes.QuerySigningInfoRequest{

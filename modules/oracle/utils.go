@@ -2,8 +2,9 @@ package oracle
 
 import (
 	"encoding/hex"
-	"github.com/forbole/juno/v3/parser"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
+
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/forbole/juno/v6/parser"
 )
 
 func (m *Module) HandleOracleTxs(txs []*tmctypes.ResultTx, parseCtx *parser.Context) error {
@@ -13,8 +14,8 @@ func (m *Module) HandleOracleTxs(txs []*tmctypes.ResultTx, parseCtx *parser.Cont
 			return err
 		}
 
-		for index, msg := range transaction.GetMsgs() {
-			err = m.HandleMsg(index, msg, transaction)
+		for index := range transaction.GetMsgs() {
+			err = m.HandleMsg(index, transaction.Body.Messages[index], transaction)
 			if err != nil {
 				return err
 			}

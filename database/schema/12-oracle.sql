@@ -63,7 +63,8 @@ CREATE TABLE report
     id               BIGINT PRIMARY KEY,
     validator        TEXT,
     oracle_script_id INT REFERENCES oracle_script (id),
-    tx_hash          TEXT
+    tx_hash          TEXT,
+    request_id       INT REFERENCES request (id)
 );
 CREATE INDEX report_id_index ON report (id);
 
@@ -100,3 +101,15 @@ CREATE TABLE request_data_source
 );
 CREATE INDEX request_data_source_request_index ON request_data_source (request_id);
 CREATE INDEX request_data_source_data_source_index ON request_data_source (data_source_id);
+
+CREATE VIEW daily_request_counts AS
+SELECT DATE_TRUNC('day', timestamp) AS day,
+       COUNT(id) AS daily_request_count
+FROM request
+GROUP BY day;
+
+CREATE VIEW monthly_request_counts AS
+SELECT DATE_TRUNC('month', timestamp) AS month,
+       COUNT(id) AS monthly_request_count
+FROM request
+GROUP BY month;

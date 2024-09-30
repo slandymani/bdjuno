@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   telemetry_db:
-    image: tokend/postgres-ubuntu:9.6
+    image: postgres:14
     ports:
       - "5432:5432"
     restart: unless-stopped
@@ -13,7 +13,7 @@ services:
     volumes:
       - telemetry-data:/pgdata
   hasura_db:
-    image: tokend/postgres-ubuntu:9.6
+    image: postgres:14
     ports:
       - "5433:5432"
     restart: unless-stopped

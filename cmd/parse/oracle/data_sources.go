@@ -1,16 +1,15 @@
 package oracle
 
 import (
-	"fmt"
-	"github.com/forbole/bdjuno/v3/database"
-	"github.com/forbole/bdjuno/v3/modules/oracle"
-	modulestypes "github.com/forbole/bdjuno/v3/modules/types"
-	"github.com/forbole/bdjuno/v3/utils"
-	parsecmdtypes "github.com/forbole/juno/v3/cmd/parse/types"
-	"github.com/forbole/juno/v3/types/config"
+	tmctypes "github.com/cometbft/cometbft/rpc/core/types"
+	"github.com/forbole/callisto/v4/database"
+	"github.com/forbole/callisto/v4/modules/oracle"
+	modulestypes "github.com/forbole/callisto/v4/modules/types"
+	"github.com/forbole/callisto/v4/utils"
+	parsecmdtypes "github.com/forbole/juno/v6/cmd/parse/types"
+	"github.com/forbole/juno/v6/types/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	tmctypes "github.com/tendermint/tendermint/rpc/core/types"
 )
 
 // dataSourcesCmd returns a Cobra command that allows to refresh data sources.
@@ -24,7 +23,9 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 				return errors.Wrap(err, "Failed to get parser context")
 			}
 
-			sources, err := modulestypes.BuildSources(config.Cfg.Node, parseCtx.EncodingConfig)
+			codec := utils.GetCodec()
+
+			sources, err := modulestypes.BuildSources(config.Cfg.Node, codec)
 			if err != nil {
 				return errors.Wrap(err, "Failed to build sources")
 			}
@@ -33,13 +34,13 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			db := database.Cast(parseCtx.Database)
 
 			// Build the oracle module
-			oracleModule := oracle.NewModule(sources.OracleSource, db)
+			oracleModule := oracle.NewModule(sources.OracleSource, db, codec)
 
 			// Get all data sources
 			var txs []*tmctypes.ResultTx
 
 			// Firstly, MsgCreateDataSource
-			query := fmt.Sprintf("message.action='/oracle.v1.MsgCreateDataSource'")
+			query := "message.action='/oracle.v1.MsgCreateDataSource'"
 			createDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgCreateDataSource messages")
@@ -48,7 +49,7 @@ func dataSourcesCmd(parseConfig *parsecmdtypes.Config) *cobra.Command {
 			txs = append(txs, createDataSourceTxs...)
 
 			// Then - MsgEditDataSource
-			query = fmt.Sprintf("message.action='/oracle.v1.MsgEditDataSource'")
+			query = "message.action='/oracle.v1.MsgEditDataSource'"
 			editDataSourceTxs, err := utils.QueryTxs(parseCtx.Node, query)
 			if err != nil {
 				return errors.Wrap(err, "Failed to get MsgEditDataSource messages")

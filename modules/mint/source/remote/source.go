@@ -1,11 +1,12 @@
 package remote
 
 import (
+	"cosmossdk.io/math"
 	minttypes "github.com/ODIN-PROTOCOL/odin-core/x/mint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/forbole/juno/v3/node/remote"
+	"github.com/forbole/juno/v6/node/remote"
 
-	mintsource "github.com/forbole/bdjuno/v3/modules/mint/source"
+	mintsource "github.com/forbole/callisto/v4/modules/mint/source"
 )
 
 var (
@@ -27,10 +28,10 @@ func NewSource(source *remote.Source, querier minttypes.QueryClient) *Source {
 }
 
 // GetInflation implements mintsource.Source
-func (s Source) GetInflation(height int64) (sdk.Dec, error) {
+func (s Source) GetInflation(height int64) (math.LegacyDec, error) {
 	res, err := s.querier.Inflation(remote.GetHeightRequestContext(s.Ctx, height), &minttypes.QueryInflationRequest{})
 	if err != nil {
-		return sdk.Dec{}, err
+		return math.LegacyDec{}, err
 	}
 
 	return res.Inflation, nil
@@ -46,7 +47,7 @@ func (s Source) Params(height int64) (minttypes.Params, error) {
 	return res.Params, nil
 }
 
-func (s *Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
+func (s Source) GetTreasuryPool(height int64) (sdk.Coins, error) {
 	res, err := s.querier.TreasuryPool(remote.GetHeightRequestContext(s.Ctx, height), &minttypes.QueryTreasuryPoolRequest{})
 	if err != nil {
 		return minttypes.QueryTreasuryPoolResponse{}.TreasuryPool, err

@@ -1,12 +1,14 @@
 queue_rules:
   - name: default
     conditions:
-      - base~=cosmos/
+      - or:
+        - base~=cosmos/
+        - base~=chains/
 
 pull_request_rules:
-  - name: automerge to master with label automerge and branch protection passing
+  - name: automerge with label automerge and branch protection passing
     conditions:
-      - "#approved-reviews-by>1"
+      - "#approved-reviews-by>0"
       - label=automerge
     actions:
       queue:

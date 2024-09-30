@@ -1,0 +1,12 @@
+table:
+  name: daily_avg_block_time
+  schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - day
+        - avg_daily_block_time
+      filter: {}
+      limit: 100
+    role: anonymous
