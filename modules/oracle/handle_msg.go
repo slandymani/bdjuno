@@ -20,6 +20,11 @@ var msgFilter = map[string]bool{
 	"/oracle.v1.MsgActivate":           true,
 }
 
+// HandleMsgExec implements modules.AuthzMessageModule
+func (m *Module) HandleMsgExec(index int, _ int, executedMsg juno.Message, tx *juno.Transaction) error {
+	return m.HandleMsg(index, executedMsg, tx)
+}
+
 func (m *Module) HandleMsg(_ int, msg juno.Message, tx *juno.Transaction) error {
 	if _, ok := msgFilter[msg.GetType()]; !ok {
 		return nil

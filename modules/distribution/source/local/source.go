@@ -35,7 +35,7 @@ func (s Source) ValidatorCommission(valOperAddr string, height int64) (sdk.DecCo
 	}
 
 	res, err := s.q.ValidatorCommission(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&distrtypes.QueryValidatorCommissionRequest{ValidatorAddress: valOperAddr},
 	)
 	if err != nil {
@@ -53,7 +53,7 @@ func (s Source) DelegatorTotalRewards(delegator string, height int64) ([]distrty
 	}
 
 	res, err := s.q.DelegationTotalRewards(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&distrtypes.QueryDelegationTotalRewardsRequest{DelegatorAddress: delegator},
 	)
 	if err != nil {
@@ -71,7 +71,7 @@ func (s Source) DelegatorWithdrawAddress(delegator string, height int64) (string
 	}
 
 	res, err := s.q.DelegatorWithdrawAddress(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&distrtypes.QueryDelegatorWithdrawAddressRequest{DelegatorAddress: delegator},
 	)
 	if err != nil {
@@ -88,7 +88,7 @@ func (s Source) CommunityPool(height int64) (sdk.DecCoins, error) {
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.q.CommunityPool(sdk.WrapSDKContext(ctx), &distrtypes.QueryCommunityPoolRequest{})
+	res, err := s.q.CommunityPool(ctx, &distrtypes.QueryCommunityPoolRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (s Source) Params(height int64) (distrtypes.Params, error) {
 		return distrtypes.Params{}, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.q.Params(sdk.WrapSDKContext(ctx), &distrtypes.QueryParamsRequest{})
+	res, err := s.q.Params(ctx, &distrtypes.QueryParamsRequest{})
 	if err != nil {
 		return distrtypes.Params{}, err
 	}

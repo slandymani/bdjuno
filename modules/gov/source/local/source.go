@@ -3,7 +3,6 @@ package local
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/forbole/juno/v6/node/local"
 
@@ -35,7 +34,7 @@ func (s Source) Proposal(height int64, id uint64) (*govtypesv1.Proposal, error) 
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.queryClient.Proposal(sdk.WrapSDKContext(ctx), &govtypesv1.QueryProposalRequest{ProposalId: id})
+	res, err := s.queryClient.Proposal(ctx, &govtypesv1.QueryProposalRequest{ProposalId: id})
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +49,7 @@ func (s Source) ProposalDeposit(height int64, id uint64, depositor string) (*gov
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.queryClient.Deposit(sdk.WrapSDKContext(ctx), &govtypesv1.QueryDepositRequest{ProposalId: id, Depositor: depositor})
+	res, err := s.queryClient.Deposit(ctx, &govtypesv1.QueryDepositRequest{ProposalId: id, Depositor: depositor})
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +64,7 @@ func (s Source) TallyResult(height int64, proposalID uint64) (*govtypesv1.TallyR
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.queryClient.TallyResult(sdk.WrapSDKContext(ctx), &govtypesv1.QueryTallyResultRequest{ProposalId: proposalID})
+	res, err := s.queryClient.TallyResult(ctx, &govtypesv1.QueryTallyResultRequest{ProposalId: proposalID})
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +79,7 @@ func (s Source) Params(height int64) (*govtypesv1.Params, error) {
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.queryClient.Params(sdk.WrapSDKContext(ctx), &govtypesv1.QueryParamsRequest{ParamsType: govtypesv1.ParamDeposit})
+	res, err := s.queryClient.Params(ctx, &govtypesv1.QueryParamsRequest{ParamsType: govtypesv1.ParamDeposit})
 	if err != nil {
 		return nil, err
 	}

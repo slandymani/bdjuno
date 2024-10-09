@@ -40,7 +40,7 @@ func (s Source) GetBalances(addresses []string, height int64) ([]types.AccountBa
 
 	var balances []types.AccountBalance
 	for _, address := range addresses {
-		res, err := s.q.AllBalances(sdk.WrapSDKContext(ctx), &banktypes.QueryAllBalancesRequest{Address: address})
+		res, err := s.q.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: address})
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func (s Source) GetSupply(height int64) (sdk.Coins, error) {
 	var stop = false
 	for !stop {
 		res, err := s.q.TotalSupply(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&banktypes.QueryTotalSupplyRequest{
 				Pagination: &query.PageRequest{
 					Key:   nextKey,
@@ -89,7 +89,7 @@ func (s Source) GetAccountBalance(address string, height int64) ([]sdk.Coin, err
 		return nil, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	balRes, err := s.q.AllBalances(sdk.WrapSDKContext(ctx), &banktypes.QueryAllBalancesRequest{Address: address})
+	balRes, err := s.q.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: address})
 	if err != nil {
 		return nil, fmt.Errorf("error while getting all balances: %s", err)
 	}

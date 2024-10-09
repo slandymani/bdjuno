@@ -13,6 +13,7 @@ var (
 	_ modules.GenesisModule            = &Module{}
 	_ modules.BlockModule              = &Module{}
 	_ modules.MessageModule            = &Module{}
+	_ modules.AuthzMessageModule       = &Module{}
 	_ modules.PeriodicOperationsModule = &Module{}
 )
 

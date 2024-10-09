@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	oracletypes "github.com/ODIN-PROTOCOL/odin-core/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/forbole/juno/v6/node/local"
 	"github.com/forbole/juno/v6/node/remote"
@@ -38,7 +37,7 @@ func (s *Source) GetParams(height int64) (oracletypes.Params, error) {
 		return oracletypes.Params{}, fmt.Errorf("error while loading height: %s", err)
 	}
 
-	res, err := s.client.Params(sdk.WrapSDKContext(ctx), &oracletypes.QueryParamsRequest{})
+	res, err := s.client.Params(ctx, &oracletypes.QueryParamsRequest{})
 	if err != nil {
 		return oracletypes.Params{}, fmt.Errorf("error while getting params: %s", err)
 	}
@@ -53,7 +52,7 @@ func (s *Source) GetRequestStatus(height, id int64) (oracletypes.Result, error) 
 	}
 
 	res, err := s.client.Request(
-		remote.GetHeightRequestContext(sdk.WrapSDKContext(ctx), height),
+		remote.GetHeightRequestContext(ctx, height),
 		&oracletypes.QueryRequestRequest{RequestId: uint64(id)},
 	)
 	if err != nil {
@@ -74,7 +73,7 @@ func (s *Source) GetDataSourcesInfo(height int64) ([]oracletypes.DataSource, err
 	var stop = false
 	for !stop {
 		res, err := s.client.DataSources(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&oracletypes.QueryDataSourcesRequest{
 				Pagination: &query.PageRequest{
 					Key:   nextKey,
@@ -101,7 +100,7 @@ func (s *Source) GetDataSourceInfo(height, id int64) (oracletypes.DataSource, er
 	}
 
 	response, err := s.client.DataSource(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&oracletypes.QueryDataSourceRequest{
 			DataSourceId: uint64(id),
 		},
@@ -120,7 +119,7 @@ func (s *Source) GetRequestInfo(height, id int64) (oracletypes.RequestResult, er
 	}
 
 	response, err := s.client.Request(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&oracletypes.QueryRequestRequest{
 			RequestId: uint64(id),
 		},
@@ -149,7 +148,7 @@ func (s *Source) GetRequestsInfo(height int64) ([]oracletypes.RequestResult, err
 	var stop = false
 	for !stop {
 		res, err := s.client.Requests(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&oracletypes.QueryRequestsRequest{
 				Pagination: &query.PageRequest{
 					Key:   nextKey,
@@ -176,7 +175,7 @@ func (s *Source) GetOracleScriptInfo(height, id int64) (oracletypes.OracleScript
 	}
 
 	res, err := s.client.OracleScript(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&oracletypes.QueryOracleScriptRequest{
 			OracleScriptId: uint64(id),
 		},
@@ -199,7 +198,7 @@ func (s *Source) GetOracleScriptsInfo(height int64) ([]oracletypes.OracleScript,
 	var stop = false
 	for !stop {
 		res, err := s.client.OracleScripts(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&oracletypes.QueryOracleScriptsRequest{
 				Pagination: &query.PageRequest{
 					Key:   nextKey,
