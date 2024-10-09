@@ -53,18 +53,20 @@ func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) er
 }
 
 func (m *Module) handleMsgCreateNFTClass(index int, tx *juno.Transaction, msg *onfttypes.MsgCreateNFTClass) error {
-	event, err := tx.FindEventByType(index, onfttypes.EventTypeCreateNFTClass)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeCreateNFTClass: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, onfttypes.EventTypeCreateNFTClass)
+	if !has {
+		return errors.New("error while searching for EventTypeCreateNFTClass")
 	}
 
-	classID, err := tx.FindAttributeByKey(event, onfttypes.AttributeKeyClassID)
-	if err != nil {
-		return fmt.Errorf("error while searching for AttributeKeyClassID: %s", err)
+	classID, has := eventutils.FindAttributeByKey(event, onfttypes.AttributeKeyClassID)
+	if !has {
+		return errors.New("error while searching for AttributeKeyClassID")
 	}
 
 	return m.db.SaveNFTClass(&onfttypes.Class{
-		Id:          classID,
+		Id:          classID.Value,
 		Name:        msg.Name,
 		Symbol:      msg.Symbol,
 		Description: msg.Description,
