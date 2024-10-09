@@ -126,7 +126,7 @@ func (m *Module) handleMsgExecuteContract(index int, tx *juno.Transaction, _ *wa
 		return errors.New("error while searching for nft_id")
 	}
 
-	n, err := m.source.NFT(int64(tx.Height), nftID.Value, classID.Value)
+	n, err := m.source.NFT(int64(tx.Height), classID.Value, nftID.Value)
 	if err != nil {
 		return fmt.Errorf("failed to fetch nft: %s", err)
 	}
