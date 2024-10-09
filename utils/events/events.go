@@ -41,3 +41,16 @@ func FindEventsByMsgIndex(events sdk.StringEvents, msgIndex int) sdk.StringEvent
 	}
 	return res
 }
+
+func FindEventByAttribute(events sdk.StringEvents, key, attributeKey, attributeValue string) (sdk.StringEvent, bool) {
+	for _, event := range events {
+		if event.Type == key {
+			attribute, exist := FindAttributeByKey(event, attributeKey)
+			if exist && attribute.Value == attributeValue {
+				return event, true
+			}
+		}
+	}
+
+	return sdk.StringEvent{}, false
+}

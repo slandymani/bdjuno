@@ -1,12 +1,15 @@
 package nft
 
 import (
+	"errors"
 	"fmt"
 
 	"cosmossdk.io/x/nft"
 	onfttypes "github.com/ODIN-PROTOCOL/odin-core/x/onft/types"
 	wasmtypes "github.com/ODIN-PROTOCOL/wasmd/x/wasm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/callisto/v4/utils"
+	eventutils "github.com/forbole/callisto/v4/utils/events"
 	juno "github.com/forbole/juno/v6/types"
 )
 
@@ -77,18 +80,20 @@ func (m *Module) handleMsgTransferClassOwnership(tx *juno.Transaction, msg *onft
 }
 
 func (m *Module) handleMsgMintNFT(index int, tx *juno.Transaction, msg *onfttypes.MsgMintNFT) error {
-	event, err := tx.FindEventByType(index, onfttypes.EventTypeMintNFT)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeMintNFT: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, onfttypes.EventTypeMintNFT)
+	if !has {
+		return errors.New("error while searching for EventTypeMintNFT")
 	}
 
-	id, err := tx.FindAttributeByKey(event, onfttypes.AttributeKeyNFTID)
-	if err != nil {
-		return fmt.Errorf("error while searching for AttributeKeyNFTID: %s", err)
+	id, has := eventutils.FindAttributeByKey(event, onfttypes.AttributeKeyNFTID)
+	if !has {
+		return errors.New("error while searching for AttributeKeyNFTID")
 	}
 
 	return m.db.SaveNFT(&onfttypes.NFT{
-		Id:      id,
+		Id:      id.Value,
 		ClassId: msg.ClassId,
 		Uri:     msg.Uri,
 		UriHash: msg.UriHash,
@@ -101,31 +106,25 @@ func (m *Module) handleMsgSend(tx *juno.Transaction, msg *nft.MsgSend) error {
 	return m.db.ChangeNFTOwner(msg.ClassId, msg.Id, msg.Receiver, int64(tx.Height))
 }
 
-func (m *Module) handleMsgExecuteContract(index int, tx *juno.Transaction, msg *wasmtypes.MsgExecuteContract) error {
-	event, err := tx.FindEventByType(index, "wasm")
-	if err != nil {
-		return fmt.Errorf("error while searching for wasm: %s", err)
-	}
+func (m *Module) handleMsgExecuteContract(index int, tx *juno.Transaction, _ *wasmtypes.MsgExecuteContract) error {
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
 
-	action, err := tx.FindAttributeByKey(event, "action")
-	if err != nil {
-		return nil //fmt.Errorf("error while searching for action: %s", err)
-	}
-	if action != "mint_nft_success" {
+	event, has := eventutils.FindEventByAttribute(events, "wasm", "action", "mint_nft_success")
+	if !has {
 		return nil
 	}
 
-	classID, err := tx.FindAttributeByKey(event, "class_id")
-	if err != nil {
-		return fmt.Errorf("error while searching for class_id: %s", err)
+	classID, has := eventutils.FindAttributeByKey(event, "class_id")
+	if !has {
+		return errors.New("error while searching for class_id")
 	}
 
-	nftID, err := tx.FindAttributeByKey(event, "nft_id")
-	if err != nil {
-		return fmt.Errorf("error while searching for class_id: %s", err)
+	nftID, has := eventutils.FindAttributeByKey(event, "nft_id")
+	if !has {
+		return errors.New("error while searching for nft_id")
 	}
 
-	n, err := m.source.NFT(int64(tx.Height), nftID, classID)
+	n, err := m.source.NFT(int64(tx.Height), nftID.Value, classID.Value)
 	if err != nil {
 		return fmt.Errorf("failed to fetch nft: %s", err)
 	}

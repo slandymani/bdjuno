@@ -2,13 +2,16 @@ package wasm
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	wasmtypes "github.com/ODIN-PROTOCOL/wasmd/x/wasm/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/forbole/callisto/v4/types"
 	"github.com/forbole/callisto/v4/utils"
+	eventutils "github.com/forbole/callisto/v4/utils/events"
 	juno "github.com/forbole/juno/v6/types"
 )
 
@@ -91,19 +94,19 @@ func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) er
 // HandleMsgStoreCode allows to properly handle a MsgStoreCode
 // The Store Code Event is to upload the contract code on the chain, where a Code ID is returned
 func (m *Module) HandleMsgStoreCode(index int, tx *juno.Transaction, msg *wasmtypes.MsgStoreCode) error {
-	// Get store code event
-	event, err := tx.FindEventByType(index, wasmtypes.EventTypeStoreCode)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeInstantiate: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, wasmtypes.EventTypeStoreCode)
+	if !has {
+		return errors.New("error while searching for EventTypeStoreCode")
 	}
 
-	// Get code ID from store code event
-	codeIDKey, err := tx.FindAttributeByKey(event, wasmtypes.AttributeKeyCodeID)
-	if err != nil {
-		return fmt.Errorf("error while searching for AttributeKeyContractAddr: %s", err)
+	codeIDKey, has := eventutils.FindAttributeByKey(event, wasmtypes.AttributeKeyCodeID)
+	if !has {
+		return errors.New("error while searching for AttributeKeyCodeID")
 	}
 
-	codeID, err := strconv.ParseUint(codeIDKey, 10, 64)
+	codeID, err := strconv.ParseUint(codeIDKey.Value, 10, 64)
 	if err != nil {
 		return fmt.Errorf("error while parsing code id to int64: %s", err)
 	}
@@ -118,19 +121,19 @@ func (m *Module) HandleMsgStoreCode(index int, tx *juno.Transaction, msg *wasmty
 // HandleMsgInstantiateContract allows to properly handle a MsgInstantiateContract
 // Instantiate Contract Event instantiates an executable contract with the code previously stored with Store Code Event
 func (m *Module) HandleMsgInstantiateContract(index int, tx *juno.Transaction, msg *wasmtypes.MsgInstantiateContract) error {
-	// Get instantiate contract event
-	event, err := tx.FindEventByType(index, wasmtypes.EventTypeInstantiate)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeInstantiate: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, wasmtypes.EventTypeInstantiate)
+	if !has {
+		return errors.New("error while searching for EventTypeInstantiate")
 	}
 
-	// Get contract address
-	contractAddress, err := tx.FindAttributeByKey(event, wasmtypes.AttributeKeyContractAddr)
-	if err != nil {
-		return fmt.Errorf("error while searching for AttributeKeyContractAddr: %s", err)
+	contractAddress, has := eventutils.FindAttributeByKey(event, wasmtypes.AttributeKeyContractAddr)
+	if !has {
+		return errors.New("error while searching for AttributeKeyContractAddr")
 	}
 
-	err = m.db.UpdateMsgInvolvedAccountsAddresses(contractAddress, tx.TxHash)
+	err := m.db.UpdateMsgInvolvedAccountsAddresses(contractAddress.Value, tx.TxHash)
 	if err != nil {
 		return fmt.Errorf("error while saving contract address inside involved accounts addresses: %s", err)
 	}
@@ -146,7 +149,7 @@ func (m *Module) HandleMsgInstantiateContract(index int, tx *juno.Transaction, m
 	}
 
 	// Get the contract info
-	contractInfo, err := m.source.GetContractInfo(int64(tx.Height), contractAddress)
+	contractInfo, err := m.source.GetContractInfo(int64(tx.Height), contractAddress.Value)
 	if err != nil {
 		return fmt.Errorf("error while getting proposal: %s", err)
 	}
@@ -168,14 +171,14 @@ func (m *Module) HandleMsgInstantiateContract(index int, tx *juno.Transaction, m
 	}
 
 	// Get contract states
-	contractStates, err := m.source.GetContractStates(int64(tx.Height), contractAddress)
+	contractStates, err := m.source.GetContractStates(int64(tx.Height), contractAddress.Value)
 	if err != nil {
 		return fmt.Errorf("error while getting genesis contract states: %s", err)
 	}
 
 	contract := types.NewWasmContract(
 		msg.Sender, msg.Admin, msg.CodeID, msg.Label, msg.Msg, msg.Funds,
-		contractAddress, string(resultDataBz), timestamp,
+		contractAddress.Value, string(resultDataBz), timestamp,
 		contractInfo.Creator, contractInfoExt, contractStates, int64(tx.Height),
 	)
 	return m.db.SaveWasmContracts(
@@ -186,18 +189,18 @@ func (m *Module) HandleMsgInstantiateContract(index int, tx *juno.Transaction, m
 // HandleMsgExecuteContract allows to properly handle a MsgExecuteContract
 // Execute Event executes an instantiated contract
 func (m *Module) HandleMsgExecuteContract(index int, tx *juno.Transaction, msg *wasmtypes.MsgExecuteContract) error {
-	// Get Execute Contract event
-	event, err := tx.FindEventByType(index, wasmtypes.EventTypeExecute)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeExecute: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, wasmtypes.EventTypeExecute)
+	if !has {
+		return errors.New("error while searching for EventTypeExecute")
 	}
 
-	// Get result data
-	resultData, err := tx.FindAttributeByKey(event, wasmtypes.AttributeKeyResultDataHex)
-	if err != nil {
-		resultData = ""
+	resultData, has := eventutils.FindAttributeByKey(event, wasmtypes.AttributeKeyResultDataHex)
+	if !has {
+		resultData.Value = ""
 	}
-	resultDataBz, err := base64.StdEncoding.DecodeString(resultData)
+	resultDataBz, err := base64.StdEncoding.DecodeString(resultData.Value)
 	if err != nil {
 		return fmt.Errorf("error while decoding result data: %s", err)
 	}
@@ -223,18 +226,18 @@ func (m *Module) HandleMsgExecuteContract(index int, tx *juno.Transaction, msg *
 // HandleMsgMigrateContract allows to properly handle a MsgMigrateContract
 // Migrate Contract Event upgrade the contract by updating code ID generated from new Store Code Event
 func (m *Module) HandleMsgMigrateContract(index int, tx *juno.Transaction, msg *wasmtypes.MsgMigrateContract) error {
-	// Get Migrate Contract event
-	event, err := tx.FindEventByType(index, wasmtypes.EventTypeMigrate)
-	if err != nil {
-		return fmt.Errorf("error while searching for EventTypeMigrate: %s", err)
+	events := eventutils.FindEventsByMsgIndex(sdk.StringifyEvents(tx.Events), index)
+
+	event, has := eventutils.FindEventByType(events, wasmtypes.EventTypeMigrate)
+	if !has {
+		return errors.New("error while searching for EventTypeMigrate")
 	}
 
-	// Get result data
-	resultData, err := tx.FindAttributeByKey(event, wasmtypes.AttributeKeyResultDataHex)
-	if err != nil {
-		resultData = ""
+	resultData, has := eventutils.FindAttributeByKey(event, wasmtypes.AttributeKeyResultDataHex)
+	if !has {
+		resultData.Value = ""
 	}
-	resultDataBz, err := base64.StdEncoding.DecodeString(resultData)
+	resultDataBz, err := base64.StdEncoding.DecodeString(resultData.Value)
 	if err != nil {
 		return fmt.Errorf("error while decoding result data: %s", err)
 	}
