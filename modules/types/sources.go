@@ -5,6 +5,11 @@ import (
 	"os"
 
 	"cosmossdk.io/log"
+	onfttypes "github.com/ODIN-PROTOCOL/odin-core/x/onft/types"
+	wasmkeeper "github.com/ODIN-PROTOCOL/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/ODIN-PROTOCOL/wasmd/x/wasm/types"
+	onftsource "github.com/forbole/callisto/v4/modules/onft/source"
+	wasmsource "github.com/forbole/callisto/v4/modules/wasm/source"
 	"github.com/forbole/juno/v6/node/remote"
 
 	mintkeeper "github.com/ODIN-PROTOCOL/odin-core/x/mint/keeper"
@@ -37,6 +42,8 @@ import (
 	mintsource "github.com/forbole/callisto/v4/modules/mint/source"
 	localmintsource "github.com/forbole/callisto/v4/modules/mint/source/local"
 	remotemintsource "github.com/forbole/callisto/v4/modules/mint/source/remote"
+	localonftsource "github.com/forbole/callisto/v4/modules/onft/source/local"
+	remoteonftsource "github.com/forbole/callisto/v4/modules/onft/source/remote"
 	oraclesource "github.com/forbole/callisto/v4/modules/oracle/source"
 	localoraclesource "github.com/forbole/callisto/v4/modules/oracle/source/local"
 	remoteoraclesource "github.com/forbole/callisto/v4/modules/oracle/source/remote"
@@ -46,6 +53,8 @@ import (
 	stakingsource "github.com/forbole/callisto/v4/modules/staking/source"
 	localstakingsource "github.com/forbole/callisto/v4/modules/staking/source/local"
 	remotestakingsource "github.com/forbole/callisto/v4/modules/staking/source/remote"
+	localwasmsource "github.com/forbole/callisto/v4/modules/wasm/source/local"
+	remotewasmsource "github.com/forbole/callisto/v4/modules/wasm/source/remote"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 )
@@ -58,6 +67,8 @@ type Sources struct {
 	OracleSource   oraclesource.Source
 	SlashingSource slashingsource.Source
 	StakingSource  stakingsource.Source
+	WasmSource     wasmsource.Source
+	ONftSource     onftsource.Source
 }
 
 func BuildSources(nodeCfg nodeconfig.Config, cdc codec.Codec) (*Sources, error) {
@@ -93,6 +104,8 @@ func buildLocalSources(cfg *local.Details, cdc codec.Codec) (*Sources, error) {
 		OracleSource:   localoraclesource.NewSource(source, oraclekeeper.Querier{Keeper: app.OracleKeeper}),
 		SlashingSource: localslashingsource.NewSource(source, slashingtypes.QueryServer(app.SlashingKeeper)),
 		StakingSource:  localstakingsource.NewSource(source, stakingkeeper.Querier{Keeper: app.StakingKeeper}),
+		WasmSource:     localwasmsource.NewSource(source, wasmkeeper.Querier(&app.WasmKeeper)),
+		ONftSource:     localonftsource.NewSource(source, onfttypes.QueryServer(app.ONFTKeeper)),
 	}
 
 	// Mount and initialize the stores
@@ -123,5 +136,7 @@ func buildRemoteSources(cfg *remote.Details) (*Sources, error) {
 		OracleSource:   remoteoraclesource.NewSource(source, oracletypes.NewQueryClient(source.GrpcConn)),
 		SlashingSource: remoteslashingsource.NewSource(source, slashingtypes.NewQueryClient(source.GrpcConn)),
 		StakingSource:  remotestakingsource.NewSource(source, stakingtypes.NewQueryClient(source.GrpcConn)),
+		WasmSource:     remotewasmsource.NewSource(source, wasmtypes.NewQueryClient(source.GrpcConn)),
+		ONftSource:     remoteonftsource.NewSource(source, onfttypes.NewQueryClient(source.GrpcConn)),
 	}, nil
 }
