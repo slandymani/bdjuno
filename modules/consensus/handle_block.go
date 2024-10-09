@@ -49,7 +49,7 @@ func (m *Module) HandleBlock(
 
 		var blockFee int64
 		for _, tx := range txs {
-			blockFee += tx.GetFee().AmountOf("loki").Int64()
+			blockFee += tx.AuthInfo.Fee.Amount.AmountOf("loki").Int64()
 		}
 		err = m.db.SetAverageFee(blockFee, b)
 		if err != nil {
