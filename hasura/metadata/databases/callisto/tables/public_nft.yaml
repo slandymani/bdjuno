@@ -1,0 +1,27 @@
+table:
+  name: nft
+  schema: public
+object_relationships:
+  - name: nft_class
+    using:
+      manual_configuration:
+        column_mapping:
+          class_id: id
+        insertion_order: null
+        remote_table:
+          name: nft_class
+          schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - class_id
+        - uri
+        - uri_hash
+        - data
+        - owner
+        - metadata
+        - height
+      filter: {}
+    role: anonymous

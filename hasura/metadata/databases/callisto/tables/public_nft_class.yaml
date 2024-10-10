@@ -1,0 +1,27 @@
+table:
+  name: nft_class
+  schema: public
+array_relationships:
+  - name: nfts
+    using:
+      foreign_key_constraint_on:
+        column: class_id
+        table:
+          name: nft
+          schema: public
+select_permissions:
+  - permission:
+      allow_aggregations: true
+      columns:
+        - id
+        - name
+        - symbol
+        - description
+        - uri
+        - uri_hash
+        - data
+        - owner
+        - metadata
+        - height
+      filter: {}
+    role: anonymous
