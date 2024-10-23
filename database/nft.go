@@ -82,8 +82,8 @@ func (db *Db) SaveNFTs(nfts []*types.NFT, height int64) error {
 	for i, nft := range nfts {
 		metadata, _ := fetchMetadataFromIPFS(nft.Uri)
 
-		vi := i * 8
-		stmt += fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", vi+1, vi+2, vi+3, vi+4, vi+5, vi+6, vi+7, vi+8)
+		vi := i * 9
+		stmt += fmt.Sprintf("($%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d,$%d),", vi+1, vi+2, vi+3, vi+4, vi+5, vi+6, vi+7, vi+8, vi+9)
 		params = append(params, nft.Id,
 			nft.ClassId,
 			nft.Uri,

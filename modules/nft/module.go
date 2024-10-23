@@ -11,6 +11,7 @@ var (
 	_ modules.Module             = &Module{}
 	_ modules.MessageModule      = &Module{}
 	_ modules.AuthzMessageModule = &Module{}
+	_ modules.GenesisModule      = &Module{}
 )
 
 type Module struct {
