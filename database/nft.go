@@ -7,6 +7,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/forbole/callisto/v4/database/types"
 	"github.com/gabriel-vasile/mimetype"
 	shell "github.com/ipfs/go-ipfs-api"
 
@@ -70,12 +71,12 @@ func (db *Db) ChangeNFTClassOwner(classID, newOwner string, height int64) error 
 	return nil
 }
 
-func (db *Db) SaveNFT(nft *onfttypes.NFT, height int64) error {
-	return db.SaveNFTs([]*onfttypes.NFT{nft}, height)
+func (db *Db) SaveNFT(nft *types.NFT, height int64) error {
+	return db.SaveNFTs([]*types.NFT{nft}, height)
 }
 
-func (db *Db) SaveNFTs(nfts []*onfttypes.NFT, height int64) error {
-	stmt := `INSERT INTO nft(id, class_id, uri, uri_hash, data, owner, metadata, height) VALUES`
+func (db *Db) SaveNFTs(nfts []*types.NFT, height int64) error {
+	stmt := `INSERT INTO nft(id, class_id, uri, uri_hash, data, owner, metadata, mint_tx_hash, height) VALUES`
 
 	var params []interface{}
 	for i, nft := range nfts {
@@ -90,6 +91,7 @@ func (db *Db) SaveNFTs(nfts []*onfttypes.NFT, height int64) error {
 			nft.Data,
 			nft.Owner,
 			metadata,
+			nft.MintTxHash,
 			height,
 		)
 	}
@@ -102,6 +104,7 @@ ON CONFLICT (id, class_id) DO UPDATE
     	data = excluded.data,
     	owner = excluded.owner,
     	metadata = excluded.metadata,
+    	mint_tx_hash = excluded.mint_tx_hash,
     	height = excluded.height
 WHERE nft.height <= excluded.height`
 

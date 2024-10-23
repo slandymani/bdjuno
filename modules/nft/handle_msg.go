@@ -8,6 +8,7 @@ import (
 	onfttypes "github.com/ODIN-PROTOCOL/odin-core/x/onft/types"
 	wasmtypes "github.com/ODIN-PROTOCOL/wasmd/x/wasm/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	dbtypes "github.com/forbole/callisto/v4/database/types"
 	"github.com/forbole/callisto/v4/utils"
 	eventutils "github.com/forbole/callisto/v4/utils/events"
 	juno "github.com/forbole/juno/v6/types"
@@ -94,13 +95,14 @@ func (m *Module) handleMsgMintNFT(index int, tx *juno.Transaction, msg *onfttype
 		return errors.New("error while searching for AttributeKeyNFTID")
 	}
 
-	return m.db.SaveNFT(&onfttypes.NFT{
-		Id:      id.Value,
-		ClassId: msg.ClassId,
-		Uri:     msg.Uri,
-		UriHash: msg.UriHash,
-		Data:    msg.Data,
-		Owner:   msg.Sender,
+	return m.db.SaveNFT(&dbtypes.NFT{
+		Id:         id.Value,
+		ClassId:    msg.ClassId,
+		Uri:        msg.Uri,
+		UriHash:    msg.UriHash,
+		Data:       msg.Data,
+		Owner:      msg.Sender,
+		MintTxHash: tx.TxHash,
 	}, int64(tx.Height))
 }
 
@@ -131,12 +133,13 @@ func (m *Module) handleMsgExecuteContract(index int, tx *juno.Transaction, _ *wa
 		return fmt.Errorf("failed to fetch nft: %s", err)
 	}
 
-	return m.db.SaveNFT(&onfttypes.NFT{
-		Id:      n.Id,
-		ClassId: n.ClassId,
-		Uri:     n.Uri,
-		UriHash: n.UriHash,
-		Data:    n.Data,
-		Owner:   n.Owner,
+	return m.db.SaveNFT(&dbtypes.NFT{
+		Id:         n.Id,
+		ClassId:    n.ClassId,
+		Uri:        n.Uri,
+		UriHash:    n.UriHash,
+		Data:       n.Data,
+		Owner:      n.Owner,
+		MintTxHash: tx.TxHash,
 	}, int64(tx.Height))
 }

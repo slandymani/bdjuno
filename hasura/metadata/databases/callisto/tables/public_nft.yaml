@@ -22,6 +22,7 @@ select_permissions:
         - data
         - owner
         - metadata
+        - mint_tx_hash
         - height
       filter: {}
     role: anonymous
