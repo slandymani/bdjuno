@@ -51,7 +51,7 @@ array_relationships:
         schema: public
 select_permissions:
 - permission:
-    allow_aggregations: false
+    allow_aggregations: true
     columns:
     - num_txs
     - height

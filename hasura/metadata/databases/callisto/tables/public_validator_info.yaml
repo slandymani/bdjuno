@@ -10,7 +10,7 @@ object_relationships:
     foreign_key_constraint_on: consensus_address
 select_permissions:
 - permission:
-    allow_aggregations: false
+    allow_aggregations: true
     columns:
     - consensus_address
     - operator_address

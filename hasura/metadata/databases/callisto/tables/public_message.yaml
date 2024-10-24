@@ -13,7 +13,7 @@ object_relationships:
         transaction_hash: hash
 select_permissions:
 - permission:
-    allow_aggregations: false
+    allow_aggregations: true
     columns:
     - transaction_hash
     - index
