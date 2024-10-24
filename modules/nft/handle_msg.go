@@ -18,7 +18,7 @@ var msgFilter = map[string]bool{
 	"/onft.v1.MsgCreateNFTClass":           true,
 	"/onft.v1.MsgTransferClassOwnership":   true,
 	"/onft.v1.MsgMintNFT":                  true,
-	"/nft.v1beta1.MsgSend":                 true,
+	"/cosmos.nft.v1beta1.MsgSend":          true,
 	"/cosmwasm.wasm.v1.MsgExecuteContract": true,
 }
 
@@ -42,7 +42,7 @@ func (m *Module) HandleMsg(index int, msg juno.Message, tx *juno.Transaction) er
 	case "/onft.v1.MsgMintNFT":
 		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &onfttypes.MsgMintNFT{})
 		return m.handleMsgMintNFT(index, tx, cosmosMsg)
-	case "/nft.v1beta1.MsgSend":
+	case "/cosmos.nft.v1beta1.MsgSend":
 		cosmosMsg := utils.UnpackMessage(m.cdc, msg.GetBytes(), &nft.MsgSend{})
 		return m.handleMsgSend(tx, cosmosMsg)
 	case "/cosmwasm.wasm.v1.MsgExecuteContract":
