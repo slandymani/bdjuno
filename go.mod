@@ -388,5 +388,6 @@ replace (
 	github.com/ChainSafe/go-schnorrkel => github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
 	github.com/ChainSafe/go-schnorrkel/1 => github.com/ChainSafe/go-schnorrkel v1.0.0
 	github.com/cosmos/ibc-go/modules/light-clients/08-wasm => github.com/ODIN-PROTOCOL/ibc-go/modules/light-clients/08-wasm v0.1.1-0.20240722162036-ab84c6f0f48b
+	github.com/forbole/juno/v6 => github.com/ODIN-PROTOCOL/juno/v6 v6.0.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 )
